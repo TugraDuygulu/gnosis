@@ -2,6 +2,8 @@ from django.test import TestCase
 
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
+
 from core.models import (
     Program,
     Course,
@@ -98,6 +100,22 @@ class LOCalculatorTests(TestCase):
             assessment=self.midterm,
             score=85,
         )
+
+    def test_grade_above_maximum_is_rejected(self):
+        with self.assertRaises(ValidationError):
+            Grade.objects.create(
+                enrollment=self.enrollment,
+                assessment=self.project,
+                score=120,
+            )
+
+    def test_negative_grade_is_rejected(self):
+        with self.assertRaises(ValidationError):
+            Grade.objects.create(
+                enrollment=self.enrollment,
+                assessment=self.project,
+                score=-5,
+            )
 
     def test_missing_grade_is_provisional(self):
         result = calculate_lo_achievement(

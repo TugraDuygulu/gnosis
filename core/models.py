@@ -1,5 +1,6 @@
 from django.db import models
 
+from django.core.exceptions import ValidationError
 
 class Program(models.Model):
     code = models.CharField(max_length=20, unique=True)
@@ -159,6 +160,29 @@ class Grade(models.Model):
         null=True,
         blank=True,
     )
+    def clean(self):
+        super().clean()
+
+        if self.score is not None:
+            if self.score < 0:
+                raise ValidationError({
+                    "score": "A grade cannot be negative."
+                })
+
+            if self.assessment_id and self.score > self.assessment.max_score:
+                raise ValidationError({
+                    "score": "A grade cannot exceed the assessment's maximum score."
+                })
+
+        if self.enrollment_id and self.assessment_id:
+            if self.enrollment.offering_id != self.assessment.offering_id:
+                raise ValidationError(
+                    "The assessment and enrollment must belong to the same course offering."
+                )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     class Meta:
         constraints = [
