@@ -121,3 +121,106 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.student_number} — {self.offering}"
+class Assessment(models.Model):
+    offering = models.ForeignKey(
+        CourseOffering,
+        on_delete=models.PROTECT,
+        related_name="assessments",
+    )
+    name = models.CharField(max_length=100)
+    max_score = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+    )
+    course_grade_weight = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+    )
+
+    def __str__(self):
+        return f"{self.offering} — {self.name}"
+
+
+class Grade(models.Model):
+    enrollment = models.ForeignKey(
+        Enrollment,
+        on_delete=models.PROTECT,
+        related_name="grades",
+    )
+    assessment = models.ForeignKey(
+        Assessment,
+        on_delete=models.PROTECT,
+        related_name="grades",
+    )
+    score = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enrollment", "assessment"],
+                name="unique_enrollment_assessment_grade",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.enrollment} — {self.assessment.name}: {self.score}"
+
+
+class LearningOutcome(models.Model):
+    curriculum = models.ForeignKey(
+        CourseCurriculum,
+        on_delete=models.PROTECT,
+        related_name="learning_outcomes",
+    )
+    code = models.CharField(max_length=20)
+    description = models.TextField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["curriculum", "code"],
+                name="unique_learning_outcome_per_curriculum",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.curriculum.course.code} {self.code}"
+class AssessmentLOMapping(models.Model):
+    assessment = models.ForeignKey(
+        Assessment,
+        on_delete=models.PROTECT,
+        related_name="lo_mappings",
+    )
+    learning_outcome = models.ForeignKey(
+        LearningOutcome,
+        on_delete=models.PROTECT,
+        related_name="assessment_mappings",
+    )
+    weight = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["assessment", "learning_outcome"],
+                name="unique_assessment_lo_mapping",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(weight__gt=0),
+                name="positive_assessment_lo_weight",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.assessment.name} → "
+            f"{self.learning_outcome.code} ({self.weight}%)"
+        )
