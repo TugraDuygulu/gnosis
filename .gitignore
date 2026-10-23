@@ -1,0 +1,20 @@
+# Python virtual environment
+.venv/
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Local database
+db.sqlite3
+db.sqlite3-journal
+
+# IDE configuration
+.idea/
+
+# macOS
+.DS_Store
+
+# Local secrets
+.env
+.env.*
