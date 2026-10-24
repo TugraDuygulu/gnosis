@@ -16,8 +16,12 @@ from core.models import (
     Grade,
     LearningOutcome,
     AssessmentLOMapping,
+    POFramework,
+    ProgramOutcome,
+    LOPOMapping,
 )
 from core.services.lo_calculator import calculate_lo_achievement
+from core.services.po_calculator import calculate_course_po_achievement
 
 
 class LOCalculatorTests(TestCase):
@@ -209,3 +213,114 @@ class CourseOfferingValidationTests(TestCase):
                 curriculum=wrong_curriculum,
             ).exists()
         )
+class POCalculatorTests(TestCase):
+
+    def test_completed_po_achievement(self):
+        program = Program.objects.create(
+            code="CENG",
+            name="Computer Engineering",
+        )
+
+        course = Course.objects.create(
+            code="CSE311",
+            title="Software Engineering",
+            credits=4,
+        )
+
+        instructor = Instructor.objects.create(
+            full_name="Test Instructor",
+            email="po-test@example.com",
+        )
+
+        student = Student.objects.create(
+            program=program,
+            student_number="PO001",
+            full_name="Test Student",
+        )
+
+        curriculum = CourseCurriculum.objects.create(
+            course=course,
+            version_number=1,
+        )
+
+        framework = POFramework.objects.create(
+            program=program,
+            version_number=1,
+        )
+
+        po1 = ProgramOutcome.objects.create(
+            framework=framework,
+            code="PO1",
+            description="Engineering knowledge",
+        )
+
+        offering = CourseOffering.objects.create(
+            course=course,
+            curriculum=curriculum,
+            po_framework=framework,
+            instructor=instructor,
+            year=2026,
+            term="Fall",
+        )
+
+        enrollment = Enrollment.objects.create(
+            student=student,
+            offering=offering,
+        )
+
+        lo1 = LearningOutcome.objects.create(
+            curriculum=curriculum,
+            code="LO1",
+            description="Apply engineering principles",
+        )
+
+        LOPOMapping.objects.create(
+            learning_outcome=lo1,
+            program_outcome=po1,
+            strength=5,
+        )
+
+        midterm = Assessment.objects.create(
+            offering=offering,
+            name="Midterm",
+            max_score=100,
+        )
+
+        project = Assessment.objects.create(
+            offering=offering,
+            name="Project",
+            max_score=100,
+        )
+
+        AssessmentLOMapping.objects.create(
+            assessment=midterm,
+            learning_outcome=lo1,
+            weight=60,
+        )
+
+        AssessmentLOMapping.objects.create(
+            assessment=project,
+            learning_outcome=lo1,
+            weight=40,
+        )
+
+        Grade.objects.create(
+            enrollment=enrollment,
+            assessment=midterm,
+            score=85,
+        )
+
+        Grade.objects.create(
+            enrollment=enrollment,
+            assessment=project,
+            score=90,
+        )
+
+        result = calculate_course_po_achievement(
+            enrollment,
+            po1,
+        )
+
+        self.assertEqual(result["score"], Decimal("87"))
+        self.assertEqual(result["coverage"], Decimal("100"))
+        self.assertEqual(result["status"], "complete")
