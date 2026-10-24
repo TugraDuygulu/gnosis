@@ -139,6 +139,22 @@ class CourseOffering(models.Model):
             )
         ]
 
+    def clean(self):
+        super().clean()
+
+        if self.course_id and self.curriculum_id:
+            if self.course_id != self.curriculum.course_id:
+                raise ValidationError({
+                    "curriculum": (
+                        "The selected curriculum must belong "
+                        "to the offering's course."
+                    )
+                })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
     def __str__(self):
         return (
             f"{self.course.code} — "

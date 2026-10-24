@@ -166,3 +166,46 @@ class LOCalculatorTests(TestCase):
         self.assertIsNone(result["score"])
         self.assertEqual(result["coverage"], Decimal("0.00"))
         self.assertEqual(result["status"], "no_data")
+
+class CourseOfferingValidationTests(TestCase):
+
+    def test_rejects_curriculum_from_another_course(self):
+        course_a = Course.objects.create(
+            code="CSE311",
+            title="Software Engineering",
+            credits=4,
+        )
+
+        course_b = Course.objects.create(
+            code="CSE321",
+            title="Data Systems",
+            credits=4,
+        )
+
+        wrong_curriculum = CourseCurriculum.objects.create(
+            course=course_b,
+            version_number=1,
+        )
+
+        instructor = Instructor.objects.create(
+            full_name="Test Instructor",
+            email="validation@example.com",
+        )
+
+        offering = CourseOffering(
+            course=course_a,
+            curriculum=wrong_curriculum,
+            instructor=instructor,
+            year=2026,
+            term="Fall",
+        )
+
+        with self.assertRaises(ValidationError):
+            offering.save()
+
+        self.assertFalse(
+            CourseOffering.objects.filter(
+                course=course_a,
+                curriculum=wrong_curriculum,
+            ).exists()
+        )
