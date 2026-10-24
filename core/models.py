@@ -60,9 +60,49 @@ class CourseCurriculum(models.Model):
                 name="unique_course_curriculum_version",
             )
         ]
+    def __str__(self):
+        return f"{self.course.code} - Curriculum v{self.version_number}"
+
+class POFramework(models.Model):
+    program = models.ForeignKey(
+        Program,
+        on_delete=models.PROTECT,
+        related_name="po_frameworks",
+    )
+    version_number = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, default="draft")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["program", "version_number"],
+                name="unique_program_po_framework_version",
+            )
+        ]
 
     def __str__(self):
-        return f"{self.course.code} — Curriculum v{self.version_number}"
+        return f"{self.program.code} PO Framework v{self.version_number}"
+
+class ProgramOutcome(models.Model):
+    framework = models.ForeignKey(
+        POFramework,
+        on_delete=models.PROTECT,
+        related_name="program_outcomes",
+    )
+    code = models.CharField(max_length=20)
+    description = models.TextField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["framework", "code"],
+                name="unique_program_outcome_code_per_framework",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.framework} - {self.code}"
+
 class CourseOffering(models.Model):
     course = models.ForeignKey(
         Course,
@@ -247,4 +287,35 @@ class AssessmentLOMapping(models.Model):
         return (
             f"{self.assessment.name} → "
             f"{self.learning_outcome.code} ({self.weight}%)"
+        )
+class LOPOMapping(models.Model):
+    learning_outcome = models.ForeignKey(
+        LearningOutcome,
+        on_delete=models.PROTECT,
+        related_name="po_mappings",
+    )
+    program_outcome = models.ForeignKey(
+        ProgramOutcome,
+        on_delete=models.PROTECT,
+        related_name="lo_mappings",
+    )
+    strength = models.PositiveSmallIntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["learning_outcome", "program_outcome"],
+                name="unique_lo_po_mapping",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(strength__gte=1, strength__lte=5),
+                name="lo_po_strength_between_1_and_5",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.learning_outcome.code} → "
+            f"{self.program_outcome.code} "
+            f"(strength {self.strength})"
         )
