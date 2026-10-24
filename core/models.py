@@ -119,6 +119,13 @@ class CourseOffering(models.Model):
         on_delete=models.PROTECT,
         related_name="offerings",
     )
+    po_framework = models.ForeignKey(
+        "POFramework",
+        on_delete=models.PROTECT,
+        related_name="offerings",
+        null=True,
+        blank=True,
+    )
     year = models.PositiveIntegerField()
     term = models.CharField(max_length=20)
     section = models.CharField(max_length=10, default="1")
