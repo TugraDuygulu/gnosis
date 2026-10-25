@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gnosis | Academic Outcomes</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f4f6fa;
+            color: #202b3a;
+            margin: 0;
+        }
+        main {
+            max-width: 850px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        h1 { color: #234e80; }
+        section {
+            background: white;
+            border: 1px solid #e1e5eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e8ebef;
+        }
+        th { color: #526176; }
+        .muted { color: #64748b; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Gnosis</h1>
+    <p class="muted">Academic Outcome Dashboard</p>
+
+    <section>
+        <h2>{{ enrollment.student.full_name }}</h2>
+        <p>Student ID: {{ enrollment.student.student_number }}</p>
+        <p>Course: {{ enrollment.offering.course.code }}
+            — {{ enrollment.offering.course.title }}</p>
+        <p>Term: {{ enrollment.offering.term }}
+            {{ enrollment.offering.year }}</p>
+    </section>
+
+    <section>
+        <h2>Learning Outcomes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Outcome</th>
+                    <th>Score</th>
+                    <th>Coverage</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in lo_results %}
+                <tr>
+                    <td>{{ result.outcome.code }}</td>
+                    <td>
+                        {% if result.score is not None %}
+                            {{ result.score|floatformat:2 }}%
+                        {% else %}
+                            Not assessed
+                        {% endif %}
+                    </td>
+                    <td>{{ result.coverage|floatformat:2 }}%</td>
+                    <td>{{ result.status }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">No learning outcomes configured.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Program Outcomes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Outcome</th>
+                    <th>Score</th>
+                    <th>Coverage</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in po_results %}
+                <tr>
+                    <td>{{ result.outcome.code }}</td>
+                    <td>
+                        {% if result.score is not None %}
+                            {{ result.score|floatformat:2 }}%
+                        {% else %}
+                            Not assessed
+                        {% endif %}
+                    </td>
+                    <td>{{ result.coverage|floatformat:2 }}%</td>
+                    <td>{{ result.status }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">No program outcomes configured.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
