@@ -359,3 +359,79 @@ class POCalculatorTests(TestCase):
         self.assertEqual(result["score"], Decimal("51"))
         self.assertEqual(result["coverage"], Decimal("100"))
         self.assertEqual(result["status"], "complete")
+
+
+    def test_multiple_los_with_different_po_strengths(self):
+        # Reproduce the example from our dashboard.
+        curriculum = self.enrollment.offering.curriculum
+        lo1 = LearningOutcome.objects.get(
+            curriculum=curriculum, code="LO1"
+        )
+        lo2 = LearningOutcome.objects.create(
+            curriculum=curriculum,
+            code="LO2",
+            description="Apply software engineering methods",
+        )
+
+        po2 = ProgramOutcome.objects.create(
+            framework=self.po1.framework,
+            code="PO2",
+            description="Problem analysis",
+        )
+
+        # Midterm -> LO2: 40%, Project -> LO2: 100%
+        midterm = Assessment.objects.get(
+            offering=self.enrollment.offering,
+            name="Midterm",
+        )
+
+        AssessmentLOMapping.objects.create(
+            assessment=midterm,
+            learning_outcome=lo2,
+            weight=40,
+        )
+        AssessmentLOMapping.objects.create(
+            assessment=self.project,
+            learning_outcome=lo2,
+            weight=100,
+        )
+
+        # LO1 -> PO1 already exists with strength 5.
+        for lo, po, strength in [
+            (lo1, po2, 3),
+            (lo2, self.po1, 3),
+            (lo2, po2, 5),
+        ]:
+            LOPOMapping.objects.create(
+                learning_outcome=lo,
+                program_outcome=po,
+                strength=strength,
+            )
+
+        # Midterm = 85, Project = 70
+        project_grade = Grade.objects.get(
+            enrollment=self.enrollment,
+            assessment=self.project,
+        )
+        project_grade.score = 70
+        project_grade.save()
+
+        result1 = calculate_course_po_achievement(
+            self.enrollment, self.po1
+        )
+        result2 = calculate_course_po_achievement(
+            self.enrollment, po2
+        )
+
+        self.assertEqual(
+            result1["score"].quantize(Decimal("0.01")),
+            Decimal("77.23"),
+        )
+        self.assertEqual(
+            result2["score"].quantize(Decimal("0.01")),
+            Decimal("76.06"),
+        )
+
+        for result in [result1, result2]:
+            self.assertEqual(result["coverage"], Decimal("100"))
+            self.assertEqual(result["status"], "complete")
