@@ -215,7 +215,7 @@ class CourseOfferingValidationTests(TestCase):
         )
 class POCalculatorTests(TestCase):
 
-    def test_completed_po_achievement(self):
+    def setUp(self):
         program = Program.objects.create(
             code="CENG",
             name="Computer Engineering",
@@ -248,7 +248,7 @@ class POCalculatorTests(TestCase):
             version_number=1,
         )
 
-        po1 = ProgramOutcome.objects.create(
+        self.po1 = ProgramOutcome.objects.create(
             framework=framework,
             code="PO1",
             description="Engineering knowledge",
@@ -263,7 +263,7 @@ class POCalculatorTests(TestCase):
             term="Fall",
         )
 
-        enrollment = Enrollment.objects.create(
+        self.enrollment = Enrollment.objects.create(
             student=student,
             offering=offering,
         )
@@ -276,7 +276,7 @@ class POCalculatorTests(TestCase):
 
         LOPOMapping.objects.create(
             learning_outcome=lo1,
-            program_outcome=po1,
+            program_outcome=self.po1,
             strength=5,
         )
 
@@ -286,7 +286,7 @@ class POCalculatorTests(TestCase):
             max_score=100,
         )
 
-        project = Assessment.objects.create(
+        self.project = Assessment.objects.create(
             offering=offering,
             name="Project",
             max_score=100,
@@ -299,28 +299,63 @@ class POCalculatorTests(TestCase):
         )
 
         AssessmentLOMapping.objects.create(
-            assessment=project,
+            assessment=self.project,
             learning_outcome=lo1,
             weight=40,
         )
 
         Grade.objects.create(
-            enrollment=enrollment,
+            enrollment=self.enrollment,
             assessment=midterm,
             score=85,
         )
 
         Grade.objects.create(
-            enrollment=enrollment,
-            assessment=project,
+            enrollment=self.enrollment,
+            assessment=self.project,
             score=90,
         )
 
+    def test_completed_po_achievement(self):
         result = calculate_course_po_achievement(
-            enrollment,
-            po1,
+            self.enrollment,
+            self.po1,
         )
 
         self.assertEqual(result["score"], Decimal("87"))
+        self.assertEqual(result["coverage"], Decimal("100"))
+        self.assertEqual(result["status"], "complete")
+
+    def test_partial_po_achievement(self):
+        # Simulate a project that has not been graded yet.
+        Grade.objects.filter(
+            enrollment=self.enrollment,
+            assessment=self.project,
+        ).delete()
+
+        result = calculate_course_po_achievement(
+            self.enrollment,
+            self.po1,
+        )
+
+        self.assertEqual(result["score"], Decimal("85"))
+        self.assertEqual(result["coverage"], Decimal("60"))
+        self.assertEqual(result["status"], "provisional")
+
+    def test_zero_po_grade_is_not_missing(self):
+        project_grade = Grade.objects.get(
+            enrollment=self.enrollment,
+            assessment=self.project,
+        )
+
+        project_grade.score = 0
+        project_grade.save()
+
+        result = calculate_course_po_achievement(
+            self.enrollment,
+            self.po1,
+        )
+
+        self.assertEqual(result["score"], Decimal("51"))
         self.assertEqual(result["coverage"], Decimal("100"))
         self.assertEqual(result["status"], "complete")
