@@ -201,7 +201,13 @@ class Assessment(models.Model):
         decimal_places=2,
         default=0,
     )
-
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(max_score__gt=0),
+                name="positive_assessment_max_score",
+            ),
+        ]
     def __str__(self):
         return f"{self.offering} — {self.name}"
 
@@ -342,3 +348,30 @@ class LOPOMapping(models.Model):
             f"{self.program_outcome.code} "
             f"(strength {self.strength})"
         )
+
+class CoursePOContribution(models.Model):
+    curriculum = models.ForeignKey(
+        CourseCurriculum,
+        on_delete=models.PROTECT,
+        related_name="po_contributions",
+    )
+
+    program_outcome = models.ForeignKey(
+        ProgramOutcome,
+        on_delete=models.PROTECT,
+        related_name="course_contributions",
+    )
+
+    weight = models.PositiveSmallIntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["curriculum", "program_outcome"],
+                name="unique_course_po_contribution",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(weight__gte=1, weight__lte=5),
+                name="course_po_weight_between_1_and_5",
+            ),
+        ]

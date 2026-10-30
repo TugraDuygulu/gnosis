@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gnosis | Students</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f4f6fa;
+            color: #202b3a;
+            margin: 0;
+        }
+        main {
+            max-width: 960px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        section {
+            background: white;
+            border: 1px solid #e1e5eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        a { color: #234e80; }
+        li { margin: 12px 0; }
+        .muted { color: #526176; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Gnosis</h1>
+    <p>Explore what recorded grades reveal about learning.</p>
+    <p class="muted">
+        Staff workspace · Choose a student and an outcome framework.
+    </p>
+
+    {% for student in students %}
+        <section>
+            <h2>{{ student.full_name }}</h2>
+            <p class="muted">
+                {{ student.student_number }} · {{ student.program.name }}
+            </p>
+
+            <ul>
+                {% for framework in student.program.po_frameworks.all %}
+                    <li>
+                        <a href="{% url 'student_outcomes' student.pk framework.pk %}">
+                            View outcomes · Framework v{{ framework.version_number }}
+                        </a>
+                    </li>
+                {% empty %}
+                    <li>No outcome framework is configured for this program.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% empty %}
+        <section>
+            <h2>No students yet</h2>
+            <p>Add a student to start exploring their outcomes.</p>
+            <a href="{% url 'admin:core_student_add' %}">Add student</a>
+        </section>
+    {% endfor %}
+</main>
+</body>
+</html>

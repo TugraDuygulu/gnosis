@@ -67,7 +67,7 @@ def calculate_lo_achievement(enrollment, learning_outcome):
     )
 
     return {
-        "score": score.quantize(Decimal("0.01")),
-        "coverage": coverage.quantize(Decimal("0.01")),
+        "score": score,
+        "coverage": coverage,
         "status": status,
     }

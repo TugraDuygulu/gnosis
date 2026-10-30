@@ -37,6 +37,13 @@
 </head>
 <body>
 <main>
+    {% if enrollment.offering.po_framework_id %}
+    <p>
+        <a href="{% url 'student_outcomes' enrollment.student_id enrollment.offering.po_framework_id %}">
+            ← Back to student profile
+        </a>
+    </p>
+{% endif %}
     <h1>Gnosis</h1>
     <p class="muted">Academic Outcome Dashboard</p>
 
@@ -47,6 +54,11 @@
             — {{ enrollment.offering.course.title }}</p>
         <p>Term: {{ enrollment.offering.term }}
             {{ enrollment.offering.year }}</p>
+        <p>
+            <a href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">
+                Edit this student’s course grades
+            </a>
+        </p>
     </section>
 
     <section>
