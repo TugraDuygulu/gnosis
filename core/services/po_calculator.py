@@ -33,6 +33,7 @@ def calculate_course_po_achievement(enrollment, program_outcome):
     total_strength = Decimal("0")
     effective_strength_total = Decimal("0")
     weighted_score_total = Decimal("0")
+    all_complete = True
 
     for mapping in mappings:
         strength = Decimal(mapping.strength)
@@ -42,7 +43,8 @@ def calculate_course_po_achievement(enrollment, program_outcome):
             enrollment,
             mapping.learning_outcome,
         )
-
+        if lo_result["status"] != "complete":
+            all_complete = False
         if lo_result["score"] is None:
             continue
 
@@ -65,5 +67,5 @@ def calculate_course_po_achievement(enrollment, program_outcome):
     return {
         "score": score,
         "coverage": coverage,
-        "status": "complete" if coverage == Decimal("100") else "provisional",
+        "status": "complete" if all_complete else "provisional",
     }

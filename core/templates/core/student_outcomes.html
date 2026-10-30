@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ student.full_name }} | Gnosis</title>
+    <style>
+        body {
+            margin: 0;
+            background: #f4f6fa;
+            color: #202b3a;
+            font-family: system-ui, sans-serif;
+        }
+        main {
+            max-width: 960px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        section {
+            background: white;
+            border: 1px solid #e1e5eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        a { color: #234e80; }
+        summary { cursor: pointer; font-weight: 600; }
+        li { margin: 10px 0; }
+        .muted { color: #526176; }
+    </style>
+</head>
+<body>
+<main>
+    <a href="{% url 'student_list' %}">← All students</a>
+
+    <h1>{{ student.full_name }}</h1>
+    <p>{{ student.student_number }} · {{ student.program.name }}</p>
+    <p class="muted">
+        Program outcomes · Framework v{{ framework.version_number }}
+    </p>
+
+    <section>
+        <h2>Courses</h2>
+        <ul>
+            {% for enrollment in enrollments %}
+            <li>
+                <a href="{% url 'enrollment_outcomes' enrollment.pk %}">
+                    {{ enrollment.offering.course.code }} —
+                    {{ enrollment.offering.course.title }}
+                </a>
+            </li>
+            {% empty %}
+            <li>No active courses use this framework.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <h2>What your grades tell us</h2>
+    <p>
+        Achievement summarizes recorded grades.
+        Coverage measures how much configured evidence is available;
+        it is not an achievement score.
+    </p>
+
+    {% for result in po_results %}
+    <section>
+        <h3>
+            {{ result.outcome.code }} —
+            {{ result.outcome.description }}
+        </h3>
+
+        {% if result.error %}
+        <p role="alert">{{ result.error }}</p>
+        {% else %}
+
+        {% if result.score is not None %}
+        <p>
+            <strong>{{ result.score|floatformat:2 }}% achievement</strong>
+            · {{ result.coverage|floatformat:2 }}% evidence coverage
+        </p>
+        {% else %}
+        <p><strong>Not assessed yet</strong></p>
+        {% endif %}
+
+        {% if result.status == "complete" %}
+            <p class="muted">
+                All configured evidence is available.
+                This describes coverage, not a pass or mastery threshold.
+            </p>
+        {% elif result.status == "provisional" %}
+            <p class="muted">
+                Some grades are still missing. This result may change
+                as more evidence becomes available.
+            </p>
+{% else %}
+    <p class="muted">
+        There is not enough graded evidence to calculate achievement yet.
+    </p>
+{% endif %}
+
+        <details>
+            <summary>Where does this result come from?</summary>
+            <ul>
+                {% for course in result.courses %}
+                <li>
+                    {{ course.enrollment.offering.course.code }}
+                    · Weight {{ course.weight }}
+                    ·
+                    {% if course.score is not None %}
+                        {{ course.score|floatformat:2 }}% achievement
+                    {% else %}
+                        No grades available
+                    {% endif %}
+                    · {{ course.coverage|floatformat:2 }}% coverage
+                </li>
+                {% empty %}
+                <li>
+                    No contributing courses are configured
+                    for this outcome.
+                </li>
+                {% endfor %}
+            </ul>
+        </details>
+
+        {% if result.unmapped_enrollments %}
+        <p class="muted">
+            {{ result.unmapped_enrollments|length }} active course(s)
+            have no contribution mapping to this outcome and are excluded.
+            Coverage describes configured contributions only.
+        </p>
+        {% endif %}
+
+        {% endif %}
+    </section>
+    {% empty %}
+    <p>No program outcomes have been configured in this framework.</p>
+    {% endfor %}
+</main>
+</body>
+</html>

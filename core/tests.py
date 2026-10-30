@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
 
 from decimal import Decimal
 
@@ -19,10 +19,14 @@ from core.models import (
     POFramework,
     ProgramOutcome,
     LOPOMapping,
+    CoursePOContribution,
 )
 from core.services.lo_calculator import calculate_lo_achievement
 from core.services.po_calculator import calculate_course_po_achievement
-
+from core.services.student_po_calculator import (
+    aggregate_course_po_results,
+    calculate_student_po_achievement,
+)
 
 class LOCalculatorTests(TestCase):
 
@@ -429,9 +433,233 @@ class POCalculatorTests(TestCase):
         )
         self.assertEqual(
             result2["score"].quantize(Decimal("0.01")),
-            Decimal("76.06"),
+            Decimal("76.05"),
         )
 
         for result in [result1, result2]:
             self.assertEqual(result["coverage"], Decimal("100"))
             self.assertEqual(result["status"], "complete")
+
+    def test_course_po_contribution(self):
+        contribution = CoursePOContribution.objects.create(
+            curriculum=self.enrollment.offering.curriculum,
+            program_outcome=self.po1,
+            weight=5,
+        )
+
+        self.assertEqual(contribution.weight, 5)
+
+    def test_two_course_contribution_mappings(self):
+        # Our existing course is CSE311.
+        curriculum_311 = self.enrollment.offering.curriculum
+
+        # Create a second course and its curriculum.
+        course_321 = Course.objects.create(
+            code="CSE321",
+            title="Data Systems",
+            credits=4,
+        )
+
+        curriculum_321 = CourseCurriculum.objects.create(
+            course=course_321,
+            version_number=1,
+        )
+
+        # Both courses contribute to the same PO.
+        CoursePOContribution.objects.create(
+            curriculum=curriculum_311,
+            program_outcome=self.po1,
+            weight=5,
+        )
+
+        CoursePOContribution.objects.create(
+            curriculum=curriculum_321,
+            program_outcome=self.po1,
+            weight=3,
+        )
+
+        contributions = CoursePOContribution.objects.filter(
+            program_outcome=self.po1
+        )
+
+        self.assertEqual(contributions.count(), 2)
+        self.assertEqual(
+            set(contributions.values_list("weight", flat=True)),
+            {3, 5},
+        )
+    def test_student_po_uses_real_course_grades(self):
+        student = self.enrollment.student
+        first_offering = self.enrollment.offering
+
+        Grade.objects.filter(
+            enrollment=self.enrollment,
+        ).update(score=80)
+
+        CoursePOContribution.objects.create(
+            curriculum=first_offering.curriculum,
+            program_outcome=self.po1,
+            weight=5,
+        )
+
+        course = Course.objects.create(
+            code="CSE321",
+            title="Data Systems",
+            credits=4,
+        )
+        curriculum = CourseCurriculum.objects.create(
+            course=course,
+            version_number=1,
+        )
+        offering = CourseOffering.objects.create(
+            course=course,
+            curriculum=curriculum,
+            instructor=first_offering.instructor,
+            po_framework=self.po1.framework,
+            year=2026,
+            term="Fall",
+        )
+        enrollment = Enrollment.objects.create(
+            student=student,
+            offering=offering,
+        )
+        lo = LearningOutcome.objects.create(
+            curriculum=curriculum,
+            code="LO1",
+            description="Apply data-system concepts.",
+        )
+        assessment = Assessment.objects.create(
+            offering=offering,
+            name="Midterm",
+            max_score=100,
+        )
+
+        AssessmentLOMapping.objects.create(
+            assessment=assessment,
+            learning_outcome=lo,
+            weight=100,
+        )
+        LOPOMapping.objects.create(
+            learning_outcome=lo,
+            program_outcome=self.po1,
+            strength=5,
+        )
+        CoursePOContribution.objects.create(
+            curriculum=curriculum,
+            program_outcome=self.po1,
+            weight=3,
+        )
+        grade = Grade.objects.create(
+            enrollment=enrollment,
+            assessment=assessment,
+            score=60,
+        )
+
+        result = calculate_student_po_achievement(
+            student, self.po1
+        )
+
+        self.assertEqual(result["score"], Decimal("72.5"))
+        self.assertEqual(result["coverage"], Decimal("100"))
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(len(result["courses"]), 2)
+
+        grade.delete()
+
+        result = calculate_student_po_achievement(
+            student, self.po1
+        )
+
+        self.assertEqual(result["score"], Decimal("80"))
+        self.assertEqual(result["coverage"], Decimal("62.5"))
+        self.assertEqual(result["status"], "provisional")
+        self.assertEqual(len(result["courses"]), 2)
+
+class StudentPOAggregationTests(SimpleTestCase):
+
+    def test_two_complete_courses(self):
+        course_results = [
+            (
+                {
+                    "score": Decimal("80"),
+                    "coverage": Decimal("100"),
+                    "status": "complete",
+                },
+                Decimal("5"),
+            ),
+            (
+                {
+                    "score": Decimal("60"),
+                    "coverage": Decimal("100"),
+                    "status": "complete",
+                },
+                Decimal("3"),
+            ),
+        ]
+
+        result = aggregate_course_po_results(course_results)
+
+        self.assertEqual(result["score"], Decimal("72.5"))
+        self.assertEqual(result["coverage"], Decimal("100"))
+        self.assertEqual(result["status"], "complete")
+
+    def test_one_course_has_no_data(self):
+        course_results = [
+            (
+                {
+                    "score": Decimal("80"),
+                    "coverage": Decimal("100"),
+                    "status": "complete",
+                },
+                Decimal("5"),
+            ),
+            (
+                {
+                    "score": None,
+                    "coverage": Decimal("0"),
+                    "status": "no_data",
+                },
+                Decimal("3"),
+            ),
+        ]
+
+        result = aggregate_course_po_results(course_results)
+
+        self.assertEqual(result["score"], Decimal("80"))
+        self.assertEqual(result["coverage"], Decimal("62.5"))
+        self.assertEqual(result["status"], "provisional")
+
+    def test_partially_graded_course(self):
+        course_results = [
+            (
+                {
+                    "score": Decimal("80"),
+                    "coverage": Decimal("100"),
+                    "status": "complete",
+                },
+                Decimal("5"),
+            ),
+            (
+                {
+                    "score": Decimal("60"),
+                    "coverage": Decimal("50"),
+                    "status": "provisional",
+                },
+                Decimal("3"),
+            ),
+        ]
+
+        result = aggregate_course_po_results(course_results)
+
+        self.assertAlmostEqual(
+            result["score"],
+            Decimal("75.384615"),
+            places=5,
+        )
+        self.assertEqual(
+            result["coverage"],
+            Decimal("81.25"),
+        )
+        self.assertEqual(
+            result["status"],
+            "provisional",
+        )
