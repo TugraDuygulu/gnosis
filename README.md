@@ -128,3 +128,6 @@ ownership remain for team agreement.
 ## Running tests
 
 Run `python manage.py test` from the project root.
+
+See [implemented calculation policy](docs/calculation_policy.md) for the
+missing-versus-zero rules, relative weights and exact instructor examples.

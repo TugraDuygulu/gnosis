@@ -114,6 +114,49 @@ class LOCalculatorTests(TestCase):
             score=85,
         )
 
+    def set_instructor_example_grades(self):
+        midterm_grade = Grade.objects.get(
+            enrollment=self.enrollment, assessment=self.midterm,
+        )
+        midterm_grade.score = Decimal("90")
+        midterm_grade.save()
+        Grade.objects.create(
+            enrollment=self.enrollment,
+            assessment=self.project,
+            score=Decimal("80"),
+        )
+
+    def test_instructor_example_lo1_is_86(self):
+        self.set_instructor_example_grades()
+
+        result = calculate_lo_achievement(self.enrollment, self.lo1)
+
+        self.assertEqual(result["score"], Decimal("86"))
+        self.assertEqual(result["coverage"], Decimal("100"))
+        self.assertEqual(result["status"], "complete")
+
+    def test_instructor_example_lo2_preserves_precision(self):
+        self.set_instructor_example_grades()
+        lo2 = LearningOutcome.objects.create(
+            curriculum=self.lo1.curriculum,
+            code="LO2",
+            description="Instructor example with relative weights totalling 140.",
+        )
+        AssessmentLOMapping.objects.create(
+            assessment=self.midterm, learning_outcome=lo2, weight=40,
+        )
+        AssessmentLOMapping.objects.create(
+            assessment=self.project, learning_outcome=lo2, weight=100,
+        )
+
+        result = calculate_lo_achievement(self.enrollment, lo2)
+
+        # (90 * 40 + 80 * 100) / 140 = 580/7, not an early-rounded 82.
+        self.assertEqual(result["score"], Decimal("580") / Decimal("7"))
+        self.assertEqual(result["score"].quantize(Decimal("0.1")), Decimal("82.9"))
+        self.assertEqual(result["coverage"], Decimal("100"))
+        self.assertEqual(result["status"], "complete")
+
     def test_grade_above_maximum_is_rejected(self):
         with self.assertRaises(ValidationError):
             Grade.objects.create(
