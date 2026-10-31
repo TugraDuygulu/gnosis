@@ -115,8 +115,15 @@ results, evidence coverage, and native per-student course grade editing.
 
 The fictional two-course demo currently covers one PO.
 The separate representative pilot covers all eleven official POs.
-Further frontend improvements,
-REST API, CI, and external deployment are not yet implemented.
+Further frontend improvements, REST API and external deployment remain
+future work. The Django checks workflow verifies the development setup;
+successful CI results must be confirmed in GitHub Actions.
+
+## Development workflow
+
+See [development workflow and evidence](docs/development_workflow.md) for the
+issue-to-PR process, local checks and CI scope. Full-team adoption and reviewer
+ownership remain for team agreement.
 
 ## Running tests
 
