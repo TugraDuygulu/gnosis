@@ -7,6 +7,8 @@ from core.models import (
     ProgramOutcome,
     Student,
     POFramework,
+    Grade,
+    LOPOMapping,
 )
 from core.services.lo_calculator import calculate_lo_achievement
 from core.services.po_calculator import calculate_course_po_achievement
@@ -22,6 +24,22 @@ def enrollment_outcomes(request, enrollment_id):
     )
 
     offering = enrollment.offering
+    grades_by_assessment = {
+        grade.assessment_id: grade
+        for grade in Grade.objects.filter(enrollment=enrollment)
+    }
+
+    assessment_results = []
+    for assessment in offering.assessments.order_by("pk"):
+        grade = grades_by_assessment.get(assessment.pk)
+
+        assessment_results.append({
+            "assessment": assessment,
+            "score": grade.score if grade is not None else None,
+            "mappings": assessment.lo_mappings.select_related(
+                "learning_outcome"
+            ).order_by("learning_outcome__pk"),
+        })
 
     lo_results = []
     for lo in LearningOutcome.objects.filter(
@@ -42,12 +60,18 @@ def enrollment_outcomes(request, enrollment_id):
             po_results.append({
                 "outcome": po,
                 **result,
+                "mappings": LOPOMapping.objects.filter(
+                    program_outcome=po,
+                    learning_outcome__curriculum=offering.curriculum,
+                ).select_related(
+                    "learning_outcome"
+                ).order_by("learning_outcome__pk"),
             })
-
     return render(request, "core/enrollment_outcomes.html", {
         "enrollment": enrollment,
         "lo_results": lo_results,
         "po_results": po_results,
+        "assessment_results": assessment_results,
     })
 @staff_member_required
 def student_outcomes(request, student_id, framework_id):
@@ -67,7 +91,11 @@ def student_outcomes(request, student_id, framework_id):
     ).select_related("offering__course")
 
     po_results = []
-    for po in framework.program_outcomes.order_by("pk"):
+    outcomes = sorted(
+        framework.program_outcomes.all(),
+        key=lambda outcome: (len(outcome.code), outcome.code),
+    )
+    for po in outcomes:
         row = {"outcome": po}
 
         try:

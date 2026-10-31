@@ -27,6 +27,56 @@
         summary { cursor: pointer; font-weight: 600; }
         li { margin: 10px 0; }
         .muted { color: #526176; }
+        .outcome-card {
+            background: white;
+            border: 1px solid #e1e5eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+
+        .outcome-card > summary {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 20px;
+        }
+
+        .outcome-card > summary::before {
+            content: "+";
+        }
+
+        .outcome-card[open] > summary::before {
+            content: "−";
+        }
+
+        .outcome-card > summary strong {
+            min-width: 48px;
+        }
+
+        .outcome-metric {
+            font-weight: 400;
+        }
+
+        .outcome-hint {
+            margin-left: auto;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                margin: 24px auto;
+                padding: 0 12px;
+            }
+
+            .outcome-metric {
+                flex-basis: 100%;
+            }
+
+            .outcome-hint {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -63,7 +113,25 @@
     </p>
 
     {% for result in po_results %}
-    <section>
+    <details class="outcome-card">
+        <summary>
+            <strong>{{ result.outcome.code }}</strong>
+            <span class="outcome-metric">
+                {% if result.error %}
+                    Needs attention
+                {% elif result.score is not None %}
+                    {{ result.score|floatformat:2 }}% achievement
+                    · {{ result.coverage|floatformat:2 }}% evidence coverage
+                {% elif not enrollments %}
+                    No active courses
+                {% elif not result.courses %}
+                    No course contributions configured
+                {% else %}
+                    No graded evidence yet
+                {% endif %}
+            </span>
+            <span class="outcome-hint muted">Details</span>
+        </summary>
         <h3>
             {{ result.outcome.code }} —
             {{ result.outcome.description }}
@@ -78,38 +146,57 @@
             <strong>{{ result.score|floatformat:2 }}% achievement</strong>
             · {{ result.coverage|floatformat:2 }}% evidence coverage
         </p>
+        {% elif not enrollments %}
+        <p><strong>No active courses</strong></p>
+        {% elif not result.courses %}
+        <p><strong>No course contributions configured</strong></p>
         {% else %}
-        <p><strong>Not assessed yet</strong></p>
+        <p><strong>No graded evidence yet</strong></p>
         {% endif %}
 
         {% if result.status == "complete" %}
-            <p class="muted">
-                All configured evidence is available.
-                This describes coverage, not a pass or mastery threshold.
-            </p>
+        <p class="muted">
+            All configured evidence is available.
+            This describes coverage, not a pass or mastery threshold.
+        </p>
         {% elif result.status == "provisional" %}
-            <p class="muted">
-                Some grades are still missing. This result may change
-                as more evidence becomes available.
-            </p>
-{% else %}
-    <p class="muted">
-        There is not enough graded evidence to calculate achievement yet.
-    </p>
-{% endif %}
+        <p class="muted">
+            Some configured evidence is still missing.
+            Open the contributing courses below to inspect their
+            learning outcomes and recorded grades.
+        </p>
+        {% elif not enrollments %}
+        <p class="muted">
+            This student has no active courses using this framework.
+        </p>
+        {% elif not result.courses %}
+        <p class="muted">
+            None of this student's active courses is configured
+            to contribute to this outcome. Review course contribution
+            settings if evidence is expected here.
+        </p>
+        {% else %}
+        <p class="muted">
+            Contributing courses are configured, but no graded evidence
+            is available for this outcome. Open their course pages
+            to inspect assessment mappings and missing grades.
+        </p>
+        {% endif %}
 
         <details>
             <summary>Where does this result come from?</summary>
             <ul>
                 {% for course in result.courses %}
                 <li>
-                    {{ course.enrollment.offering.course.code }}
+                    <a href="{% url 'enrollment_outcomes' course.enrollment.pk %}">
+                        {{ course.enrollment.offering.course.code }}
+                    </a>
                     · Weight {{ course.weight }}
                     ·
                     {% if course.score is not None %}
                         {{ course.score|floatformat:2 }}% achievement
                     {% else %}
-                        No grades available
+                        No graded evidence for this outcome
                     {% endif %}
                     · {{ course.coverage|floatformat:2 }}% coverage
                 </li>
@@ -131,7 +218,7 @@
         {% endif %}
 
         {% endif %}
-    </section>
+    </details>
     {% empty %}
     <p>No program outcomes have been configured in this framework.</p>
     {% endfor %}

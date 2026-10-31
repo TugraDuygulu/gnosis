@@ -311,6 +311,23 @@ class AssessmentLOMapping(models.Model):
                 name="positive_assessment_lo_weight",
             ),
         ]
+    def clean(self):
+        super().clean()
+
+        if self.assessment_id and self.learning_outcome_id:
+            curriculum_id = self.assessment.offering.curriculum_id
+
+            if self.learning_outcome.curriculum_id != curriculum_id:
+                raise ValidationError({
+                    "learning_outcome": (
+                        "The learning outcome must belong to "
+                        "the assessment offering's curriculum."
+                    )
+                })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return (
