@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Grade-change history | Gnosis</title>
+    <style>
+        body { font-family: system-ui, sans-serif; color: #202b3a; background: #f4f6fa; }
+        main { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        a { color: #234e80; }
+        .table { overflow-x: auto; background: white; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e1e5eb; }
+    </style>
+</head>
+<body><main>
+    {% include 'core/workspace_nav.html' %}
+    <p><a href="{% url 'offering_detail' enrollment.offering_id %}">← Class roster</a>
+       · <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
+       {% if perms.core.change_grade %}· <a href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit course grades</a>{% endif %}</p>
+    <h1>Grade-change history</h1>
+    <p>{{ enrollment.student.full_name }} · {{ enrollment.student.student_number }}</p>
+    <p>{{ enrollment.offering }} · {{ enrollment.offering.course.title }}</p>
+    <p>Recorded changes from the native editor and Django Admin, newest first.
+       Earlier grades and script, seed or direct database writes have no recorded history here.
+       Ungraded differs from a recorded zero. Times are shown in UTC.</p>
+    {% if history %}
+    <div class="table"><table>
+        <thead><tr><th>When (UTC)</th><th>Changed by</th><th>Assessment</th><th>Previous score</th><th>New score</th><th>Action / source</th></tr></thead>
+        <tbody>{% for row in history %}
+        <tr><td>{{ row.time|date:'Y-m-d H:i:s' }}</td>
+        {% if row.unavailable %}<td colspan="5">History details unavailable.</td>
+        {% else %}
+        <td>{{ row.actor }}</td><td>{{ row.assessment }} (out of {{ row.maximum }})</td>
+        <td>{{ row.old|default_if_none:'Ungraded' }}</td><td>{{ row.new|default_if_none:'Ungraded' }}</td>
+        <td>{{ row.operation }} · {{ row.source }}</td>
+        {% endif %}</tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<p>No recorded grade changes for this enrollment.</p>{% endif %}
+    {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Newer changes</a>{% endif %}
+    {% if page.paginator.num_pages > 1 %}<p>Page {{ page.number }} of {{ page.paginator.num_pages }}</p>{% endif %}
+    {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Older changes</a>{% endif %}
+</main></body>
+</html>

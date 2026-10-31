@@ -28,6 +28,9 @@
     <p><a href="{% url 'offering_detail' enrollment.offering_id %}">← Class roster</a></p>
     <a href="{% url 'enrollment_outcomes' enrollment.pk %}">← Course evidence</a>
     <h1>Edit course grades</h1>
+    {% if perms.core.view_grade %}
+    <p><a href="{% url 'enrollment_grade_history' enrollment.pk %}">Grade-change history</a></p>
+    {% endif %}
     <p>{{ enrollment.student.full_name }} · {{ enrollment.student.student_number }}</p>
     <p>{{ enrollment.offering.course.code }} — {{ enrollment.offering.course.title }}</p>
     <p>{{ enrollment.offering.term }} {{ enrollment.offering.year }}
