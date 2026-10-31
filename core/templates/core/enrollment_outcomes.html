@@ -37,7 +37,12 @@
 </head>
 <body>
 <main>
-    {% if enrollment.offering.po_framework_id %}
+    {% include 'core/workspace_nav.html' %}
+    <p><a href="{% url 'offering_detail' enrollment.offering_id %}">← Class roster</a></p>
+    {% for message in messages %}
+        <p role="status">{{ message }}</p>
+    {% endfor %}
+    {% if enrollment.offering.po_framework_id and enrollment.offering.po_framework.program_id == enrollment.student.program_id %}
     <p>
         <a href="{% url 'student_outcomes' enrollment.student_id enrollment.offering.po_framework_id %}">
             ← Back to student profile
@@ -54,13 +59,68 @@
             — {{ enrollment.offering.course.title }}</p>
         <p>Term: {{ enrollment.offering.term }}
             {{ enrollment.offering.year }}</p>
-        <p>
-            <a href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">
-                Edit this student’s course grades
-            </a>
-        </p>
+        {% if perms.core.change_grade %}
+            <p>
+                <a href="{% url 'enrollment_grade_editor' enrollment.pk %}">
+                    Edit course grades
+                </a>
+            </p>
+            <p>
+                <a href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">
+                    Open grades in Django Admin
+                </a>
+            </p>
+        {% endif %}
     </section>
+    <section>
+        <h2>Assessment evidence</h2>
+        <p>
+            A recorded zero counts as graded evidence.
+            A missing grade does not count as zero.
+            Mapping weights are relative weights within each learning outcome.
+        </p>
 
+        <table>
+            <thead>
+                <tr>
+                    <th>Assessment</th>
+                    <th>Recorded score</th>
+                    <th>Learning outcome mappings</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in assessment_results %}
+                    <tr>
+                        <td>{{ row.assessment.name }}</td>
+                        <td>
+                            {% if row.score is not None %}
+                                {{ row.score|floatformat:2 }} /
+                                {{ row.assessment.max_score|floatformat:2 }}
+                            {% else %}
+                                No grade recorded
+                                (out of {{ row.assessment.max_score|floatformat:2 }})
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for mapping in row.mappings %}
+                                <div>
+                                    {{ mapping.learning_outcome.code }}
+                                    — {{ mapping.learning_outcome.description }}
+                                    · Weight {{ mapping.weight|floatformat:2 }}
+                                </div>
+                            {% empty %}
+                                No learning outcome mappings configured.
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No assessments configured.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
     <section>
         <h2>Learning Outcomes</h2>
         <table>
@@ -107,7 +167,23 @@
             <tbody>
                 {% for result in po_results %}
                 <tr>
-                    <td>{{ result.outcome.code }}</td>
+                    <td>
+                        {{ result.outcome.code }}
+                        <details>
+                            <summary>Contributing learning outcomes</summary>
+                            <ul>
+                                {% for mapping in result.mappings %}
+                                    <li>
+                                        {{ mapping.learning_outcome.code }}
+                                        — {{ mapping.learning_outcome.description }}
+                                        · Strength {{ mapping.strength }}/5
+                                    </li>
+                                {% empty %}
+                                    <li>No learning outcome mappings configured.</li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    </td>
                     <td>
                         {% if result.score is not None %}
                             {{ result.score|floatformat:2 }}%

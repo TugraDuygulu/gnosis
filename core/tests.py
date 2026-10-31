@@ -1,3 +1,8 @@
+from io import StringIO
+from django.core.management import call_command
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.contrib.auth.models import Permission
 from django.test import TestCase, SimpleTestCase
 
 from decimal import Decimal
@@ -663,3 +668,229 @@ class StudentPOAggregationTests(SimpleTestCase):
             result["status"],
             "provisional",
         )
+
+class PilotOutcomeTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_pilot", stdout=StringIO())
+        cls.framework = POFramework.objects.get(
+            program__code="PILOT",
+            version_number=1,
+        )
+
+    def test_representative_student_outcomes(self):
+        cases = (
+            ("PILOT001", "PO1", None, "0.00", "no_data"),
+            ("PILOT001", "PO2", "60.68", "87.50", "provisional"),
+            ("PILOT001", "PO3", "82.86", "100.00", "complete"),
+            ("PILOT001", "PO4", "0.00", "100.00", "complete"),
+            ("PILOT001", "PO5", None, "0.00", "no_data"),
+            ("PILOT002", "PO2", "75.48", "68.45", "provisional"),
+            ("PILOT002", "PO3", "70.00", "28.57", "provisional"),
+            ("PILOT002", "PO4", "80.00", "100.00", "complete"),
+            ("PILOT002", "PO5", "80.00", "100.00", "complete"),
+        )
+
+        for number, code, score, coverage, status in cases:
+            with self.subTest(student=number, outcome=code):
+                student = Student.objects.get(
+                    student_number=number,
+                )
+                outcome = ProgramOutcome.objects.get(
+                    framework=self.framework,
+                    code=code,
+                )
+                result = calculate_student_po_achievement(
+                    student, outcome
+                )
+
+                if score is None:
+                    self.assertIsNone(result["score"])
+                else:
+                    self.assertIsNotNone(result["score"])
+                    self.assertEqual(
+                        result["score"].quantize(Decimal("0.01")),
+                        Decimal(score),
+                    )
+
+                self.assertEqual(
+                    result["coverage"].quantize(Decimal("0.01")),
+                    Decimal(coverage),
+                )
+                self.assertEqual(result["status"], status)
+    def test_rerun_preserves_records_and_grade_edits(self):
+        call_command("seed_demo", stdout=StringIO())
+
+        grade = Grade.objects.get(
+            enrollment__student__student_number="PILOT001",
+            assessment__offering__course__code="PILOT321",
+            assessment__name="Lab",
+        )
+        grade.score = Decimal("35")
+        grade.save()
+
+        models = (
+            Program, POFramework, ProgramOutcome,
+            Instructor, Course, CourseCurriculum, CourseOffering,
+            LearningOutcome, Assessment, AssessmentLOMapping,
+            LOPOMapping, CoursePOContribution,
+            Student, Enrollment, Grade,
+        )
+
+        before = {
+            model: list(
+                model.objects.order_by("pk").values_list()
+            )
+            for model in models
+        }
+
+        call_command("seed_pilot", stdout=StringIO())
+
+        for model in models:
+            with self.subTest(model=model.__name__):
+                self.assertEqual(
+                    list(model.objects.order_by("pk").values_list()),
+                    before[model],
+                )
+
+        grade.refresh_from_db()
+        self.assertEqual(grade.score, Decimal("35"))
+    def test_rejects_assessment_lo_from_another_curriculum(self):
+        assessment = Assessment.objects.get(
+            offering__course__code="PILOT321",
+            offering__po_framework=self.framework,
+            name="Midterm",
+        )
+        wrong_lo = LearningOutcome.objects.get(
+            curriculum__course__code="PILOT311",
+            curriculum__version_number=1,
+            code="LO1",
+        )
+
+        with self.assertRaises(ValidationError):
+            AssessmentLOMapping.objects.create(
+                assessment=assessment,
+                learning_outcome=wrong_lo,
+                weight=100,
+            )
+    def pilot_page_urls(self):
+        enrollment = Enrollment.objects.get(
+            student__student_number="PILOT001",
+            offering__course__code="PILOT321",
+            offering__po_framework=self.framework,
+        )
+
+        return (
+            reverse("student_list"),
+            reverse(
+                "student_outcomes",
+                args=[enrollment.student_id, self.framework.pk],
+            ),
+            reverse("enrollment_outcomes", args=[enrollment.pk]),
+        )
+
+    def test_academic_pages_require_active_staff(self):
+        user_model = get_user_model()
+        users = (
+            ("anonymous", None, False),
+            (
+                "non_staff",
+                user_model.objects.create_user(
+                    username="regular",
+                    is_staff=False,
+                ),
+                False,
+            ),
+            (
+                "staff",
+                user_model.objects.create_user(
+                    username="staff",
+                    is_staff=True,
+                ),
+                True,
+            ),
+            (
+                "inactive_staff",
+                user_model.objects.create_user(
+                    username="inactive",
+                    is_staff=True,
+                    is_active=False,
+                ),
+                False,
+            ),
+        )
+
+        for label, user, allowed in users:
+            self.client.logout()
+            if user is not None:
+                self.client.force_login(user)
+
+            for url in self.pilot_page_urls():
+                with self.subTest(user=label, url=url):
+                    response = self.client.get(url)
+
+                    if allowed:
+                        self.assertEqual(response.status_code, 200)
+                    else:
+                        self.assertRedirects(
+                            response,
+                            f"{reverse('admin:login')}?next={url}",
+                            fetch_redirect_response=False,
+                        )
+    def test_grade_editing_requires_change_permission(self):
+        grade = Grade.objects.get(
+            enrollment__student__student_number="PILOT001",
+            assessment__offering__course__code="PILOT321",
+            assessment__name="Midterm",
+        )
+        permission = Permission.objects.get(
+            content_type__app_label="core",
+            content_type__model="grade",
+            codename="change_grade",
+        )
+        url = reverse("admin:core_grade_change", args=[grade.pk])
+
+        for allowed in (False, True):
+            with self.subTest(can_change_grade=allowed):
+                user = get_user_model().objects.create_user(
+                    username=f"grade_editor_{allowed}",
+                    is_staff=True,
+                )
+                if allowed:
+                    user.user_permissions.add(permission)
+
+                self.client.force_login(user)
+                page = self.client.get(
+                    reverse(
+                        "enrollment_outcomes",
+                        args=[grade.enrollment_id],
+                    )
+                )
+                edit_url = (
+                    reverse("admin:core_grade_changelist")
+                    + f"?enrollment__id__exact={grade.enrollment_id}"
+                )
+
+                self.assertEqual(page.status_code, 200)
+
+                if allowed:
+                    self.assertContains(page, edit_url)
+                else:
+                    self.assertNotContains(page, edit_url)
+                response = self.client.post(url, {
+                    "enrollment": grade.enrollment_id,
+                    "assessment": grade.assessment_id,
+                    "score": "35.00",
+                    "_save": "Save",
+                })
+
+                self.assertEqual(
+                    response.status_code,
+                    302 if allowed else 403,
+                )
+                grade.refresh_from_db()
+                self.assertEqual(
+                    grade.score,
+                    Decimal("35") if allowed else Decimal("0"),
+                )

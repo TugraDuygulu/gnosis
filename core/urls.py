@@ -2,6 +2,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("courses/", views.course_list, name="course_list"),
+    path("offerings/<int:offering_id>/", views.offering_detail, name="offering_detail"),
+    path(
+        "enrollments/<int:enrollment_id>/grades/",
+        views.enrollment_grade_editor,
+        name="enrollment_grade_editor",
+    ),
     path(
         "enrollments/<int:enrollment_id>/outcomes/",
         views.enrollment_outcomes,
