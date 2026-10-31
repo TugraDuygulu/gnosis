@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ offering.course.code }} roster | Gnosis</title>
+    <style>
+        body { margin:0; background:#f4f6fa; color:#202b3a; font-family:system-ui,sans-serif; }
+        main { max-width:960px; margin:40px auto; padding:0 20px; }
+        section { background:white; border:1px solid #e1e5eb; border-radius:12px; padding:24px; margin:20px 0; }
+        a { color:#234e80; } table { width:100%; border-collapse:collapse; }
+        th,td { text-align:left; padding:12px; border-bottom:1px solid #e8ebef; }
+        .table-scroll { overflow-x:auto; } td a { display:inline-block; margin:4px 12px 4px 0; }
+    </style>
+</head>
+<body>
+<main>
+    {% include 'core/workspace_nav.html' %}
+    <a href="{% url 'course_list' %}">← All course offerings</a>
+    <h1>{{ offering.course.code }} — {{ offering.course.title }}</h1>
+    <p>{{ offering.term }} {{ offering.year }} · Section {{ offering.section }}</p>
+    <p>Instructor: {{ offering.instructor.full_name }} · Offering status: {{ offering.status }}</p>
+    <p>Curriculum v{{ offering.curriculum.version_number }}</p>
+    <p>
+        {% if offering.po_framework %}
+            {{ offering.po_framework.program.name }} · Framework v{{ offering.po_framework.version_number }}
+        {% else %}
+            No program outcome framework assigned. Course assessment and learning outcome evidence is still available.
+        {% endif %}
+    </p>
+    <section>
+        <h2>Student roster</h2>
+        <p>All enrollments are shown with their recorded status. Student-wide outcome calculations use active enrollments only.</p>
+        {% if enrollments %}
+        <div class="table-scroll">
+        <table>
+            <thead><tr><th>Student</th><th>Enrollment status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for enrollment in enrollments %}
+                <tr>
+                    <td>{{ enrollment.student.full_name }}<br>{{ enrollment.student.student_number }}</td>
+                    <td>{{ enrollment.status }}</td>
+                    <td>
+                        <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
+                        {% if offering.po_framework_id and offering.po_framework.program_id == enrollment.student.program_id %}
+                            <a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Student outcome profile</a>
+                        {% else %}
+                            <span>No compatible student outcome profile for this offering.</span>
+                        {% endif %}
+                        {% if perms.core.change_grade %}
+                            <a href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit grades</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+            <h3>No students enrolled</h3>
+            <p>This offering has no enrollment records yet.</p>
+            {% if perms.core.add_enrollment %}
+                <a href="{% url 'admin:core_enrollment_add' %}">Manage enrollment in Django Admin</a>
+            {% else %}
+                <p>Ask an academic administrator to enroll students.</p>
+            {% endif %}
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>

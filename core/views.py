@@ -1,5 +1,15 @@
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.decorators import permission_required
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, OperationalError
+from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_http_methods
+
+from core.grade_editor import (
+    EnrollmentGradeForm, revision_token, save_grades, snapshot, STALE_MESSAGE,
+)
 
 from core.models import (
     Enrollment,
@@ -9,6 +19,7 @@ from core.models import (
     POFramework,
     Grade,
     LOPOMapping,
+    CourseOffering,
 )
 from core.services.lo_calculator import calculate_lo_achievement
 from core.services.po_calculator import calculate_course_po_achievement
@@ -124,4 +135,83 @@ def student_list(request):
 
     return render(request, "core/student_list.html", {
         "students": students,
+    })
+
+
+@staff_member_required
+@permission_required("core.change_grade", raise_exception=True)
+@require_http_methods(["GET", "POST"])
+def enrollment_grade_editor(request, enrollment_id):
+    enrollment = get_object_or_404(
+        Enrollment.objects.select_related("student", "offering__course"),
+        pk=enrollment_id,
+    )
+    assessments, grades, revision = snapshot(enrollment)
+    form = EnrollmentGradeForm(
+        assessments, grades,
+        request.POST if request.method == "POST" else None,
+        initial={"revision": revision_token(enrollment, request.user, revision)},
+    )
+    if request.method == "POST" and form.is_valid():
+        try:
+            save_grades(enrollment.pk, request.user, form)
+        except ValidationError as error:
+            form.add_error(None, error)
+        except IntegrityError:
+            form.add_error(None, STALE_MESSAGE)
+        except OperationalError as error:
+            if "locked" not in str(error).lower():
+                raise
+            form.add_error(None, "Another save is in progress. Nothing was saved. "
+                           "Reload grades and try again.")
+        else:
+            messages.success(request, "Grades saved. Outcome results are up to date.")
+            return redirect("enrollment_outcomes", enrollment_id=enrollment.pk)
+    return render(request, "core/enrollment_grade_editor.html", {
+        "enrollment": enrollment,
+        "form": form,
+        "has_assessments": bool(assessments),
+    })
+
+
+@staff_member_required
+@require_http_methods(["GET"])
+def course_list(request):
+    query = request.GET.get("q", "").strip()
+    offerings = CourseOffering.objects.select_related(
+        "course", "instructor", "po_framework__program",
+    ).annotate(
+        enrollment_count=Count("enrollments"),
+        active_count=Count("enrollments", filter=Q(enrollments__status="active")),
+    ).order_by("-year", "term", "course__code", "section", "pk")
+    if query:
+        match = (
+            Q(course__code__icontains=query) | Q(course__title__icontains=query)
+            | Q(instructor__full_name__icontains=query)
+            | Q(term__icontains=query) | Q(section__icontains=query)
+        )
+        if query.isdecimal() and len(query) <= 4:
+            match |= Q(year=int(query))
+        offerings = offerings.filter(match)
+    return render(request, "core/course_list.html", {
+        "offerings": offerings,
+        "query": query,
+    })
+
+
+@staff_member_required
+@require_http_methods(["GET"])
+def offering_detail(request, offering_id):
+    offering = get_object_or_404(
+        CourseOffering.objects.select_related(
+            "course", "instructor", "curriculum", "po_framework__program",
+        ),
+        pk=offering_id,
+    )
+    enrollments = offering.enrollments.select_related(
+        "student__program",
+    ).order_by("student__full_name", "student__student_number", "pk")
+    return render(request, "core/offering_detail.html", {
+        "offering": offering,
+        "enrollments": enrollments,
     })

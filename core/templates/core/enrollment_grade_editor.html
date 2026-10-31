@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit course grades | Gnosis</title>
+    <style>
+        body { margin: 0; background: #f4f6fa; color: #202b3a;
+               font-family: system-ui, sans-serif; }
+        main { max-width: 720px; margin: 40px auto; padding: 0 20px; }
+        section { background: white; border: 1px solid #e1e5eb;
+                  border-radius: 12px; padding: 24px; margin: 20px 0; }
+        a { color: #234e80; }
+        .field { margin: 24px 0; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; }
+        input[type=number] { box-sizing: border-box; width: 100%; max-width: 240px;
+                             padding: 10px; font: inherit; }
+        .helptext { color: #526176; display: block; margin-top: 6px; }
+        .errorlist { color: #9b1c1c; }
+        button { background: #234e80; color: white; padding: 12px 20px;
+                 border: 0; border-radius: 6px; font: inherit; cursor: pointer; }
+        .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+    </style>
+</head>
+<body>
+<main>
+    {% include 'core/workspace_nav.html' %}
+    <p><a href="{% url 'offering_detail' enrollment.offering_id %}">← Class roster</a></p>
+    <a href="{% url 'enrollment_outcomes' enrollment.pk %}">← Course evidence</a>
+    <h1>Edit course grades</h1>
+    <p>{{ enrollment.student.full_name }} · {{ enrollment.student.student_number }}</p>
+    <p>{{ enrollment.offering.course.code }} — {{ enrollment.offering.course.title }}</p>
+    <p>{{ enrollment.offering.term }} {{ enrollment.offering.year }}
+       · Section {{ enrollment.offering.section }}</p>
+    <section>
+        {% if has_assessments %}
+        <p>Enter raw assessment scores, not percentages. A recorded zero is graded
+           evidence. Leaving a score blank marks it as ungraded, including when
+           clearing a previously recorded score.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.revision }}
+            {% if form.errors %}
+                <div role="alert">
+                    <p><strong>Nothing was saved. Review the errors below.</strong></p>
+                    {{ form.non_field_errors }}
+                    {{ form.revision.errors }}
+                    <a href="{% url 'enrollment_grade_editor' enrollment.pk %}">
+                        Reload grades (discards unsaved entries)
+                    </a>
+                </div>
+            {% endif %}
+            {% for field in form.visible_fields %}
+                <div class="field">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <span class="helptext" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</span>
+                    {% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <div class="actions">
+                <button type="submit">Save grades</button>
+                <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Cancel</a>
+            </div>
+        </form>
+        {% else %}
+            <h2>No assessments configured</h2>
+            <p>This course offering has no assessments to grade yet.</p>
+            <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Return to course evidence</a>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>

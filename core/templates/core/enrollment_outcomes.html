@@ -37,7 +37,12 @@
 </head>
 <body>
 <main>
-    {% if enrollment.offering.po_framework_id %}
+    {% include 'core/workspace_nav.html' %}
+    <p><a href="{% url 'offering_detail' enrollment.offering_id %}">← Class roster</a></p>
+    {% for message in messages %}
+        <p role="status">{{ message }}</p>
+    {% endfor %}
+    {% if enrollment.offering.po_framework_id and enrollment.offering.po_framework.program_id == enrollment.student.program_id %}
     <p>
         <a href="{% url 'student_outcomes' enrollment.student_id enrollment.offering.po_framework_id %}">
             ← Back to student profile
@@ -56,8 +61,13 @@
             {{ enrollment.offering.year }}</p>
         {% if perms.core.change_grade %}
             <p>
+                <a href="{% url 'enrollment_grade_editor' enrollment.pk %}">
+                    Edit course grades
+                </a>
+            </p>
+            <p>
                 <a href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">
-                    Edit this student’s course grades
+                    Open grades in Django Admin
                 </a>
             </p>
         {% endif %}
