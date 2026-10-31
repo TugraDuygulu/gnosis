@@ -50,6 +50,9 @@
     </p>
 {% endif %}
     <h1>Gnosis</h1>
+    {% if perms.core.view_grade %}
+    <p><a href="{% url 'enrollment_grade_history' enrollment.pk %}">Grade-change history</a></p>
+    {% endif %}
     <p class="muted">Academic Outcome Dashboard</p>
 
     <section>

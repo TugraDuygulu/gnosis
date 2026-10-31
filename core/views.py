@@ -4,12 +4,14 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, OperationalError
 from django.db.models import Count, Q
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
 from core.grade_editor import (
     EnrollmentGradeForm, revision_token, save_grades, snapshot, STALE_MESSAGE,
 )
+from core.grade_history import history_entries, history_row
 
 from core.models import (
     Enrollment,
@@ -26,6 +28,21 @@ from core.services.po_calculator import calculate_course_po_achievement
 from core.services.student_po_calculator import (
     calculate_student_po_achievement,
 )
+
+@staff_member_required
+@permission_required("core.view_grade", raise_exception=True)
+@require_http_methods(["GET"])
+def enrollment_grade_history(request, enrollment_id):
+    enrollment = get_object_or_404(
+        Enrollment.objects.select_related("student", "offering__course"),
+        pk=enrollment_id,
+    )
+    page = Paginator(history_entries(enrollment.pk), 50).get_page(request.GET.get("page"))
+    return render(request, "core/enrollment_grade_history.html", {
+        "enrollment": enrollment, "page": page,
+        "history": [history_row(entry) for entry in page],
+    })
+
 
 @staff_member_required
 def enrollment_outcomes(request, enrollment_id):

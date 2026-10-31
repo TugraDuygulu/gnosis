@@ -107,6 +107,26 @@ if you want the original no-evidence example. Seed reruns preserve edits.
 The pilot uses the eleven official PO descriptions with fictional course
 mappings, students and grades.
 
+## Grade-change history
+
+Active staff with `core.view_grade` can open **Grade-change history** from a
+student's course evidence or grade editor. History is scoped to that enrollment,
+newest first, with 50 entries per page. It records actor, UTC time, assessment,
+score maximum at the time, old/new values and source. Zero is distinct from
+ungraded. Creates, changes, clears and single/bulk Admin deletions are recorded;
+unchanged saves and rejected/rolled-back writes produce no history. Existing
+Admin grade identities are read-only: clear a wrong record and create the
+correct one rather than moving it to a different enrollment or assessment.
+
+History uses Django's existing `admin.LogEntry`; no application model or
+migration is added. It starts with this feature and cannot reconstruct earlier
+scores. Only native-editor and Grade Admin writes are covered. ORM scripts,
+seeds, shell, direct SQL and future import paths require explicit integration.
+This is not an immutable audit ledger: database administrators can change logs,
+and deleting an auth user cascades to their entries. Usernames shown are current
+login names. History and grade writes share a transaction; a logging failure
+aborts the write. The existing global staff permission boundary is unchanged.
+
 ## Development Status
 
 The local v0.1 demo supports staff-only student selection,
