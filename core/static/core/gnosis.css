@@ -24,6 +24,7 @@
   --danger: #A12C2C;
   --danger-soft: #FBEAEA;
   --gray-soft: #EDF0F4;
+  --focus-ring: color-mix(in srgb, #1F3A68 45%, transparent);
 
   --hatch: repeating-linear-gradient(-45deg, #C3CBD7 0 1.5px, transparent 1.5px 5px);
   --scale: linear-gradient(90deg, #A63D3D 0%, #C2652A 40%, #C08A2B 60%, #7D8B35 75%, #3E7B55 85%, #2D6A4F 100%);
@@ -40,7 +41,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 
 a { color: var(--navy); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
 button, input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: 3px solid color-mix(in srgb, var(--navy) 45%, transparent); outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; border-radius: 6px; }
+/* Buttons reset with `all: unset` lose the global ring; give it back explicitly. */
+.info > button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.side :focus-visible, .side .me button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 h1, h2, h3 { font-family: var(--serif); letter-spacing: -0.01em; }
 .num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
@@ -71,7 +75,7 @@ svg.i { width: 18px; height: 18px; flex: none; }
 
 .topline { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; height: 64px; padding: 0 36px; background: color-mix(in srgb, var(--bg) 82%, #fff); border-bottom: 1px solid var(--border); }
 .search { display: flex; align-items: center; gap: 10px; width: min(440px, 100%); height: 40px; padding: 0 12px; margin: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--faint); }
-.search:focus-within { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-soft); }
+.search:focus-within { border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus-ring); }
 .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: var(--text); }
 .kbd { font: 700 11px/1 var(--sans); border: 1px solid var(--border-strong); border-radius: 5px; padding: 3px 6px; color: var(--muted); }
 .main { width: 100%; max-width: 1260px; padding: 24px 36px 72px; }
@@ -290,7 +294,7 @@ table.list { width: 100%; border-collapse: collapse; }
 .form-body p { margin: 0 0 18px; }
 .form-body label { display: block; margin-bottom: 6px; font-weight: 700; }
 .form-body input:not([type=hidden]), .form-body select { width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); }
-.form-body input:focus, .form-body select:focus { outline: 0; border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-soft); }
+.form-body input:focus, .form-body select:focus { outline: 0; border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus-ring); }
 .form-body .helptext { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
 .errorlist { margin: 6px 0 0; padding: 0; list-style: none; color: var(--danger); font-size: 14.5px; font-weight: 600; }
 .form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
@@ -304,7 +308,7 @@ table.list { width: 100%; border-collapse: collapse; }
 .entry { display: flex; align-items: center; gap: 10px; }
 .entry input { width: 124px; height: 44px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; text-align: right; transition: border-color 120ms, box-shadow 120ms; }
 .entry input:hover { border-color: var(--faint); }
-.entry input:focus { outline: 0; border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-soft); }
+.entry input:focus { outline: 0; border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus-ring); }
 .entry input:placeholder-shown { background: var(--hatch), var(--subtle); border-style: dashed; }
 .entry input::placeholder { color: var(--muted); font-weight: 600; font-size: 14px; text-align: left; }
 .entry input.changed { border-color: var(--navy); background: #F6F8FD; }
