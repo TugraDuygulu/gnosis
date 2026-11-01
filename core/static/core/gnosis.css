@@ -341,7 +341,9 @@ table.list { width: 100%; border-collapse: collapse; }
   .side { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px; padding: 10px 16px; }
   .side .brand { padding: 0 10px 0 0; }
   .side nav { display: flex; flex-wrap: wrap; gap: 4px; }
-  .side .group, .side .me { display: none; }
+  .side .group { display: none; }
+  .side .me { margin: 0 0 0 auto; padding: 0; border-top: 0; }
+  .side .me b { display: none; }
   .bars { grid-template-columns: repeat(var(--n, 11), 44px); overflow-x: auto; padding-bottom: 4px; }
   .bars .tip { display: none !important; }
   .topline, .main { padding-left: 16px; padding-right: 16px; }
