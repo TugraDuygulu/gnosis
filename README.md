@@ -153,9 +153,11 @@ aborts the write. The existing global staff permission boundary is unchanged.
 
 ## Development Status
 
-The local v0.1 demo supports staff-only student selection,
-assessment-to-LO calculations, course and student-wide PO
-results, evidence coverage, and native per-student course grade editing.
+Gnosis v0.1 supports native student registration and compatible course
+enrollment, staff student/course navigation, assessment-to-LO calculations,
+course and student-wide PO results, evidence coverage, native grade editing
+and grade-change history. The owner-approved scope is a local staff application;
+academic configuration remains in Django Admin.
 
 The fictional two-course demo currently covers one PO.
 The separate representative pilot covers all eleven official POs.

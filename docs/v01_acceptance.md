@@ -3,7 +3,9 @@
 Scope: a local staff application using existing configured academic data.
 This is a product acceptance checklist, not completion of the CSE311/CSE321
 reports, institutional approval of fictional mappings or a deployed service.
-Final acceptance remains with the project owner after review and merge.
+The project owner reviewed and approved this v0.1 staff workflow on November 1,
+2026. PR #19 records CI and merge evidence; the Work → Chat handoff records the
+final source checkpoint. This is owner acceptance, not full-team sign-off.
 
 ## Reproduce
 
@@ -57,7 +59,8 @@ fictional students, offerings, mappings and grades.
   35 → 40 and cleared it, confirming recalculation and actor/time/value history.
   Duplicate registration retained input and saved nothing; existing enrollment
   was removed from choices. This is assistant verification, not teammate review.
-  Changes are uncommitted pending owner review; no feature CI or merge claimed.
+  The owner subsequently approved commit/push/PR and merge after successful CI.
+  See PR #19 for the current CI and merge result.
 
 ## Limits and remaining work
 
