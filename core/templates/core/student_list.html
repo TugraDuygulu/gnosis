@@ -1,12 +1,11 @@
 {% extends "core/base.html" %}
 {% load gnosis_ui %}
 {% block title %}Students{% endblock %}
-{% block topsearch %}<span class="muted">Staff workspace</span>{% endblock %}
 {% block content %}
 <div class="page-title">
     <div>
         <h1>Students</h1>
-        <p>Explore what recorded grades reveal about learning. Open a student to see their program outcome results.</p>
+        <p>Open a student to see their grades and PO scores.</p>
     </div>
     {% if perms.core.add_student %}
     <div class="actions"><a class="btn btn-primary" href="{% url 'student_register' %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Register student</a></div>
@@ -15,19 +14,13 @@
 
 <section class="panel">
     <div class="toolbar">
-        <form class="search" method="get" role="search">
-            <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
-            <label class="sr-only" for="student-query">Find a student</label>
-            <input id="student-query" name="q" type="search" value="{{ query }}" placeholder="Name, student number or program" data-search>
-            <span class="kbd" aria-hidden="true">/</span>
-        </form>
-        {% if query %}<a href="{% url 'student_list' %}">Clear search</a>{% endif %}
+        {% if query %}<span>Results for “{{ query }}”</span><a href="{% url 'student_list' %}">Clear search</a>{% else %}<span class="muted">Everyone in the system, A to Z</span>{% endif %}
         <span class="count">{{ students|length }} student{{ students|length|pluralize }}</span>
     </div>
     {% if students %}
     <div class="table-scroll">
         <table class="list">
-            <thead><tr><th>Student</th><th>Program</th><th class="r">Active courses</th><th>Outcome profile</th></tr></thead>
+            <thead><tr><th>Student</th><th>Program</th><th class="r">Active courses</th><th>PO scores</th></tr></thead>
             <tbody>
             {% for student in students %}
                 <tr>
@@ -42,9 +35,9 @@
                     <td>
                         <div class="link-list">
                         {% for framework in student.program.po_frameworks.all %}
-                            <a href="{% url 'student_outcomes' student.pk framework.pk %}">View outcomes · Framework v{{ framework.version_number }}</a>
+                            <a href="{% url 'student_outcomes' student.pk framework.pk %}">Framework v{{ framework.version_number }} →</a>
                         {% empty %}
-                            <span class="muted">No outcome framework is configured for this program.</span>
+                            <span class="muted">No framework for this program</span>
                         {% endfor %}
                         </div>
                     </td>
@@ -57,14 +50,14 @@
     <div class="empty">
         {% if query %}
             <h2>No matching students</h2>
-            <p>Try another name, student number or program.</p>
+            <p>Check the spelling, or search by student number.</p>
         {% else %}
             <h2>No students yet</h2>
-            <p>Add a student to start exploring their outcomes.</p>
+            <p>Register a student to get started.</p>
             {% if perms.core.add_student %}
                 <a class="btn btn-primary" href="{% url 'student_register' %}">Register the first student</a>
             {% else %}
-                <p>Ask authorized staff to register a student.</p>
+                <p>Ask someone with permission to register students.</p>
             {% endif %}
         {% endif %}
     </div>

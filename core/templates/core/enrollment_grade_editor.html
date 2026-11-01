@@ -54,7 +54,7 @@
             </div>
             {% endfor %}
             <div class="savebar">
-                <span class="pending" data-pending>All grades save together.</span>
+                <span class="pending" data-pending>No changes yet</span>
                 <span class="sp">
                     <a class="btn btn-ghost" href="{% url 'enrollment_outcomes' enrollment.pk %}">Cancel</a>
                     <button class="btn btn-primary" type="submit">Save grades</button>
@@ -64,18 +64,18 @@
         {% else %}
         <div class="empty">
             <h2>No assessments configured</h2>
-            <p>This course offering has no assessments to grade yet.</p>
+            <p>Assessments are added to a class in Django Admin.</p>
             <a class="btn btn-ghost" href="{% url 'enrollment_outcomes' enrollment.pk %}">Return to course evidence</a>
         </div>
         {% endif %}
     </section>
 
     <aside class="panel">
-        <div class="panel-head"><h2>How grades count</h2></div>
+        <div class="panel-head"><h2>Good to know</h2></div>
         <div class="rules">
-            <div class="rule"><span class="ex blank"></span><span><b>Blank</b> means ungraded. It is left out of results, never counted as zero. Clearing a score makes it ungraded again.</span></div>
-            <div class="rule"><span class="ex">0</span><span><b>0</b> is a recorded grade and counts as evidence.</span></div>
-            <div class="rule"><span class="ex ok" aria-hidden="true">✓</span><span>All scores save together. If the page is out of date, nothing is saved and you can reload.</span></div>
+            <div class="rule"><span class="ex blank"></span><span><b>Blank</b> means not graded yet. It’s left out of scores, not counted as 0.</span></div>
+            <div class="rule"><span class="ex">0</span><span><b>0</b> is a real grade and counts.</span></div>
+            <div class="rule"><span class="ex ok" aria-hidden="true">✓</span><span>Everything saves at once. If someone changed these grades meanwhile, nothing is saved and you can reload.</span></div>
         </div>
     </aside>
 </div>

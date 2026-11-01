@@ -1,29 +1,30 @@
 {% extends "core/base.html" %}
 {% block title %}Course offerings{% endblock %}
-{% block topsearch %}<span class="muted">Staff workspace</span>{% endblock %}
+{% block topsearch %}
+<form class="search" method="get" role="search">
+    <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+    <label class="sr-only" for="course-query">Find a class</label>
+    <input id="course-query" name="q" type="search" value="{{ query }}" placeholder="Search by course, instructor, term or year" data-search>
+    <span class="kbd" aria-hidden="true">/</span>
+</form>
+{% endblock %}
 {% block content %}
 <div class="page-title">
     <div>
-        <h1>Course offerings</h1>
-        <p>Choose a class to see its roster, assessment evidence and grade editor.</p>
+        <h1>Courses</h1>
+        <p>Open a class to see its roster and enter grades.</p>
     </div>
 </div>
 
 <section class="panel">
     <div class="toolbar">
-        <form class="search" method="get" role="search">
-            <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
-            <label class="sr-only" for="course-query">Find a class</label>
-            <input id="course-query" name="q" type="search" value="{{ query }}" placeholder="Course, instructor, term, year or section" data-search>
-            <span class="kbd" aria-hidden="true">/</span>
-        </form>
-        {% if query %}<a href="{% url 'course_list' %}">Clear search</a>{% endif %}
+        {% if query %}<span>Results for “{{ query }}”</span><a href="{% url 'course_list' %}">Clear search</a>{% else %}<span class="muted">Newest term first</span>{% endif %}
         <span class="count">{{ offerings|length }} offering{{ offerings|length|pluralize }}</span>
     </div>
     {% if offerings %}
     <div class="table-scroll">
         <table class="list">
-            <thead><tr><th>Course</th><th>Term</th><th>Instructor</th><th class="r">Students</th><th>Outcome framework</th><th>Status</th></tr></thead>
+            <thead><tr><th>Course</th><th>Term</th><th>Instructor</th><th class="r">Students</th><th>Framework</th><th>Status</th></tr></thead>
             <tbody>
             {% for offering in offerings %}
                 <tr>
@@ -35,7 +36,7 @@
                         {% if offering.po_framework %}
                             Framework v{{ offering.po_framework.version_number }}<span class="sub">{{ offering.po_framework.program.name }}</span>
                         {% else %}
-                            <span class="muted">No program outcome framework assigned.</span>
+                            <span class="muted">None assigned</span>
                         {% endif %}
                     </td>
                     <td><span class="status-tag">{{ offering.status }}</span></td>
@@ -48,14 +49,14 @@
     <div class="empty">
         {% if query %}
             <h2>No matching course offerings</h2>
-            <p>Try another course code, title, instructor, term, year or section.</p>
+            <p>Try a course code, instructor, term or year.</p>
         {% else %}
             <h2>No course offerings yet</h2>
-            <p>A course offering represents a class in a specific term and section.</p>
+            <p>Each class (a course in a given term and section) is set up in Django Admin.</p>
             {% if perms.core.add_courseoffering %}
                 <a class="btn btn-primary" href="{% url 'admin:core_courseoffering_add' %}">Add a course offering</a>
             {% else %}
-                <p>Ask an academic administrator to configure a course offering.</p>
+                <p>Ask an admin to set one up.</p>
             {% endif %}
         {% endif %}
     </div>

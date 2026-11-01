@@ -9,7 +9,7 @@
 <div class="page-title">
     <div>
         <h1>{{ page_title }}</h1>
-        {% if student %}<p>{{ student.full_name }} · {{ student.student_number }} · {{ student.program }}</p>{% endif %}
+        {% if student %}<ul class="meta-list"><li>{{ student.full_name }}</li><li class="num">{{ student.student_number }}</li><li>{{ student.program }}</li></ul>{% endif %}
     </div>
 </div>
 

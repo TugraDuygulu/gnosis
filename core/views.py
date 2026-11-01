@@ -86,13 +86,13 @@ def student_register(request):
                 raise
             form.add_error(None, "Another save is in progress. Nothing was saved. Try again.")
         else:
-            messages.success(request, "Student registered. You can now enroll them in a course offering.")
+            messages.success(request, "Student registered. Next, enroll them in a class.")
             return redirect("student_detail", student_id=student.pk)
     return render(request, "core/intake_form.html", {
         "form": form, "page_title": "Register student", "submit_label": "Register student",
         "cancel_url": "student_list", "has_choices": form.fields["program"].queryset.exists(),
-        "intro": "Create an academic student record. This does not create a login account.",
-        "empty_message": "No programs configured. Ask an administrator to set up a program first.",
+        "intro": "Adds the student to Gnosis. It doesn’t create a login for them.",
+        "empty_message": "No programs configured yet. Ask an admin to add one in Django Admin.",
     })
 
 
@@ -136,9 +136,9 @@ def student_enroll(request, student_id):
         "form": form, "student": student, "page_title": "Enroll student",
         "submit_label": "Enroll student", "cancel_url": "student_detail",
         "has_choices": form.fields["offering"].queryset.exists(),
-        "intro": "Choose an existing offering with a framework for this student's program. Enrollment will be active.",
-        "empty_message": "No eligible offerings. Existing enrollments and repeated active courses are excluded. "
-                         "Ask an administrator to configure a same-program framework and matching course curriculum if needed.",
+        "intro": "Pick a class for this student. Only classes that use their program’s framework are listed.",
+        "empty_message": "No eligible offerings. Classes the student is already taking aren’t listed, "
+                         "and a class must use a framework from the student’s program.",
     })
 
 
@@ -363,7 +363,7 @@ def enrollment_grade_editor(request, enrollment_id):
             form.add_error(None, "Another save is in progress. Nothing was saved. "
                            "Reload grades and try again.")
         else:
-            messages.success(request, "Grades saved. Outcome results are up to date.")
+            messages.success(request, "Grades saved. Scores are updated.")
             return redirect("enrollment_outcomes", enrollment_id=enrollment.pk)
     feeds = {}
     for mapping in AssessmentLOMapping.objects.filter(

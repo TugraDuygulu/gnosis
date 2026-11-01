@@ -23,11 +23,7 @@
 </div>
 
 <section class="panel">
-    <p class="panel-note lead">
-        Recorded changes from the native editor and Django Admin, newest first.
-        Earlier grades and script, seed or direct database writes have no recorded history here.
-        Ungraded differs from a recorded zero. Times are shown in UTC.
-    </p>
+    <p class="panel-note lead">Newest first. Times are in UTC. Grades entered before history tracking started, or by scripts, aren’t listed.</p>
     {% if history %}
     <div class="table-scroll">
         <table class="list">
@@ -53,7 +49,7 @@
     {% else %}
     <div class="empty">
         <h2>No grade changes yet</h2>
-        <p>No recorded grade changes for this enrollment. Changes saved in the grade editor or Django Admin will appear here.</p>
+        <p>No recorded grade changes for this enrollment. Changes made in the grade editor or Django Admin show up here.</p>
     </div>
     {% endif %}
     {% if page.paginator.num_pages > 1 %}

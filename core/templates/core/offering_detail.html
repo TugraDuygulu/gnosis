@@ -16,13 +16,12 @@
     </div>
 </div>
 {% if not offering.po_framework %}
-    <div class="notice notice-info"><p>No program outcome framework assigned. Course assessment and learning outcome evidence is still available.</p></div>
+    <div class="notice notice-info"><p>No program outcome framework assigned. Grades and LO scores still work; PO scores need a framework.</p></div>
 {% endif %}
 
 <section class="panel">
     <div class="panel-head"><h2>Student roster</h2>{% if enrollments %}<span class="hint">{{ enrollments|length }} student{{ enrollments|length|pluralize }}, {{ assessment_total }} assessment{{ assessment_total|pluralize }} each</span>{% endif %}</div>
-    <p class="panel-note">All enrollments are shown with their recorded status. Student-wide outcome calculations use active enrollments only.</p>
-    {% if enrollments %}
+        {% if enrollments %}
     <div class="table-scroll">
         <table class="list">
             <thead><tr><th>Student</th><th>Status</th><th>Grades entered</th><th>Actions</th></tr></thead>
@@ -61,11 +60,11 @@
     {% else %}
     <div class="empty">
         <h3>No students enrolled</h3>
-        <p>This offering has no enrollment records yet.</p>
+        <p>Students are enrolled from their student record.</p>
         {% if perms.core.add_enrollment %}
             <a class="btn btn-ghost" href="{% url 'student_list' %}">Choose a student to enroll</a>
         {% else %}
-            <p>Ask an academic administrator to enroll students.</p>
+            <p>Ask someone with permission to enroll students.</p>
         {% endif %}
     </div>
     {% endif %}

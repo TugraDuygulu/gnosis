@@ -17,7 +17,7 @@
 <div class="cols">
     <section class="panel">
         <div class="panel-head"><h2>Course enrollments</h2></div>
-        <p class="panel-note">All recorded statuses are shown; student-wide results use active enrollments only.</p>
+        <p class="panel-note">Only active enrollments count toward PO scores.</p>
         {% if enrollments %}
         <div class="table-scroll">
             <table class="list">
@@ -43,18 +43,18 @@
         {% else %}
         <div class="empty">
             <h3>No course enrollments yet</h3>
-            <p>No course enrollments yet. Enroll in an existing offering to begin recording evidence.</p>
+            <p>Enroll the student in a class to start recording grades.</p>
         </div>
         {% endif %}
     </section>
 
     <aside class="side-col">
         <section class="panel">
-            <div class="panel-head"><h2>Student outcome profiles</h2></div>
+            <div class="panel-head"><h2>PO scores</h2></div>
             {% for framework in frameworks %}
                 <a class="course" href="{% url 'student_outcomes' student.pk framework.pk %}"><span class="top"><b>View outcomes · Framework v{{ framework.version_number }}</b><span aria-hidden="true">→</span></span><span class="meta">Program outcome results across active courses</span></a>
             {% empty %}
-                <p class="panel-note">No outcome framework configured for this program.</p>
+                <p class="panel-note">No outcome framework configured for this program yet.</p>
             {% endfor %}
         </section>
     </aside>

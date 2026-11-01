@@ -60,7 +60,7 @@
             <form class="search" method="get" action="{% url 'student_list' %}" role="search">
                 <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
                 <label class="sr-only" for="global-search">Search students</label>
-                <input id="global-search" name="q" type="search" placeholder="Search students by name, number or program" data-search>
+                <input id="global-search" name="q" type="search" value="{% if name == 'student_list' %}{{ query }}{% endif %}" placeholder="Search students by name, number or program" data-search>
                 <span class="kbd" aria-hidden="true">/</span>
             </form>
             {% endblock %}
