@@ -11,7 +11,10 @@
 <div class="page-title">
     <div>
         <h1>Grade-change history</h1>
-        <p>{{ student.full_name }} · <span class="num">{{ student.student_number }}</span> · {{ offering }} · {{ offering.course.title }}</p>
+        <ul class="meta-list">
+            <li>{{ student.full_name }}</li><li class="num">{{ student.student_number }}</li>
+            <li>{{ offering.course.code }} {{ offering.course.title }}</li><li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
+        </ul>
     </div>
     <div class="actions">
         <a class="btn btn-ghost" href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>

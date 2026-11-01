@@ -20,11 +20,11 @@
                 {% endfor %}
             </nav>
         </div>
-        <div class="summary">
-            <b>{{ scored_count }} of {{ po_results|length }}</b> outcomes have a result
-            {% if attention %} · <span class="warn">{{ attention|length }} grade{{ attention|length|pluralize }} missing</span>{% endif %}
-            · <b>{{ enrollments|length }}</b> active course{{ enrollments|length|pluralize }}
-        </div>
+        <ul class="meta-list summary">
+            <li><b>{{ scored_count }} of {{ po_results|length }}</b>&nbsp;outcomes have a result</li>
+            {% if attention %}<li class="warn">{{ attention|length }} grade{{ attention|length|pluralize }} missing</li>{% endif %}
+            <li><b>{{ enrollments|length }}</b>&nbsp;active course{{ enrollments|length|pluralize }}</li>
+        </ul>
     </div>
     <div class="actions">
         <a class="btn btn-ghost" href="{% url 'student_detail' student.pk %}">Student record</a>

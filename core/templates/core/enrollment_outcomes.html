@@ -12,12 +12,18 @@
     <span class="avatar">{{ student.full_name|initials }}</span>
     <div>
         <h1>{{ student.full_name }}</h1>
-        <div class="sub"><span class="tag num">{{ student.student_number }}</span><span>{{ offering.course.code }} {{ offering.course.title }} · {{ offering.term }} {{ offering.year }} · Section {{ offering.section }}</span></div>
-        <div class="summary"><b>{{ graded_count }} of {{ assessment_results|length }}</b> grades entered{% if missing %} · <span class="warn">{{ missing|length }} missing</span>{% endif %}
+        <ul class="meta-list">
+            <li class="tag num">{{ student.student_number }}</li>
+            <li>{{ offering.course.code }} {{ offering.course.title }}</li>
+            <li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
+        </ul>
+        <ul class="meta-list summary">
+            <li><b>{{ graded_count }} of {{ assessment_results|length }}</b>&nbsp;grades entered</li>
+            {% if missing %}<li class="warn">{{ missing|length }} missing</li>{% endif %}
             {% if offering.po_framework_id and offering.po_framework.program_id == student.program_id %}
-                · <a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Program outcome profile →</a>
+                <li><a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Program outcome profile →</a></li>
             {% endif %}
-        </div>
+        </ul>
     </div>
     <div class="actions">
         {% if perms.core.view_grade %}

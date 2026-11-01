@@ -391,3 +391,12 @@ table.list { width: 100%; border-collapse: collapse; }
 /* Row actions: one button for the main task, quiet links for the rest. */
 .row-actions { display: flex; flex-wrap: nowrap; white-space: nowrap; align-items: center; gap: 6px 16px; }
 .row-actions > a:not(.btn) { font-size: 14.5px; }
+
+/* Meta lists: separate facts drawn as items, separators drawn by CSS. */
+.meta-list { display: flex; flex-wrap: wrap; align-items: center; row-gap: 6px; margin: 6px 0 0; padding: 0; list-style: none; color: var(--muted); }
+.meta-list > li { display: inline-flex; align-items: center; }
+.meta-list > li + li::before { content: ""; width: 4px; height: 4px; margin: 0 10px; border-radius: 50%; background: var(--border-strong); }
+.meta-list > li.tag + li::before { display: none; }
+.meta-list > li.tag { margin-right: 10px; }
+.meta-list.summary { color: var(--text); }
+.meta-list .warn { color: var(--alert); font-weight: 700; }

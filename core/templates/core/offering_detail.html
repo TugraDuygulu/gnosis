@@ -6,17 +6,21 @@
 <div class="page-title">
     <div>
         <h1>{{ offering.course.code }} — {{ offering.course.title }}</h1>
-        <p>{{ offering.term }} {{ offering.year }} · Section {{ offering.section }} · Instructor: {{ offering.instructor.full_name }} · Curriculum v{{ offering.curriculum.version_number }} · <span class="pill status">{{ offering.status }}</span></p>
+        <ul class="meta-list">
+            <li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
+            <li>Instructor: {{ offering.instructor.full_name }}</li>
+            <li>Curriculum v{{ offering.curriculum.version_number }}</li>
+            {% if offering.po_framework %}<li>{{ offering.po_framework.program.name }}, Framework v{{ offering.po_framework.version_number }}</li>{% endif %}
+            <li><span class="pill status">{{ offering.status }}</span></li>
+        </ul>
     </div>
 </div>
-{% if offering.po_framework %}
-    <p class="muted" style="margin:-10px 0 20px">{{ offering.po_framework.program.name }} · Framework v{{ offering.po_framework.version_number }}</p>
-{% else %}
+{% if not offering.po_framework %}
     <div class="notice notice-info"><p>No program outcome framework assigned. Course assessment and learning outcome evidence is still available.</p></div>
 {% endif %}
 
 <section class="panel">
-    <div class="panel-head"><h2>Student roster</h2>{% if enrollments %}<span class="hint">{{ enrollments|length }} student{{ enrollments|length|pluralize }} · {{ assessment_total }} assessment{{ assessment_total|pluralize }}</span>{% endif %}</div>
+    <div class="panel-head"><h2>Student roster</h2>{% if enrollments %}<span class="hint">{{ enrollments|length }} student{{ enrollments|length|pluralize }}, {{ assessment_total }} assessment{{ assessment_total|pluralize }} each</span>{% endif %}</div>
     <p class="panel-note">All enrollments are shown with their recorded status. Student-wide outcome calculations use active enrollments only.</p>
     {% if enrollments %}
     <div class="table-scroll">
