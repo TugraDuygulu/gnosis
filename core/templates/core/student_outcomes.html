@@ -132,7 +132,7 @@
                                 <span class="p sc" {% if course.score is not None %}style="--t:{{ course.score|score_text }}"{% endif %}>{% if course.score is not None %}{{ course.score|floatformat:2 }}%{% else %}–{% endif %}</span>
                                 <span>
                                     {% if course.status == "complete" %}{% include "core/_state.html" with state="full" %}
-                                    {% elif perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' course.enrollment.pk %}">Enter {% if course.missing|length == 1 %}{{ course.missing.0.name }} grade{% else %}grades{% endif %}</a>
+                                    {% elif perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' course.enrollment.pk %}">Enter grade{{ course.missing|length|pluralize }}</a>
                                     {% elif course.score is not None %}{% include "core/_state.html" with state="some" %}
                                     {% else %}{% include "core/_state.html" with state="none" %}{% endif %}
                                 </span>
