@@ -1,0 +1,3982 @@
+{
+  "measured_at_utc": "2026-11-01T13:30:27.032359+00:00",
+  "source_revision": "31890b81b43c9479c4d4ec5ea8fa4b87ee48f403",
+  "recipe": [
+    "migrate",
+    "seed_pilot"
+  ],
+  "seed_reruns": 0,
+  "auth_users_created": 0,
+  "runtime": {
+    "python": "3.14.3",
+    "django": "6.1.2",
+    "sqlite": "3.50.4",
+    "os": "Darwin"
+  },
+  "pragmas": {
+    "foreign_keys": 1,
+    "page_size": 4096,
+    "page_count": 84,
+    "freelist_count": 0,
+    "journal_mode": "delete",
+    "read_uncommitted": 0
+  },
+  "integrity_check": "ok",
+  "foreign_key_check": [],
+  "applied_core_migrations": [
+    "0001_initial",
+    "0002_student_coursecurriculum",
+    "0003_courseoffering_enrollment_and_more",
+    "0004_assessment_grade_learningoutcome",
+    "0005_assessmentlomapping",
+    "0006_poframework_programoutcome_lopomapping_and_more",
+    "0007_courseoffering_po_framework",
+    "0008_coursepocontribution",
+    "0009_assessment_positive_assessment_max_score"
+  ],
+  "database_file_bytes": 344064,
+  "dbstat_available": true,
+  "dbstat_reader": {
+    "engine": "read-only SQLite CLI",
+    "version": "3.54.0"
+  },
+  "python_dbstat_error": "no such table: dbstat",
+  "other_dbstat_objects": [
+    {
+      "name": "sqlite_schema",
+      "pages": 6,
+      "allocated_bytes": 24576,
+      "payload_bytes": 16448,
+      "unused_bytes": 7576
+    }
+  ],
+  "source_sha256": {
+    "core/models.py": "be7f6524b37f06e141ba3c7e57bfc80806014383f1b6d3599ffc3ec65c416603",
+    "core/migrations/0001_initial.py": "cebce2cbcd09b90bd58d4010aae3ee020ffd9a2659a39fbda0a6ea13c4e6ccbf",
+    "core/migrations/0002_student_coursecurriculum.py": "6d76c91dad2a538f88231eb3cf60ae6799e57e8cff90abe04ab6487c95782ff7",
+    "core/migrations/0003_courseoffering_enrollment_and_more.py": "6f2a77b00cbf6cdd3ab995cfc0a6b13bcc40e9877dbeb92eba1d0c73cde5d993",
+    "core/migrations/0004_assessment_grade_learningoutcome.py": "9adcc931c1aecfb37943039c7ed063e45e158521b81e0cd28f477b149c44af24",
+    "core/migrations/0005_assessmentlomapping.py": "c3f0480c209a9fc01b030b2e2f8e1ee0771b3d68be3b635aab12efb07ce2c167",
+    "core/migrations/0006_poframework_programoutcome_lopomapping_and_more.py": "4af631c92542c9b526335b76a667cd061bac6cdb17c0837cbe541e26a7f02f15",
+    "core/migrations/0007_courseoffering_po_framework.py": "77787dbef60d4b879b938b352f9e98816bfb453e05b44bda6ffac071a8f6feac",
+    "core/migrations/0008_coursepocontribution.py": "d6651dd56cfb5c1a451a9442ae70090c0788d3c762535d30dbff8dcd72472ab8",
+    "core/migrations/0009_assessment_positive_assessment_max_score.py": "ed8b9be11918f7a86b4ddc09d867b8691aa746e0ff7982ed4795477f9b5e7881",
+    "core/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "core/services/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "core/services/lo_calculator.py": "6a1b8cc0dd2ae7971ada7ad23ab4e87d1778d1e593767eae89a39df46f781ecf",
+    "core/services/po_calculator.py": "ab3fcb18a7a38b6961cce458eb814ccffd5b788c9dbf4e8c18f355cd5aecb111",
+    "core/services/student_po_calculator.py": "b1600146c2d9427a31e459f8a0b1974df47c6763fe39a8c1aa807f34ea3f27ff",
+    "core/management/commands/seed_pilot.py": "b916cdf76c97b2ec49a4e5eab31205aef15a0d84027f9099feedec3223a50ff9"
+  },
+  "calculation_trace": {
+    "PILOT311.LO1": {
+      "score": "86.0",
+      "coverage": "100",
+      "status": "complete"
+    },
+    "PILOT311.LO2": {
+      "score": "82.85714285714285714285714286",
+      "coverage": "100",
+      "status": "complete"
+    },
+    "PILOT311.PO2": {
+      "score": "84.95238095238095238095238097",
+      "coverage": "100",
+      "status": "complete"
+    },
+    "PILOT321.LO1": {
+      "score": "0",
+      "coverage": "100",
+      "status": "complete"
+    },
+    "PILOT321.LO2": {
+      "score": null,
+      "coverage": "0E+2",
+      "status": "no_data"
+    },
+    "PILOT321.PO2": {
+      "score": "0",
+      "coverage": "66.66666666666666666666666667",
+      "status": "provisional"
+    },
+    "student.PO2": {
+      "score": "60.6802721088435374149659864",
+      "coverage": "87.50000000000000000000000000",
+      "status": "provisional"
+    }
+  },
+  "tables": [
+    {
+      "table": "auth_group",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 0,
+      "column_count": 2,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "name",
+          "type": "varchar(150)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_auth_group_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "name"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_auth_group_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"auth_group\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"name\" varchar(150) NOT NULL UNIQUE)",
+      "storage": {
+        "name": "auth_group",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 0,
+        "unused_bytes": 4088
+      }
+    },
+    {
+      "table": "auth_group_permissions",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 0,
+      "column_count": 3,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "group_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "permission_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "auth_permission",
+          "from": "permission_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "auth_group",
+          "from": "group_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "auth_group_permissions_permission_id_84c5c92e",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "permission_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_group_permissions_permission_id_84c5c92e",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 1,
+          "name": "auth_group_permissions_group_id_b120cbf9",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "group_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_group_permissions_group_id_b120cbf9",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 2,
+          "name": "auth_group_permissions_group_id_permission_id_0cd325b0_uniq",
+          "unique": 1,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "group_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 2,
+              "name": "permission_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_group_permissions_group_id_permission_id_0cd325b0_uniq",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"auth_group_permissions\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"group_id\" integer NOT NULL REFERENCES \"auth_group\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"permission_id\" integer NOT NULL REFERENCES \"auth_permission\" (\"id\") DEFERRABLE INITIALLY DEFERRED)",
+      "storage": {
+        "name": "auth_group_permissions",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 0,
+        "unused_bytes": 4088
+      }
+    },
+    {
+      "table": "auth_permission",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 84,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "content_type_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "codename",
+          "type": "varchar(100)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "name",
+          "type": "varchar(255)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "django_content_type",
+          "from": "content_type_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "auth_permission_content_type_id_2f476e4b",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "content_type_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_permission_content_type_id_2f476e4b",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 415,
+            "unused_bytes": 3421
+          }
+        },
+        {
+          "seq": 1,
+          "name": "auth_permission_content_type_id_codename_01ab375a_uniq",
+          "unique": 1,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "content_type_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 2,
+              "name": "codename"
+            }
+          ],
+          "storage": {
+            "name": "auth_permission_content_type_id_codename_01ab375a_uniq",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 1862,
+            "unused_bytes": 1974
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"auth_permission\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"content_type_id\" integer NOT NULL REFERENCES \"django_content_type\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"codename\" varchar(100) NOT NULL, \"name\" varchar(255) NOT NULL)",
+      "storage": {
+        "name": "auth_permission",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 3610,
+        "unused_bytes": 142
+      }
+    },
+    {
+      "table": "auth_user",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 0,
+      "column_count": 11,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "password",
+          "type": "varchar(128)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "last_login",
+          "type": "datetime",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "is_superuser",
+          "type": "bool",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "username",
+          "type": "varchar(150)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "last_name",
+          "type": "varchar(150)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "email",
+          "type": "varchar(254)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "is_staff",
+          "type": "bool",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "is_active",
+          "type": "bool",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "date_joined",
+          "type": "datetime",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 10,
+          "name": "first_name",
+          "type": "varchar(150)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_auth_user_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 4,
+              "name": "username"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_auth_user_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"auth_user\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"password\" varchar(128) NOT NULL, \"last_login\" datetime NULL, \"is_superuser\" bool NOT NULL, \"username\" varchar(150) NOT NULL UNIQUE, \"last_name\" varchar(150) NOT NULL, \"email\" varchar(254) NOT NULL, \"is_staff\" bool NOT NULL, \"is_active\" bool NOT NULL, \"date_joined\" datetime NOT NULL, \"first_name\" varchar(150) NOT NULL)",
+      "storage": {
+        "name": "auth_user",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 0,
+        "unused_bytes": 4088
+      }
+    },
+    {
+      "table": "auth_user_groups",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 0,
+      "column_count": 3,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "user_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "group_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "auth_group",
+          "from": "group_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "auth_user",
+          "from": "user_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "auth_user_groups_group_id_97559544",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "group_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_user_groups_group_id_97559544",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 1,
+          "name": "auth_user_groups_user_id_6a12ed8b",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "user_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_user_groups_user_id_6a12ed8b",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 2,
+          "name": "auth_user_groups_user_id_group_id_94350c0c_uniq",
+          "unique": 1,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "user_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 2,
+              "name": "group_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_user_groups_user_id_group_id_94350c0c_uniq",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"auth_user_groups\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"user_id\" integer NOT NULL REFERENCES \"auth_user\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"group_id\" integer NOT NULL REFERENCES \"auth_group\" (\"id\") DEFERRABLE INITIALLY DEFERRED)",
+      "storage": {
+        "name": "auth_user_groups",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 0,
+        "unused_bytes": 4088
+      }
+    },
+    {
+      "table": "auth_user_user_permissions",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 0,
+      "column_count": 3,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "user_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "permission_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "auth_permission",
+          "from": "permission_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "auth_user",
+          "from": "user_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "auth_user_user_permissions_permission_id_1fbb5f2c",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "permission_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_user_user_permissions_permission_id_1fbb5f2c",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 1,
+          "name": "auth_user_user_permissions_user_id_a95ead1b",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "user_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_user_user_permissions_user_id_a95ead1b",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 2,
+          "name": "auth_user_user_permissions_user_id_permission_id_14a6b632_uniq",
+          "unique": 1,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "user_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 2,
+              "name": "permission_id"
+            }
+          ],
+          "storage": {
+            "name": "auth_user_user_permissions_user_id_permission_id_14a6b632_uniq",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"auth_user_user_permissions\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"user_id\" integer NOT NULL REFERENCES \"auth_user\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"permission_id\" integer NOT NULL REFERENCES \"auth_permission\" (\"id\") DEFERRABLE INITIALLY DEFERRED)",
+      "storage": {
+        "name": "auth_user_user_permissions",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 0,
+        "unused_bytes": 4088
+      }
+    },
+    {
+      "table": "core_assessment",
+      "model": "Assessment",
+      "scope": "application",
+      "row_count": 4,
+      "column_count": 5,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "name",
+          "type": "varchar(100)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "max_score",
+          "type": "decimal",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "course_grade_weight",
+          "type": "decimal",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "offering_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_courseoffering",
+          "from": "offering_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_assessment_offering_id_3e279ed1",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 4,
+              "name": "offering_id"
+            }
+          ],
+          "storage": {
+            "name": "core_assessment_offering_id_3e279ed1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 17,
+            "unused_bytes": 4059
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_assessment\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"name\" varchar(100) NOT NULL, \"max_score\" decimal NOT NULL, \"course_grade_weight\" decimal NOT NULL, \"offering_id\" bigint NOT NULL REFERENCES \"core_courseoffering\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"positive_assessment_max_score\" CHECK (\"max_score\" > '0'))",
+      "storage": {
+        "name": "core_assessment",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 58,
+        "unused_bytes": 4014
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "offering",
+          "column": "offering_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_courseoffering",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "name",
+          "column": "name",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 100,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "max_score",
+          "column": "max_score",
+          "django_type": "DecimalField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": 7,
+          "decimal_places": 2,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "course_grade_weight",
+          "column": "course_grade_weight",
+          "django_type": "DecimalField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": 5,
+          "decimal_places": 2,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": "0"
+        }
+      ]
+    },
+    {
+      "table": "core_assessmentlomapping",
+      "model": "AssessmentLOMapping",
+      "scope": "application",
+      "row_count": 6,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "weight",
+          "type": "decimal",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "assessment_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "learning_outcome_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_learningoutcome",
+          "from": "learning_outcome_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "core_assessment",
+          "from": "assessment_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_assessmentlomapping_learning_outcome_id_7c0a66b7",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "learning_outcome_id"
+            }
+          ],
+          "storage": {
+            "name": "core_assessmentlomapping_learning_outcome_id_7c0a66b7",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 27,
+            "unused_bytes": 4043
+          }
+        },
+        {
+          "seq": 1,
+          "name": "core_assessmentlomapping_assessment_id_d56c4af7",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "assessment_id"
+            }
+          ],
+          "storage": {
+            "name": "core_assessmentlomapping_assessment_id_d56c4af7",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 27,
+            "unused_bytes": 4043
+          }
+        },
+        {
+          "seq": 2,
+          "name": "sqlite_autoindex_core_assessmentlomapping_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "assessment_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 3,
+              "name": "learning_outcome_id"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_assessmentlomapping_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 37,
+            "unused_bytes": 4033
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_assessmentlomapping\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"weight\" decimal NOT NULL, \"assessment_id\" bigint NOT NULL REFERENCES \"core_assessment\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"learning_outcome_id\" bigint NOT NULL REFERENCES \"core_learningoutcome\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_assessment_lo_mapping\" UNIQUE (\"assessment_id\", \"learning_outcome_id\"), CONSTRAINT \"positive_assessment_lo_weight\" CHECK (\"weight\" > '0'))",
+      "storage": {
+        "name": "core_assessmentlomapping",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 44,
+        "unused_bytes": 4020
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "assessment",
+          "column": "assessment_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_assessment",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "learning_outcome",
+          "column": "learning_outcome_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_learningoutcome",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "weight",
+          "column": "weight",
+          "django_type": "DecimalField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": 5,
+          "decimal_places": 2,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_course",
+      "model": "Course",
+      "scope": "application",
+      "row_count": 2,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "code",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "title",
+          "type": "varchar(200)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "credits",
+          "type": "decimal",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_core_course_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "code"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_course_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 23,
+            "unused_bytes": 4059
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_course\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"code\" varchar(20) NOT NULL UNIQUE, \"title\" varchar(200) NOT NULL, \"credits\" decimal NOT NULL)",
+      "storage": {
+        "name": "core_course",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 96,
+        "unused_bytes": 3984
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "code",
+          "column": "code",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": true,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "title",
+          "column": "title",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 200,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "credits",
+          "column": "credits",
+          "django_type": "DecimalField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": 4,
+          "decimal_places": 1,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_coursecurriculum",
+      "model": "CourseCurriculum",
+      "scope": "application",
+      "row_count": 2,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "version_number",
+          "type": "integer unsigned",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "status",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "course_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_course",
+          "from": "course_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_coursecurriculum_course_id_18a1867e",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "course_id"
+            }
+          ],
+          "storage": {
+            "name": "core_coursecurriculum_course_id_18a1867e",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 8,
+            "unused_bytes": 4074
+          }
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_core_coursecurriculum_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "course_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 1,
+              "name": "version_number"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_coursecurriculum_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 10,
+            "unused_bytes": 4072
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_coursecurriculum\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"version_number\" integer unsigned NOT NULL CHECK (\"version_number\" >= 0), \"status\" varchar(20) NOT NULL, \"course_id\" bigint NOT NULL REFERENCES \"core_course\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_course_curriculum_version\" UNIQUE (\"course_id\", \"version_number\"))",
+      "storage": {
+        "name": "core_coursecurriculum",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 21,
+        "unused_bytes": 4059
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "course",
+          "column": "course_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_course",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "version_number",
+          "column": "version_number",
+          "django_type": "PositiveIntegerField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "status",
+          "column": "status",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": "draft"
+        }
+      ]
+    },
+    {
+      "table": "core_courseoffering",
+      "model": "CourseOffering",
+      "scope": "application",
+      "row_count": 2,
+      "column_count": 9,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "year",
+          "type": "integer unsigned",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "term",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "section",
+          "type": "varchar(10)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "status",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "course_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "curriculum_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "instructor_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "po_framework_id",
+          "type": "bigint",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_poframework",
+          "from": "po_framework_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "core_instructor",
+          "from": "instructor_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 2,
+          "seq": 0,
+          "table": "core_coursecurriculum",
+          "from": "curriculum_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 3,
+          "seq": 0,
+          "table": "core_course",
+          "from": "course_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_courseoffering_po_framework_id_9729f169",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 8,
+              "name": "po_framework_id"
+            }
+          ],
+          "storage": {
+            "name": "core_courseoffering_po_framework_id_9729f169",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 7,
+            "unused_bytes": 4075
+          }
+        },
+        {
+          "seq": 1,
+          "name": "core_courseoffering_instructor_id_7a8603ff",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 7,
+              "name": "instructor_id"
+            }
+          ],
+          "storage": {
+            "name": "core_courseoffering_instructor_id_7a8603ff",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 7,
+            "unused_bytes": 4075
+          }
+        },
+        {
+          "seq": 2,
+          "name": "core_courseoffering_curriculum_id_f20e5d4e",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 6,
+              "name": "curriculum_id"
+            }
+          ],
+          "storage": {
+            "name": "core_courseoffering_curriculum_id_f20e5d4e",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 8,
+            "unused_bytes": 4074
+          }
+        },
+        {
+          "seq": 3,
+          "name": "core_courseoffering_course_id_17cf7317",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 5,
+              "name": "course_id"
+            }
+          ],
+          "storage": {
+            "name": "core_courseoffering_course_id_17cf7317",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 8,
+            "unused_bytes": 4074
+          }
+        },
+        {
+          "seq": 4,
+          "name": "sqlite_autoindex_core_courseoffering_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 5,
+              "name": "course_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 1,
+              "name": "year"
+            },
+            {
+              "seqno": 2,
+              "cid": 2,
+              "name": "term"
+            },
+            {
+              "seqno": 3,
+              "cid": 3,
+              "name": "section"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_courseoffering_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 36,
+            "unused_bytes": 4046
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_courseoffering\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"year\" integer unsigned NOT NULL CHECK (\"year\" >= 0), \"term\" varchar(20) NOT NULL, \"section\" varchar(10) NOT NULL, \"status\" varchar(20) NOT NULL, \"course_id\" bigint NOT NULL REFERENCES \"core_course\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"curriculum_id\" bigint NOT NULL REFERENCES \"core_coursecurriculum\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"instructor_id\" bigint NOT NULL REFERENCES \"core_instructor\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"po_framework_id\" bigint NULL REFERENCES \"core_poframework\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_course_offering\" UNIQUE (\"course_id\", \"year\", \"term\", \"section\"))",
+      "storage": {
+        "name": "core_courseoffering",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 54,
+        "unused_bytes": 4026
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "course",
+          "column": "course_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_course",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "curriculum",
+          "column": "curriculum_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_coursecurriculum",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "instructor",
+          "column": "instructor_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_instructor",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "po_framework",
+          "column": "po_framework_id",
+          "django_type": "ForeignKey",
+          "null": true,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_poframework",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "year",
+          "column": "year",
+          "django_type": "PositiveIntegerField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "term",
+          "column": "term",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "section",
+          "column": "section",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 10,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": "1"
+        },
+        {
+          "name": "status",
+          "column": "status",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": "draft"
+        }
+      ]
+    },
+    {
+      "table": "core_coursepocontribution",
+      "model": "CoursePOContribution",
+      "scope": "application",
+      "row_count": 5,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "weight",
+          "type": "smallint unsigned",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "curriculum_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "program_outcome_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_programoutcome",
+          "from": "program_outcome_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "core_coursecurriculum",
+          "from": "curriculum_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_coursepocontribution_program_outcome_id_67c6910c",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "program_outcome_id"
+            }
+          ],
+          "storage": {
+            "name": "core_coursepocontribution_program_outcome_id_67c6910c",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 24,
+            "unused_bytes": 4049
+          }
+        },
+        {
+          "seq": 1,
+          "name": "core_coursepocontribution_curriculum_id_df1bff12",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "curriculum_id"
+            }
+          ],
+          "storage": {
+            "name": "core_coursepocontribution_curriculum_id_df1bff12",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 22,
+            "unused_bytes": 4051
+          }
+        },
+        {
+          "seq": 2,
+          "name": "sqlite_autoindex_core_coursepocontribution_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "curriculum_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 3,
+              "name": "program_outcome_id"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_coursepocontribution_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 32,
+            "unused_bytes": 4041
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_coursepocontribution\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"weight\" smallint unsigned NOT NULL CHECK (\"weight\" >= 0), \"curriculum_id\" bigint NOT NULL REFERENCES \"core_coursecurriculum\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"program_outcome_id\" bigint NOT NULL REFERENCES \"core_programoutcome\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_course_po_contribution\" UNIQUE (\"curriculum_id\", \"program_outcome_id\"), CONSTRAINT \"course_po_weight_between_1_and_5\" CHECK ((\"weight\" >= 1 AND \"weight\" <= 5)))",
+      "storage": {
+        "name": "core_coursepocontribution",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 38,
+        "unused_bytes": 4030
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "curriculum",
+          "column": "curriculum_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_coursecurriculum",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "program_outcome",
+          "column": "program_outcome_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_programoutcome",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "weight",
+          "column": "weight",
+          "django_type": "PositiveSmallIntegerField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_enrollment",
+      "model": "Enrollment",
+      "scope": "application",
+      "row_count": 4,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "status",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "offering_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "student_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_student",
+          "from": "student_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "core_courseoffering",
+          "from": "offering_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_enrollment_student_id_e42e49b3",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "student_id"
+            }
+          ],
+          "storage": {
+            "name": "core_enrollment_student_id_e42e49b3",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 17,
+            "unused_bytes": 4059
+          }
+        },
+        {
+          "seq": 1,
+          "name": "core_enrollment_offering_id_3bc3e4fc",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "offering_id"
+            }
+          ],
+          "storage": {
+            "name": "core_enrollment_offering_id_3bc3e4fc",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 17,
+            "unused_bytes": 4059
+          }
+        },
+        {
+          "seq": 2,
+          "name": "sqlite_autoindex_core_enrollment_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "student_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 2,
+              "name": "offering_id"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_enrollment_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 23,
+            "unused_bytes": 4053
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_enrollment\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"status\" varchar(20) NOT NULL, \"offering_id\" bigint NOT NULL REFERENCES \"core_courseoffering\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"student_id\" bigint NOT NULL REFERENCES \"core_student\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_student_enrollment\" UNIQUE (\"student_id\", \"offering_id\"))",
+      "storage": {
+        "name": "core_enrollment",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 48,
+        "unused_bytes": 4024
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "student",
+          "column": "student_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_student",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "offering",
+          "column": "offering_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_courseoffering",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "status",
+          "column": "status",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": "active"
+        }
+      ]
+    },
+    {
+      "table": "core_grade",
+      "model": "Grade",
+      "scope": "application",
+      "row_count": 8,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "score",
+          "type": "decimal",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "assessment_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "enrollment_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_enrollment",
+          "from": "enrollment_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "core_assessment",
+          "from": "assessment_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_grade_enrollment_id_022947b3",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "enrollment_id"
+            }
+          ],
+          "storage": {
+            "name": "core_grade_enrollment_id_022947b3",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 37,
+            "unused_bytes": 4027
+          }
+        },
+        {
+          "seq": 1,
+          "name": "core_grade_assessment_id_aa4db391",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "assessment_id"
+            }
+          ],
+          "storage": {
+            "name": "core_grade_assessment_id_aa4db391",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 37,
+            "unused_bytes": 4027
+          }
+        },
+        {
+          "seq": 2,
+          "name": "sqlite_autoindex_core_grade_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "enrollment_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 2,
+              "name": "assessment_id"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_grade_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 51,
+            "unused_bytes": 4013
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_grade\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"score\" decimal NULL, \"assessment_id\" bigint NOT NULL REFERENCES \"core_assessment\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"enrollment_id\" bigint NOT NULL REFERENCES \"core_enrollment\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_enrollment_assessment_grade\" UNIQUE (\"enrollment_id\", \"assessment_id\"))",
+      "storage": {
+        "name": "core_grade",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 57,
+        "unused_bytes": 3999
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "enrollment",
+          "column": "enrollment_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_enrollment",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "assessment",
+          "column": "assessment_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_assessment",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "score",
+          "column": "score",
+          "django_type": "DecimalField",
+          "null": true,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": 7,
+          "decimal_places": 2,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_instructor",
+      "model": "Instructor",
+      "scope": "application",
+      "row_count": 1,
+      "column_count": 3,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "full_name",
+          "type": "varchar(200)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "email",
+          "type": "varchar(254)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_core_instructor_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "email"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_instructor_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 35,
+            "unused_bytes": 4050
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_instructor\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"full_name\" varchar(200) NOT NULL, \"email\" varchar(254) NOT NULL UNIQUE)",
+      "storage": {
+        "name": "core_instructor",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 62,
+        "unused_bytes": 4022
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "full_name",
+          "column": "full_name",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 200,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "email",
+          "column": "email",
+          "django_type": "EmailField",
+          "null": false,
+          "primary_key": false,
+          "unique": true,
+          "db_index": false,
+          "max_length": 254,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_learningoutcome",
+      "model": "LearningOutcome",
+      "scope": "application",
+      "row_count": 4,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "code",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "description",
+          "type": "TEXT",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "curriculum_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_coursecurriculum",
+          "from": "curriculum_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_learningoutcome_curriculum_id_856a4c62",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "curriculum_id"
+            }
+          ],
+          "storage": {
+            "name": "core_learningoutcome_curriculum_id_856a4c62",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 17,
+            "unused_bytes": 4059
+          }
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_core_learningoutcome_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "curriculum_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 1,
+              "name": "code"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_learningoutcome_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 33,
+            "unused_bytes": 4043
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_learningoutcome\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"code\" varchar(20) NOT NULL, \"description\" text NOT NULL, \"curriculum_id\" bigint NOT NULL REFERENCES \"core_coursecurriculum\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_learning_outcome_per_curriculum\" UNIQUE (\"curriculum_id\", \"code\"))",
+      "storage": {
+        "name": "core_learningoutcome",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 224,
+        "unused_bytes": 3848
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "curriculum",
+          "column": "curriculum_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_coursecurriculum",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "code",
+          "column": "code",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "description",
+          "column": "description",
+          "django_type": "TextField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_lopomapping",
+      "model": "LOPOMapping",
+      "scope": "application",
+      "row_count": 7,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "strength",
+          "type": "smallint unsigned",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "learning_outcome_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "program_outcome_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_programoutcome",
+          "from": "program_outcome_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "core_learningoutcome",
+          "from": "learning_outcome_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_lopomapping_program_outcome_id_757c9376",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "program_outcome_id"
+            }
+          ],
+          "storage": {
+            "name": "core_lopomapping_program_outcome_id_757c9376",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 34,
+            "unused_bytes": 4033
+          }
+        },
+        {
+          "seq": 1,
+          "name": "core_lopomapping_learning_outcome_id_40bbe6c3",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "learning_outcome_id"
+            }
+          ],
+          "storage": {
+            "name": "core_lopomapping_learning_outcome_id_40bbe6c3",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 33,
+            "unused_bytes": 4034
+          }
+        },
+        {
+          "seq": 2,
+          "name": "sqlite_autoindex_core_lopomapping_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "learning_outcome_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 3,
+              "name": "program_outcome_id"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_lopomapping_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 47,
+            "unused_bytes": 4020
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_lopomapping\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"strength\" smallint unsigned NOT NULL CHECK (\"strength\" >= 0), \"learning_outcome_id\" bigint NOT NULL REFERENCES \"core_learningoutcome\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"program_outcome_id\" bigint NOT NULL REFERENCES \"core_programoutcome\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_lo_po_mapping\" UNIQUE (\"learning_outcome_id\", \"program_outcome_id\"), CONSTRAINT \"lo_po_strength_between_1_and_5\" CHECK ((\"strength\" >= 1 AND \"strength\" <= 5)))",
+      "storage": {
+        "name": "core_lopomapping",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 53,
+        "unused_bytes": 4007
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "learning_outcome",
+          "column": "learning_outcome_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_learningoutcome",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "program_outcome",
+          "column": "program_outcome_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_programoutcome",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "strength",
+          "column": "strength",
+          "django_type": "PositiveSmallIntegerField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_poframework",
+      "model": "POFramework",
+      "scope": "application",
+      "row_count": 1,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "version_number",
+          "type": "integer unsigned",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "status",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "program_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_program",
+          "from": "program_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_poframework_program_id_867444d4",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "program_id"
+            }
+          ],
+          "storage": {
+            "name": "core_poframework_program_id_867444d4",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 3,
+            "unused_bytes": 4082
+          }
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_core_poframework_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "program_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 1,
+              "name": "version_number"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_poframework_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 4,
+            "unused_bytes": 4081
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_poframework\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"version_number\" integer unsigned NOT NULL CHECK (\"version_number\" >= 0), \"status\" varchar(20) NOT NULL, \"program_id\" bigint NOT NULL REFERENCES \"core_program\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_program_po_framework_version\" UNIQUE (\"program_id\", \"version_number\"))",
+      "storage": {
+        "name": "core_poframework",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 10,
+        "unused_bytes": 4074
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "program",
+          "column": "program_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_program",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "version_number",
+          "column": "version_number",
+          "django_type": "PositiveIntegerField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "status",
+          "column": "status",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": "draft"
+        }
+      ]
+    },
+    {
+      "table": "core_program",
+      "model": "Program",
+      "scope": "application",
+      "row_count": 1,
+      "column_count": 3,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "code",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "name",
+          "type": "varchar(200)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "sqlite_autoindex_core_program_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "code"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_program_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 8,
+            "unused_bytes": 4077
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_program\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"code\" varchar(20) NOT NULL UNIQUE, \"name\" varchar(200) NOT NULL)",
+      "storage": {
+        "name": "core_program",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 45,
+        "unused_bytes": 4039
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "code",
+          "column": "code",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": true,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "name",
+          "column": "name",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 200,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_programoutcome",
+      "model": "ProgramOutcome",
+      "scope": "application",
+      "row_count": 11,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "code",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "description",
+          "type": "TEXT",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "framework_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_poframework",
+          "from": "framework_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_programoutcome_framework_id_e5357323",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "framework_id"
+            }
+          ],
+          "storage": {
+            "name": "core_programoutcome_framework_id_e5357323",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 43,
+            "unused_bytes": 4012
+          }
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_core_programoutcome_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "framework_id"
+            },
+            {
+              "seqno": 1,
+              "cid": 1,
+              "name": "code"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_programoutcome_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 89,
+            "unused_bytes": 3966
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_programoutcome\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"code\" varchar(20) NOT NULL, \"description\" text NOT NULL, \"framework_id\" bigint NOT NULL REFERENCES \"core_poframework\" (\"id\") DEFERRABLE INITIALLY DEFERRED, CONSTRAINT \"unique_program_outcome_code_per_framework\" UNIQUE (\"framework_id\", \"code\"))",
+      "storage": {
+        "name": "core_programoutcome",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 2225,
+        "unused_bytes": 1809
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "framework",
+          "column": "framework_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_poframework",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "code",
+          "column": "code",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "description",
+          "column": "description",
+          "django_type": "TextField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "core_student",
+      "model": "Student",
+      "scope": "application",
+      "row_count": 2,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "student_number",
+          "type": "varchar(20)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "full_name",
+          "type": "varchar(200)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "program_id",
+          "type": "bigint",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "core_program",
+          "from": "program_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "core_student_program_id_4836c078",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 3,
+              "name": "program_id"
+            }
+          ],
+          "storage": {
+            "name": "core_student_program_id_4836c078",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 7,
+            "unused_bytes": 4075
+          }
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_core_student_1",
+          "unique": 1,
+          "origin": "u",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "student_number"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_core_student_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 23,
+            "unused_bytes": 4059
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"core_student\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"student_number\" varchar(20) NOT NULL UNIQUE, \"full_name\" varchar(200) NOT NULL, \"program_id\" bigint NOT NULL REFERENCES \"core_program\" (\"id\") DEFERRABLE INITIALLY DEFERRED)",
+      "storage": {
+        "name": "core_student",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 56,
+        "unused_bytes": 4024
+      },
+      "fields": [
+        {
+          "name": "id",
+          "column": "id",
+          "django_type": "BigAutoField",
+          "null": false,
+          "primary_key": true,
+          "unique": true,
+          "db_index": false,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "program",
+          "column": "program_id",
+          "django_type": "ForeignKey",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": true,
+          "max_length": null,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": "core_program",
+          "on_delete": "PROTECT",
+          "python_default": null
+        },
+        {
+          "name": "student_number",
+          "column": "student_number",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": true,
+          "db_index": false,
+          "max_length": 20,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        },
+        {
+          "name": "full_name",
+          "column": "full_name",
+          "django_type": "CharField",
+          "null": false,
+          "primary_key": false,
+          "unique": false,
+          "db_index": false,
+          "max_length": 200,
+          "max_digits": null,
+          "decimal_places": null,
+          "related_table": null,
+          "on_delete": null,
+          "python_default": null
+        }
+      ]
+    },
+    {
+      "table": "django_admin_log",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 0,
+      "column_count": 8,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "object_id",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "object_repr",
+          "type": "varchar(200)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "action_flag",
+          "type": "smallint unsigned",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "change_message",
+          "type": "TEXT",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "content_type_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "user_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "action_time",
+          "type": "datetime",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "seq": 0,
+          "table": "auth_user",
+          "from": "user_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "seq": 0,
+          "table": "django_content_type",
+          "from": "content_type_id",
+          "to": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "django_admin_log_user_id_c564eba6",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 6,
+              "name": "user_id"
+            }
+          ],
+          "storage": {
+            "name": "django_admin_log_user_id_c564eba6",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 1,
+          "name": "django_admin_log_content_type_id_c4bce8eb",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 5,
+              "name": "content_type_id"
+            }
+          ],
+          "storage": {
+            "name": "django_admin_log_content_type_id_c4bce8eb",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"django_admin_log\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"object_id\" text NULL, \"object_repr\" varchar(200) NOT NULL, \"action_flag\" smallint unsigned NOT NULL CHECK (\"action_flag\" >= 0), \"change_message\" text NOT NULL, \"content_type_id\" integer NULL REFERENCES \"django_content_type\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"user_id\" integer NOT NULL REFERENCES \"auth_user\" (\"id\") DEFERRABLE INITIALLY DEFERRED, \"action_time\" datetime NOT NULL)",
+      "storage": {
+        "name": "django_admin_log",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 0,
+        "unused_bytes": 4088
+      }
+    },
+    {
+      "table": "django_content_type",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 21,
+      "column_count": 3,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "app_label",
+          "type": "varchar(100)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "model",
+          "type": "varchar(100)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "django_content_type_app_label_model_76bd3d3b_uniq",
+          "unique": 1,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 1,
+              "name": "app_label"
+            },
+            {
+              "seqno": 1,
+              "cid": 2,
+              "name": "model"
+            }
+          ],
+          "storage": {
+            "name": "django_content_type_app_label_model_76bd3d3b_uniq",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 421,
+            "unused_bytes": 3604
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"django_content_type\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"app_label\" varchar(100) NOT NULL, \"model\" varchar(100) NOT NULL)",
+      "storage": {
+        "name": "django_content_type",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 401,
+        "unused_bytes": 3603
+      }
+    },
+    {
+      "table": "django_migrations",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 27,
+      "column_count": 4,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "app",
+          "type": "varchar(255)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "name",
+          "type": "varchar(255)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "applied",
+          "type": "datetime",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [],
+      "ddl": "CREATE TABLE \"django_migrations\" (\"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT, \"app\" varchar(255) NOT NULL, \"name\" varchar(255) NOT NULL, \"applied\" datetime NOT NULL)",
+      "storage": {
+        "name": "django_migrations",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 1774,
+        "unused_bytes": 2206
+      }
+    },
+    {
+      "table": "django_session",
+      "model": null,
+      "scope": "Django infrastructure",
+      "row_count": 0,
+      "column_count": 3,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "session_key",
+          "type": "varchar(40)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "session_data",
+          "type": "TEXT",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "expire_date",
+          "type": "datetime",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "seq": 0,
+          "name": "django_session_expire_date_a5c62663",
+          "unique": 0,
+          "origin": "c",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 2,
+              "name": "expire_date"
+            }
+          ],
+          "storage": {
+            "name": "django_session_expire_date_a5c62663",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        },
+        {
+          "seq": 1,
+          "name": "sqlite_autoindex_django_session_1",
+          "unique": 1,
+          "origin": "pk",
+          "partial": 0,
+          "columns": [
+            {
+              "seqno": 0,
+              "cid": 0,
+              "name": "session_key"
+            }
+          ],
+          "storage": {
+            "name": "sqlite_autoindex_django_session_1",
+            "pages": 1,
+            "allocated_bytes": 4096,
+            "payload_bytes": 0,
+            "unused_bytes": 4088
+          }
+        }
+      ],
+      "ddl": "CREATE TABLE \"django_session\" (\"session_key\" varchar(40) NOT NULL PRIMARY KEY, \"session_data\" text NOT NULL, \"expire_date\" datetime NOT NULL)",
+      "storage": {
+        "name": "django_session",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 0,
+        "unused_bytes": 4088
+      }
+    },
+    {
+      "table": "sqlite_sequence",
+      "model": null,
+      "scope": "sqlite internal",
+      "row_count": 21,
+      "column_count": 2,
+      "columns": [
+        {
+          "cid": 0,
+          "name": "name",
+          "type": "",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 1,
+          "name": "seq",
+          "type": "",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [],
+      "ddl": "CREATE TABLE sqlite_sequence(name,seq)",
+      "storage": {
+        "name": "sqlite_sequence",
+        "pages": 1,
+        "allocated_bytes": 4096,
+        "payload_bytes": 414,
+        "unused_bytes": 3590
+      }
+    }
+  ]
+}
