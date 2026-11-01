@@ -1,0 +1,51 @@
+{
+  "source_revision": "eb23586b2b2f635629d9a08f5db1cfa6b0dee53a",
+  "database": "fresh temporary file; removed after probe",
+  "runtime": {
+    "python": "3.14.3",
+    "django": "6.1.2",
+    "sqlite": "3.50.4"
+  },
+  "django_autocommit": true,
+  "driver_isolation_level": null,
+  "django_transaction_mode": null,
+  "has_select_for_update": false,
+  "pragmas": {
+    "journal_mode": "delete",
+    "read_uncommitted": 0,
+    "foreign_keys": 1,
+    "busy_timeout": 5000,
+    "synchronous": 2
+  },
+  "probe_connection_timeout_seconds": 0,
+  "shared_cache_requested": false,
+  "observations": {
+    "reader_during_uncommitted_update": 10,
+    "competing_writer": {
+      "error": "database is locked",
+      "code": "SQLITE_BUSY"
+    },
+    "reader_after_commit": 20,
+    "reader_after_rollback": 20,
+    "writer_commit_while_reader_active": {
+      "error": "database is locked",
+      "code": "SQLITE_BUSY"
+    },
+    "nested_atomic_result": 50,
+    "atomic_control_sql": [
+      "BEGIN",
+      "SAVEPOINT \"s8615837568_x1\"",
+      "ROLLBACK TO SAVEPOINT \"s8615837568_x1\"",
+      "RELEASE SAVEPOINT \"s8615837568_x1\"",
+      "COMMIT"
+    ],
+    "select_for_update_sql": "SELECT \"core_enrollment\".\"id\", \"core_enrollment\".\"student_id\", \"core_enrollment\".\"offering_id\", \"core_enrollment\".\"status\" FROM \"core_enrollment\""
+  },
+  "integrity_check": "ok",
+  "limits": [
+    "Generic engine/atomic behavior, not simultaneous HTTP-client stress testing.",
+    "No development database inspected or changed; its journal mode is not inferred.",
+    "No WAL/alternate-engine or crash/power-loss experiment performed."
+  ],
+  "script_sha256": "9d4cc072951f1d27ceb3d0966661f5fa2cbbc8da03fd8c61c002ae157f6d3612"
+}

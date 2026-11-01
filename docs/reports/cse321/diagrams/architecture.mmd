@@ -1,0 +1,16 @@
+flowchart TD
+    B["Staff browser"] --> R["Django middleware and URL routing — session authentication · CSRF"]
+    R --> V["Native staff views — core/views.py"]
+    R --> A["Django Admin — GradeAdmin and model configuration"]
+    V --> F["Forms and write functions — grade_editor · student_intake"]
+    V --> C["Calculation functions — LO → course PO → student PO"]
+    V --> T["Django templates — HTML and evidence explanations"]
+    T --> B
+    F --> H["Grade history functions — supported grade writes only"]
+    A --> H
+    F --> O["Django ORM and transactions"]
+    A --> O
+    H --> O
+    C --> O
+    V --> O
+    O --> D[("Local SQLite database — 15 core tables · auth/session/admin tables")]

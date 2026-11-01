@@ -1,0 +1,54 @@
+classDiagram
+    direction TB
+    class Form {
+        <<Django framework>>
+    }
+    class EnrollmentGradeForm {
+        revision
+        __init__(assessments, grades)
+        clean()
+    }
+    class ModelAdmin {
+        <<Django framework>>
+    }
+    class GradeAdmin {
+        get_readonly_fields()
+        save_model()
+        delete_model()
+        delete_queryset()
+    }
+    class Grade {
+        <<Django model>>
+        score
+        clean()
+        save()
+    }
+    class Assessment {
+        <<Django model>>
+        max_score
+        course_grade_weight
+    }
+    class Enrollment {
+        <<Django model>>
+        status
+    }
+    class CourseOffering {
+        <<Django model>>
+        clean()
+        save()
+    }
+    class LogEntry {
+        <<Django admin model>>
+        change_message
+        action_time
+    }
+    Form <|-- EnrollmentGradeForm
+    ModelAdmin <|-- GradeAdmin
+    EnrollmentGradeForm ..> Assessment : field bounds
+    EnrollmentGradeForm ..> Grade : initial values
+    GradeAdmin ..> Grade : save/delete hooks
+    GradeAdmin ..> LogEntry : via history functions
+    Grade "0..*" --> "1" Assessment : assessment
+    Grade "0..*" --> "1" Enrollment : enrollment
+    Assessment "0..*" --> "1" CourseOffering : offering
+    Enrollment "0..*" --> "1" CourseOffering : offering

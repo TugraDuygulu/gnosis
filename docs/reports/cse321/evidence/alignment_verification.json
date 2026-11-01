@@ -1,0 +1,40 @@
+{
+  "source_revision": "eb23586b2b2f635629d9a08f5db1cfa6b0dee53a",
+  "scope": "isolated migrate + seed_pilot once; no development DB",
+  "application_models": 15,
+  "application_columns": 64,
+  "foreign_keys": 20,
+  "unique_secondary_indexes": 14,
+  "all_secondary_indexes": 34,
+  "pilot_rows": 60,
+  "nullable_columns": [
+    "CourseOffering.po_framework_id",
+    "Grade.score"
+  ],
+  "applied_core_migrations": [
+    "0001_initial",
+    "0002_student_coursecurriculum",
+    "0003_courseoffering_enrollment_and_more",
+    "0004_assessment_grade_learningoutcome",
+    "0005_assessmentlomapping",
+    "0006_poframework_programoutcome_lopomapping_and_more",
+    "0007_courseoffering_po_framework",
+    "0008_coursepocontribution",
+    "0009_assessment_positive_assessment_max_score"
+  ],
+  "model_migration_state_agreement": true,
+  "fresh_ddl_matches_documented_inventory": true,
+  "all_erd_entities_columns_fk_cardinalities_match": true,
+  "field_dictionary_column_coverage": true,
+  "integrity_check": "ok",
+  "foreign_key_check": [],
+  "source_hashes_match_reviewed_inventory": true,
+  "formal_team_or_instructor_signoff": "not established; owner review remains separate",
+  "remaining_policy_limits": [
+    "retake/equivalence",
+    "publication/version immutability",
+    "historical configuration edits",
+    "institution-wide required-course coverage",
+    "raw/bulk writes bypass application validation"
+  ]
+}
