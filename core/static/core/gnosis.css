@@ -360,8 +360,6 @@ table.list { width: 100%; border-collapse: collapse; }
   .fact + .fact { border-left: 0; border-top: 1px solid var(--border); }
   .bars { gap: 4px; }
   .bars .v { font-size: 11px; }
-  .outcome > summary { grid-template-columns: 48px minmax(0, 1fr) 18px; }
-  .outcome .score, .outcome .state { grid-column: 2; }
   .outcome .detail { padding-left: 20px; }
   .contrib .line { grid-template-columns: minmax(0, 1fr) auto; }
   .grade-row { grid-template-columns: minmax(0, 1fr); }
@@ -423,4 +421,7 @@ table.list { width: 100%; border-collapse: collapse; }
 .entry input:target { border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus-ring); }
 @media (max-width: 860px) {
   .info .pop { position: fixed; top: 76px; left: 16px; right: 16px; width: auto; }
+}
+@container outcomes (max-width: 480px) {
+  .outcome > summary { grid-template-columns: 40px minmax(0, 1fr) 18px; grid-template-areas: "badge text chev" ". score ." ". state ."; }
 }
