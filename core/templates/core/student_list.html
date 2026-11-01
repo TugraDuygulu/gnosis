@@ -9,14 +9,14 @@
         <p>Explore what recorded grades reveal about learning. Open a student to see their program outcome results.</p>
     </div>
     {% if perms.core.add_student %}
-    <div class="actions"><a class="btn btn-primary" href="{% url 'student_register' %}"><svg class="i"><use href="#i-plus"/></svg>Register student</a></div>
+    <div class="actions"><a class="btn btn-primary" href="{% url 'student_register' %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Register student</a></div>
     {% endif %}
 </div>
 
 <section class="panel">
     <div class="toolbar">
         <form class="search" method="get" role="search">
-            <svg class="i"><use href="#i-search"/></svg>
+            <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
             <label class="sr-only" for="student-query">Find a student</label>
             <input id="student-query" name="q" type="search" value="{{ query }}" placeholder="Name, student number or program" data-search>
             <span class="kbd" aria-hidden="true">/</span>

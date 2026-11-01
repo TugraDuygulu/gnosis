@@ -2,7 +2,7 @@
 {% load gnosis_ui %}
 {% block title %}{{ student.full_name }}{% endblock %}
 {% block content %}
-<ol class="crumbs"><li><a href="{% url 'student_list' %}">Students</a></li><li>{{ student.full_name }}</li></ol>
+<ol class="crumbs"><li><a href="{% url 'student_list' %}">Students</a></li><li aria-current="page">{{ student.full_name }}</li></ol>
 <div class="head">
     <span class="avatar">{{ student.full_name|initials }}</span>
     <div>
@@ -10,7 +10,7 @@
         <div class="sub"><span class="tag num">{{ student.student_number }}</span><span>{{ student.program }}</span></div>
     </div>
     {% if perms.core.add_enrollment %}
-    <div class="actions"><a class="btn btn-primary" href="{% url 'student_enroll' student.pk %}"><svg class="i"><use href="#i-plus"/></svg>Enroll in a course offering</a></div>
+    <div class="actions"><a class="btn btn-primary" href="{% url 'student_enroll' student.pk %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Enroll in a course offering</a></div>
     {% endif %}
 </div>
 

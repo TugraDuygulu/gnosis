@@ -2,7 +2,7 @@
 {% load gnosis_ui %}
 {% block title %}{{ offering.course.code }} roster{% endblock %}
 {% block content %}
-<ol class="crumbs"><li><a href="{% url 'course_list' %}">Courses</a></li><li>{{ offering.course.code }}</li></ol>
+<ol class="crumbs"><li><a href="{% url 'course_list' %}">Courses</a></li><li aria-current="page">{{ offering.course.code }}</li></ol>
 <div class="page-title">
     <div>
         <h1>{{ offering.course.code }} — {{ offering.course.title }}</h1>

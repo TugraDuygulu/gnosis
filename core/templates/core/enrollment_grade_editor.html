@@ -6,7 +6,7 @@
     <li><a href="{% url 'course_list' %}">Courses</a></li>
     <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
     <li><a href="{% url 'enrollment_outcomes' enrollment.pk %}">{{ student.full_name }}</a></li>
-    <li>Edit grades</li>
+    <li aria-current="page">Edit grades</li>
 </ol>
 <div class="page-title">
     <div>
@@ -14,7 +14,7 @@
         <p>{{ student.full_name }} · <span class="num">{{ student.student_number }}</span> · {{ offering.course.code }} — {{ offering.course.title }} · {{ offering.term }} {{ offering.year }} · Section {{ offering.section }}</p>
     </div>
     {% if perms.core.view_grade %}
-    <div class="actions"><a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i"><use href="#i-history"/></svg>Grade-change history</a></div>
+    <div class="actions"><a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-history"/></svg>Grade-change history</a></div>
     {% endif %}
 </div>
 
@@ -28,7 +28,7 @@
             {% if form.errors %}
             <div class="panel-body">
                 <div class="notice notice-error" role="alert" style="margin:0">
-                    <svg class="i"><use href="#i-alert"/></svg>
+                    <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
                     <div>
                         <p>Nothing was saved. Review the errors below.</p>
                         {{ form.non_field_errors }}

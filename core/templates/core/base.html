@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'core/gnosis.css' %}">
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.3-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.7 2.6 3 5.2"/></symbol>
     <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v14H6a2 2 0 0 0-2 2.5z"/><path d="M6 17h14v4H6a2 2 0 0 1 0-4z"/></symbol>
@@ -33,14 +34,14 @@
         <a class="brand" href="{% url 'student_list' %}"><span class="mark" aria-hidden="true">G</span>Gnosis</a>
         <nav aria-label="Staff workspace">
             <div class="group">Workspace</div>
-            <a class="nav{% if name in 'student_list student_detail student_register student_enroll student_outcomes' %} on{% endif %}" href="{% url 'student_list' %}"><svg class="i"><use href="#i-users"/></svg>Students</a>
-            <a class="nav{% if name in 'course_list offering_detail enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} on{% endif %}" href="{% url 'course_list' %}"><svg class="i"><use href="#i-book"/></svg>Courses</a>
+            <a class="nav{% if name in 'student_list student_detail student_register student_enroll student_outcomes' %} on{% endif %}"{% if name in 'student_list student_detail student_register student_enroll student_outcomes' %} aria-current="{% if name == 'student_list' or name == 'course_list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'student_list' %}"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Students</a>
+            <a class="nav{% if name in 'course_list offering_detail enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} on{% endif %}"{% if name in 'course_list offering_detail enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} aria-current="{% if name == 'student_list' or name == 'course_list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'course_list' %}"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>Courses</a>
             {% if perms.core.add_student %}
             <div class="group">Quick actions</div>
-            <a class="nav" href="{% url 'student_register' %}"><svg class="i"><use href="#i-plus"/></svg>Register student</a>
+            <a class="nav" href="{% url 'student_register' %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Register student</a>
             {% endif %}
             <div class="group">Configuration</div>
-            <a class="nav" href="{% url 'admin:index' %}"><svg class="i"><use href="#i-cog"/></svg>Django Admin</a>
+            <a class="nav" href="{% url 'admin:index' %}"><svg class="i" aria-hidden="true"><use href="#i-cog"/></svg>Django Admin</a>
         </nav>
         <div class="me">
             <span class="avatar">{{ user.get_username|initials }}</span>
@@ -55,14 +56,14 @@
         <header class="topline">
             {% block topsearch %}
             <form class="search" method="get" action="{% url 'student_list' %}" role="search">
-                <svg class="i"><use href="#i-search"/></svg>
+                <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
                 <label class="sr-only" for="global-search">Search students</label>
                 <input id="global-search" name="q" type="search" placeholder="Search students by name, number or program" data-search>
                 <span class="kbd" aria-hidden="true">/</span>
             </form>
             {% endblock %}
         </header>
-        <main class="main">
+        <main class="main" id="main" tabindex="-1">
             {% for message in messages %}
             {% if message.level_tag == 'error' or message.level_tag == 'warning' %}
             <div class="notice notice-error" role="alert"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><p>{{ message }}</p></div>

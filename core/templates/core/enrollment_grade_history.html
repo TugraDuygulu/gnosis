@@ -6,7 +6,7 @@
     <li><a href="{% url 'course_list' %}">Courses</a></li>
     <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
     <li><a href="{% url 'enrollment_outcomes' enrollment.pk %}">{{ student.full_name }}</a></li>
-    <li>Grade-change history</li>
+    <li aria-current="page">Grade-change history</li>
 </ol>
 <div class="page-title">
     <div>
@@ -15,7 +15,7 @@
     </div>
     <div class="actions">
         <a class="btn btn-ghost" href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
-        {% if perms.core.change_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i"><use href="#i-pen"/></svg>Edit course grades</a>{% endif %}
+        {% if perms.core.change_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Edit course grades</a>{% endif %}
     </div>
 </div>
 

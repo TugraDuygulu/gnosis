@@ -379,3 +379,8 @@ table.list { width: 100%; border-collapse: collapse; }
 .notice-error a { font-weight: 700; }
 .admin-link { margin-left: auto; color: var(--navy); font-size: 14px; }
 .notice .notice-more { margin-top: 6px; font-weight: 400; }
+
+/* Skip link: hidden until focused, first stop for keyboard users. */
+.skip-link { position: absolute; left: 12px; top: -48px; z-index: 50; padding: 10px 14px; border-radius: 8px; background: var(--navy); color: #fff; font-weight: 700; }
+.skip-link:focus { top: 12px; text-decoration: none; }
+.main:focus { outline: none; }

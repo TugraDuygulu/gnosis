@@ -6,7 +6,7 @@
 <ol class="crumbs">
     <li><a href="{% url 'course_list' %}">Courses</a></li>
     <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
-    <li>{{ student.full_name }}</li>
+    <li aria-current="page">{{ student.full_name }}</li>
 </ol>
 <div class="head">
     <span class="avatar">{{ student.full_name|initials }}</span>
@@ -20,17 +20,17 @@
             <a class="btn btn-ghost" href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Student profile</a>
         {% endif %}
         {% if perms.core.view_grade %}
-            <a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i"><use href="#i-history"/></svg>Grade-change history</a>
+            <a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-history"/></svg>Grade-change history</a>
         {% endif %}
         {% if perms.core.change_grade %}
-            <a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i"><use href="#i-pen"/></svg>Edit course grades</a>
+            <a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Edit course grades</a>
         {% endif %}
     </div>
 </div>
 
 {% if missing %}
 <div class="callout" role="status">
-    <span class="ic"><svg class="i"><use href="#i-alert"/></svg></span>
+    <span class="ic"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg></span>
     <div class="text">
         <b>{{ missing|length }} of {{ assessment_results|length }} grade{{ assessment_results|length|pluralize }} missing: {% for assessment in missing %}{{ assessment.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</b>
         <span>Results that depend on {{ missing|length|pluralize:"it,them" }} stay incomplete. A missing grade is never counted as zero; a recorded 0 is.</span>
@@ -90,7 +90,7 @@
                 <span><span class="t">{{ result.outcome.description }}</span></span>
                 {% include "core/_score.html" with score=result.score state=result.state coverage=result.coverage %}
                 <span class="state">{% include "core/_state.html" with state=result.state %}</span>
-                <svg class="chev"><use href="#i-chev"/></svg>
+                <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
             </summary>
             <div class="detail">
                 <h3>{% if result.score is not None %}Where {{ result.score|floatformat:2 }}% comes from{% else %}Why there is no result yet{% endif %}</h3>
@@ -125,7 +125,7 @@
                 <span><span class="t">{{ result.outcome.description }}</span></span>
                 {% include "core/_score.html" with score=result.score state=result.state coverage=result.coverage %}
                 <span class="state">{% include "core/_state.html" with state=result.state %}</span>
-                <svg class="chev"><use href="#i-chev"/></svg>
+                <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
             </summary>
             <div class="detail">
                 <h3>{% if result.score is not None %}Where {{ result.score|floatformat:2 }}% comes from{% else %}Why there is no result yet{% endif %}</h3>

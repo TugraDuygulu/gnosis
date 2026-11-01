@@ -5,7 +5,7 @@
 <ol class="crumbs">
     <li><a href="{% url 'student_list' %}">Students</a></li>
     <li><a href="{% url 'student_detail' student.pk %}">{{ student.full_name }}</a></li>
-    <li>Program outcomes</li>
+    <li aria-current="page">Program outcomes</li>
 </ol>
 <div class="head">
     <span class="avatar">{{ student.full_name|initials }}</span>
@@ -14,11 +14,11 @@
         <div class="sub">
             <span class="tag num">{{ student.student_number }}</span>
             <span>{{ student.program.name }}</span>
-            <span class="switcher" aria-label="Outcome framework">
+            <nav class="switcher" aria-label="Outcome framework">
                 {% for other in frameworks %}
                     <a href="{% url 'student_outcomes' student.pk other.pk %}"{% if other.pk == framework.pk %} aria-current="page"{% endif %}>Framework v{{ other.version_number }}</a>
                 {% endfor %}
-            </span>
+            </nav>
         </div>
         <div class="summary">
             <b>{{ scored_count }} of {{ po_results|length }}</b> outcomes have a result
@@ -30,9 +30,9 @@
         <a class="btn btn-ghost" href="{% url 'student_detail' student.pk %}">Student record</a>
         {% if attention and perms.core.change_grade %}
             {% if attention_courses == 1 %}
-                {% with first=attention.0 %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' first.enrollment.pk %}"><svg class="i"><use href="#i-pen"/></svg>Enter missing grade{{ attention|length|pluralize }}</a>{% endwith %}
+                {% with first=attention.0 %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' first.enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Enter missing grade{{ attention|length|pluralize }}</a>{% endwith %}
             {% else %}
-                <a class="btn btn-primary" href="#attention"><svg class="i"><use href="#i-pen"/></svg>Review {{ attention|length }} missing grades</a>
+                <a class="btn btn-primary" href="#attention"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Review {{ attention|length }} missing grades</a>
             {% endif %}
         {% endif %}
     </div>
@@ -53,23 +53,23 @@
         </div>
         <div class="bars" style="--n:{{ po_results|length }}">
             {% for result in po_results %}
-            <a href="#{{ result.outcome.code|slugify }}"{% if result.score is not None %} style="--c:{{ result.score|score_fill }};--t:{{ result.score|score_text }}"{% endif %}>
+            <a href="#{{ result.outcome.code|slugify }}" aria-label="{{ result.outcome.code }}: {% if result.score is not None %}{{ result.score|floatformat:2 }}% achievement{% if result.state == 'some' %}, some grades missing{% endif %}{% elif result.state == 'none' %}not graded yet{% else %}not measured{% endif %}"{% if result.score is not None %} style="--c:{{ result.score|score_fill }};--t:{{ result.score|score_text }}"{% endif %}>
                 {% if result.score is not None %}
-                    <span class="v sc">{{ result.score|floatformat:1 }}%{% if result.state == "some" %}<svg><use href="#i-some"/></svg>{% endif %}</span>
+                    <span class="v sc">{{ result.score|floatformat:1 }}%{% if result.state == "some" %}<svg aria-hidden="true"><use href="#i-some"/></svg>{% endif %}</span>
                     <span class="col{% if result.score == 0 %} zero{% endif %}"><span class="f sf" style="height:{{ result.score|pct }}%"></span></span>
                 {% else %}
                     <span class="v na">–</span>
                     <span class="col {% if result.state == 'none' %}missing{% else %}unmeasured{% endif %}"></span>
                 {% endif %}
                 <span class="c">{{ result.outcome.code }}</span>
-                <span class="tip" role="tooltip"><b>{{ result.outcome.code }} · {% if result.score is not None %}{{ result.score|floatformat:2 }}%{% elif result.state == "none" %}No graded evidence yet{% else %}Not measured{% endif %}</b>{{ result.outcome.description|truncatechars:120 }}</span>
+                <span class="tip" aria-hidden="true"><b>{{ result.outcome.code }} · {% if result.score is not None %}{{ result.score|floatformat:2 }}%{% elif result.state == "none" %}No graded evidence yet{% else %}Not measured{% endif %}</b>{{ result.outcome.description|truncatechars:120 }}</span>
             </a>
             {% endfor %}
         </div>
         <div class="key">
             <span><span>0%</span><span class="grad"></span><span>100%</span></span>
             <span>Achievement: red is low, green is high</span>
-            <span><svg><use href="#i-some"/></svg>Some grades still missing</span>
+            <span><svg aria-hidden="true"><use href="#i-some"/></svg>Some grades still missing</span>
             <span><span class="sw missing"></span>Not graded yet</span>
             <span><span class="sw unmeasured"></span>Not measured by any course</span>
         </div>
@@ -112,7 +112,7 @@
                     </span>
                     {% include "core/_score.html" with score=result.score state=result.state coverage=result.coverage %}
                     <span class="state">{% include "core/_state.html" with state=result.state %}</span>
-                    <svg class="chev"><use href="#i-chev"/></svg>
+                    <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
                 </summary>
                 <div class="detail">
                     <p class="full">{{ result.outcome.code }} — {{ result.outcome.description }}</p>
@@ -161,7 +161,7 @@
             <div class="panel-head"><h2>Needs attention</h2>{% if attention %}<span class="count-badge">{{ attention|length }}</span>{% endif %}</div>
             {% for item in attention %}
                 <div class="attn">
-                    <span class="ic"><svg class="i"><use href="#i-alert"/></svg></span>
+                    <span class="ic"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg></span>
                     <div>
                         <b>{{ item.assessment.name }} grade missing</b>
                         <p>{{ item.enrollment.offering.course.code }} {{ item.enrollment.offering.course.title }}.{% if item.outcomes %} {% for outcome in item.outcomes %}{{ outcome.code }}{% if not forloop.last %}{% if forloop.revcounter == 2 %} and {% else %}, {% endif %}{% endif %}{% endfor %} {{ item.outcomes|length|pluralize:"stays,stay" }} incomplete until it is entered.{% endif %} A score of 0 also counts.</p>
