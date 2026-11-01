@@ -1,0 +1,368 @@
+{
+  "PILOT001.PILOT311": {
+    "parameters": {
+      "student_number": "PILOT001",
+      "offering_id": 1
+    },
+    "query1": [
+      {
+        "student_number": "PILOT001",
+        "enrollment_id": 1,
+        "enrollment_status": "active",
+        "offering_id": 1,
+        "course_code": "PILOT311",
+        "assessment_id": 1,
+        "assessment_name": "Midterm",
+        "raw_score": 90,
+        "max_score": 100,
+        "normalized_percent": 90.0,
+        "grade_state": "recorded"
+      },
+      {
+        "student_number": "PILOT001",
+        "enrollment_id": 1,
+        "enrollment_status": "active",
+        "offering_id": 1,
+        "course_code": "PILOT311",
+        "assessment_id": 2,
+        "assessment_name": "Project",
+        "raw_score": 40,
+        "max_score": 50,
+        "normalized_percent": 80.0,
+        "grade_state": "recorded"
+      }
+    ],
+    "query2": [
+      {
+        "enrollment_id": 1,
+        "student_number": "PILOT001",
+        "offering_id": 1,
+        "lo_id": 1,
+        "lo_code": "LO1",
+        "mapped_assessment_count": 2,
+        "graded_assessment_count": 2,
+        "total_mapping_weight": 100.0,
+        "graded_mapping_weight": 100.0,
+        "attainment_percent": 86.0,
+        "coverage_percent": 100.0,
+        "evidence_status": "complete"
+      },
+      {
+        "enrollment_id": 1,
+        "student_number": "PILOT001",
+        "offering_id": 1,
+        "lo_id": 2,
+        "lo_code": "LO2",
+        "mapped_assessment_count": 2,
+        "graded_assessment_count": 2,
+        "total_mapping_weight": 140.0,
+        "graded_mapping_weight": 140.0,
+        "attainment_percent": 82.85714285714286,
+        "coverage_percent": 100.0,
+        "evidence_status": "complete"
+      }
+    ],
+    "django_lo_reference": {
+      "1": {
+        "score": "86.0",
+        "coverage": "100",
+        "status": "complete"
+      },
+      "2": {
+        "score": "82.85714285714285714285714286",
+        "coverage": "100",
+        "status": "complete"
+      }
+    }
+  },
+  "PILOT002.PILOT311": {
+    "parameters": {
+      "student_number": "PILOT002",
+      "offering_id": 1
+    },
+    "query1": [
+      {
+        "student_number": "PILOT002",
+        "enrollment_id": 3,
+        "enrollment_status": "active",
+        "offering_id": 1,
+        "course_code": "PILOT311",
+        "assessment_id": 1,
+        "assessment_name": "Midterm",
+        "raw_score": 70,
+        "max_score": 100,
+        "normalized_percent": 70.0,
+        "grade_state": "recorded"
+      },
+      {
+        "student_number": "PILOT002",
+        "enrollment_id": 3,
+        "enrollment_status": "active",
+        "offering_id": 1,
+        "course_code": "PILOT311",
+        "assessment_id": 2,
+        "assessment_name": "Project",
+        "raw_score": null,
+        "max_score": 50,
+        "normalized_percent": null,
+        "grade_state": "null_score"
+      }
+    ],
+    "query2": [
+      {
+        "enrollment_id": 3,
+        "student_number": "PILOT002",
+        "offering_id": 1,
+        "lo_id": 1,
+        "lo_code": "LO1",
+        "mapped_assessment_count": 2,
+        "graded_assessment_count": 1,
+        "total_mapping_weight": 100.0,
+        "graded_mapping_weight": 60.0,
+        "attainment_percent": 70.0,
+        "coverage_percent": 60.0,
+        "evidence_status": "provisional"
+      },
+      {
+        "enrollment_id": 3,
+        "student_number": "PILOT002",
+        "offering_id": 1,
+        "lo_id": 2,
+        "lo_code": "LO2",
+        "mapped_assessment_count": 2,
+        "graded_assessment_count": 1,
+        "total_mapping_weight": 140.0,
+        "graded_mapping_weight": 40.0,
+        "attainment_percent": 70.0,
+        "coverage_percent": 28.571428571428573,
+        "evidence_status": "provisional"
+      }
+    ],
+    "django_lo_reference": {
+      "1": {
+        "score": "70.0",
+        "coverage": "60.0",
+        "status": "provisional"
+      },
+      "2": {
+        "score": "70.0",
+        "coverage": "28.57142857142857142857142857",
+        "status": "provisional"
+      }
+    }
+  },
+  "PILOT311.summary": {
+    "parameters": {
+      "offering_id": 1
+    },
+    "query3": [
+      {
+        "offering_id": 1,
+        "lo_id": 1,
+        "lo_code": "LO1",
+        "active_students": 2,
+        "students_with_evidence": 2,
+        "complete_students": 1,
+        "provisional_students": 1,
+        "no_data_students": 0,
+        "mean_attainment_percent": 78.0,
+        "mean_coverage_percent": 80.0
+      },
+      {
+        "offering_id": 1,
+        "lo_id": 2,
+        "lo_code": "LO2",
+        "active_students": 2,
+        "students_with_evidence": 2,
+        "complete_students": 1,
+        "provisional_students": 1,
+        "no_data_students": 0,
+        "mean_attainment_percent": 76.42857142857143,
+        "mean_coverage_percent": 64.28571428571429
+      }
+    ]
+  },
+  "PILOT001.PILOT321": {
+    "parameters": {
+      "student_number": "PILOT001",
+      "offering_id": 2
+    },
+    "query1": [
+      {
+        "student_number": "PILOT001",
+        "enrollment_id": 2,
+        "enrollment_status": "active",
+        "offering_id": 2,
+        "course_code": "PILOT321",
+        "assessment_id": 3,
+        "assessment_name": "Midterm",
+        "raw_score": 0,
+        "max_score": 100,
+        "normalized_percent": 0.0,
+        "grade_state": "recorded"
+      },
+      {
+        "student_number": "PILOT001",
+        "enrollment_id": 2,
+        "enrollment_status": "active",
+        "offering_id": 2,
+        "course_code": "PILOT321",
+        "assessment_id": 4,
+        "assessment_name": "Lab",
+        "raw_score": null,
+        "max_score": 50,
+        "normalized_percent": null,
+        "grade_state": "null_score"
+      }
+    ],
+    "query2": [
+      {
+        "enrollment_id": 2,
+        "student_number": "PILOT001",
+        "offering_id": 2,
+        "lo_id": 3,
+        "lo_code": "LO1",
+        "mapped_assessment_count": 1,
+        "graded_assessment_count": 1,
+        "total_mapping_weight": 100.0,
+        "graded_mapping_weight": 100.0,
+        "attainment_percent": 0.0,
+        "coverage_percent": 100.0,
+        "evidence_status": "complete"
+      },
+      {
+        "enrollment_id": 2,
+        "student_number": "PILOT001",
+        "offering_id": 2,
+        "lo_id": 4,
+        "lo_code": "LO2",
+        "mapped_assessment_count": 1,
+        "graded_assessment_count": 0,
+        "total_mapping_weight": 100.0,
+        "graded_mapping_weight": 0.0,
+        "attainment_percent": null,
+        "coverage_percent": 0.0,
+        "evidence_status": "no_data"
+      }
+    ],
+    "django_lo_reference": {
+      "3": {
+        "score": "0",
+        "coverage": "100",
+        "status": "complete"
+      },
+      "4": {
+        "score": null,
+        "coverage": "0E+2",
+        "status": "no_data"
+      }
+    }
+  },
+  "PILOT002.PILOT321": {
+    "parameters": {
+      "student_number": "PILOT002",
+      "offering_id": 2
+    },
+    "query1": [
+      {
+        "student_number": "PILOT002",
+        "enrollment_id": 4,
+        "enrollment_status": "active",
+        "offering_id": 2,
+        "course_code": "PILOT321",
+        "assessment_id": 3,
+        "assessment_name": "Midterm",
+        "raw_score": 80,
+        "max_score": 100,
+        "normalized_percent": 80.0,
+        "grade_state": "recorded"
+      },
+      {
+        "student_number": "PILOT002",
+        "enrollment_id": 4,
+        "enrollment_status": "active",
+        "offering_id": 2,
+        "course_code": "PILOT321",
+        "assessment_id": 4,
+        "assessment_name": "Lab",
+        "raw_score": 40,
+        "max_score": 50,
+        "normalized_percent": 80.0,
+        "grade_state": "recorded"
+      }
+    ],
+    "query2": [
+      {
+        "enrollment_id": 4,
+        "student_number": "PILOT002",
+        "offering_id": 2,
+        "lo_id": 3,
+        "lo_code": "LO1",
+        "mapped_assessment_count": 1,
+        "graded_assessment_count": 1,
+        "total_mapping_weight": 100.0,
+        "graded_mapping_weight": 100.0,
+        "attainment_percent": 80.0,
+        "coverage_percent": 100.0,
+        "evidence_status": "complete"
+      },
+      {
+        "enrollment_id": 4,
+        "student_number": "PILOT002",
+        "offering_id": 2,
+        "lo_id": 4,
+        "lo_code": "LO2",
+        "mapped_assessment_count": 1,
+        "graded_assessment_count": 1,
+        "total_mapping_weight": 100.0,
+        "graded_mapping_weight": 100.0,
+        "attainment_percent": 80.0,
+        "coverage_percent": 100.0,
+        "evidence_status": "complete"
+      }
+    ],
+    "django_lo_reference": {
+      "3": {
+        "score": "80.0",
+        "coverage": "100",
+        "status": "complete"
+      },
+      "4": {
+        "score": "80.0",
+        "coverage": "100",
+        "status": "complete"
+      }
+    }
+  },
+  "PILOT321.summary": {
+    "parameters": {
+      "offering_id": 2
+    },
+    "query3": [
+      {
+        "offering_id": 2,
+        "lo_id": 3,
+        "lo_code": "LO1",
+        "active_students": 2,
+        "students_with_evidence": 2,
+        "complete_students": 2,
+        "provisional_students": 0,
+        "no_data_students": 0,
+        "mean_attainment_percent": 40.0,
+        "mean_coverage_percent": 100.0
+      },
+      {
+        "offering_id": 2,
+        "lo_id": 4,
+        "lo_code": "LO2",
+        "active_students": 2,
+        "students_with_evidence": 1,
+        "complete_students": 1,
+        "provisional_students": 0,
+        "no_data_students": 1,
+        "mean_attainment_percent": 80.0,
+        "mean_coverage_percent": 50.0
+      }
+    ]
+  }
+}
