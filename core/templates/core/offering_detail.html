@@ -21,7 +21,7 @@
     {% if enrollments %}
     <div class="table-scroll">
         <table class="list">
-            <thead><tr><th>Student</th><th>Status</th><th>Grades entered</th><th>Open</th></tr></thead>
+            <thead><tr><th>Student</th><th>Status</th><th>Grades entered</th><th>Actions</th></tr></thead>
             <tbody>
             {% for enrollment in enrollments %}
                 <tr>
@@ -37,17 +37,18 @@
                         {% else %}{{ enrollment.graded_total }} of {{ assessment_total }}{% endif %}
                     </td>
                     <td>
-                        <div class="link-list">
+                        <div class="row-actions">
+                            {% if perms.core.change_grade %}
+                                <a class="btn btn-ghost btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit course grades</a>
+                            {% endif %}
                             <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
                             {% if offering.po_framework_id and offering.po_framework.program_id == enrollment.student.program_id %}
-                                <a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Student outcome profile</a>
-                            {% else %}
-                                <span class="muted">No compatible student outcome profile for this offering.</span>
-                            {% endif %}
-                            {% if perms.core.change_grade %}
-                                <a href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit grades</a>
+                                <a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Outcome profile</a>
                             {% endif %}
                         </div>
+                        {% if not offering.po_framework_id or offering.po_framework.program_id != enrollment.student.program_id %}
+                            <span class="sub">No compatible student outcome profile for this offering.</span>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

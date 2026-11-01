@@ -21,19 +21,18 @@
         {% if enrollments %}
         <div class="table-scroll">
             <table class="list">
-                <thead><tr><th>Course</th><th>Status</th><th>Grades entered</th><th>Open</th></tr></thead>
+                <thead><tr><th>Course</th><th>Status</th><th>Grades entered</th><th>Actions</th></tr></thead>
                 <tbody>
                 {% for enrollment in enrollments %}
                     <tr>
-                        <td><span class="code">{{ enrollment.offering.course.code }}</span> {{ enrollment.offering.course.title }}<span class="sub">{{ enrollment.offering.term }} {{ enrollment.offering.year }} · Section {{ enrollment.offering.section }}</span></td>
+                        <td><a href="{% url 'enrollment_outcomes' enrollment.pk %}" title="Course evidence"><span class="code">{{ enrollment.offering.course.code }}</span> {{ enrollment.offering.course.title }}</a><span class="sub">{{ enrollment.offering.term }} {{ enrollment.offering.year }} · Section {{ enrollment.offering.section }}</span></td>
                         <td><span class="pill status">{{ enrollment.status }}</span></td>
                         <td class="num">{{ enrollment.graded_total }} of {{ enrollment.assessment_total }}</td>
                         <td>
-                            <div class="link-list">
-                                <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
-                                <a href="{% url 'offering_detail' enrollment.offering_id %}">Class roster</a>
-                                {% if perms.core.change_grade %}<a href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit grades</a>{% endif %}
-                                {% if perms.core.view_grade %}<a href="{% url 'enrollment_grade_history' enrollment.pk %}">Grade-change history</a>{% endif %}
+                            <div class="row-actions">
+                                {% if perms.core.change_grade %}<a class="btn btn-ghost btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit course grades</a>{% endif %}
+                                <a href="{% url 'offering_detail' enrollment.offering_id %}">Roster</a>
+                                {% if perms.core.view_grade %}<a href="{% url 'enrollment_grade_history' enrollment.pk %}">History</a>{% endif %}
                             </div>
                         </td>
                     </tr>

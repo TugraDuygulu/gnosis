@@ -387,3 +387,7 @@ table.list { width: 100%; border-collapse: collapse; }
 
 /* Page headers: the title block takes the free space so actions stay on its row. */
 .head > div:not(.actions), .page-title > div:not(.actions) { flex: 1 1 340px; min-width: 0; }
+
+/* Row actions: one button for the main task, quiet links for the rest. */
+.row-actions { display: flex; flex-wrap: nowrap; white-space: nowrap; align-items: center; gap: 6px 16px; }
+.row-actions > a:not(.btn) { font-size: 14.5px; }
