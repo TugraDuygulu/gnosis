@@ -2,7 +2,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, OperationalError
+from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
@@ -12,6 +12,7 @@ from core.grade_editor import (
     EnrollmentGradeForm, revision_token, save_grades, snapshot, STALE_MESSAGE,
 )
 from core.grade_history import history_entries, history_row
+from core.student_intake import StudentRegistrationForm, StudentEnrollmentForm, enroll_student
 
 from core.models import (
     Enrollment,
@@ -41,6 +42,75 @@ def enrollment_grade_history(request, enrollment_id):
     return render(request, "core/enrollment_grade_history.html", {
         "enrollment": enrollment, "page": page,
         "history": [history_row(entry) for entry in page],
+    })
+
+
+@staff_member_required
+@permission_required("core.add_student", raise_exception=True)
+@require_http_methods(["GET", "POST"])
+def student_register(request):
+    form = StudentRegistrationForm(request.POST if request.method == "POST" else None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            with transaction.atomic():
+                student = form.save()
+        except IntegrityError:
+            form.add_error(None, "This student number already exists or the program changed. Review the details.")
+        except OperationalError as error:
+            if "locked" not in str(error).lower():
+                raise
+            form.add_error(None, "Another save is in progress. Nothing was saved. Try again.")
+        else:
+            messages.success(request, "Student registered. You can now enroll them in a course offering.")
+            return redirect("student_detail", student_id=student.pk)
+    return render(request, "core/intake_form.html", {
+        "form": form, "page_title": "Register student", "submit_label": "Register student",
+        "cancel_url": "student_list", "has_choices": form.fields["program"].queryset.exists(),
+        "intro": "Create an academic student record. This does not create a login account.",
+        "empty_message": "No programs configured. Ask an administrator to set up a program first.",
+    })
+
+
+@staff_member_required
+@require_http_methods(["GET"])
+def student_detail(request, student_id):
+    student = get_object_or_404(Student.objects.select_related("program"), pk=student_id)
+    enrollments = student.enrollments.select_related(
+        "offering__course", "offering__po_framework",
+    ).order_by("-offering__year", "offering__term", "offering__course__code", "pk")
+    return render(request, "core/student_detail.html", {
+        "student": student, "enrollments": enrollments,
+        "frameworks": student.program.po_frameworks.order_by("version_number", "pk"),
+    })
+
+
+@staff_member_required
+@permission_required("core.add_enrollment", raise_exception=True)
+@require_http_methods(["GET", "POST"])
+def student_enroll(request, student_id):
+    student = get_object_or_404(Student.objects.select_related("program"), pk=student_id)
+    form = StudentEnrollmentForm(student, request.POST if request.method == "POST" else None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            enrollment = enroll_student(student.pk, form.cleaned_data["offering"].pk)
+        except (Student.DoesNotExist, CourseOffering.DoesNotExist, IntegrityError):
+            form.add_error(None, "The student, offering or enrollment changed. Reload before trying again.")
+        except ValidationError as error:
+            form.add_error(None, error)
+        except OperationalError as error:
+            if "locked" not in str(error).lower():
+                raise
+            form.add_error(None, "Another save is in progress. Nothing was saved. Reload and try again.")
+        else:
+            messages.success(request, f"Enrolled in {enrollment.offering}. No grades have been recorded yet.")
+            return redirect("student_detail", student_id=student.pk)
+    return render(request, "core/intake_form.html", {
+        "form": form, "student": student, "page_title": "Enroll student",
+        "submit_label": "Enroll student", "cancel_url": "student_detail",
+        "has_choices": form.fields["offering"].queryset.exists(),
+        "intro": "Choose an existing offering with a framework for this student's program. Enrollment will be active.",
+        "empty_message": "No eligible offerings. Existing enrollments and repeated active courses are excluded. "
+                         "Ask an administrator to configure a same-program framework and matching course curriculum if needed.",
     })
 
 

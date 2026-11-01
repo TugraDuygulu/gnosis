@@ -73,6 +73,30 @@ so your results may differ from the initial example.
 This small demo contains one fictional PO, not the full
 eleven-outcome departmental framework.
 
+## Register and enroll students
+
+From **Students**, authorized staff can select **Register student**, enter a
+full name, unique student number and existing program, then open the student's
+record and select **Enroll in a course offering**. Registration creates an
+academic record, not a login. Names and numbers are trimmed; numbers preserve
+case and leading zeros and use the existing exact database uniqueness rule.
+
+Registration requires active staff plus `core.add_student`; enrollment requires
+`core.add_enrollment`. The student page is staff-only, with grade editing/history
+links gated by their existing permissions. New enrollment is active and starts
+without grades. Existing enrollment records cannot be duplicated or reactivated
+by this form. Offerings must have a matching course/curriculum and a same-program
+PO framework. A second active offering of the same course/exact framework is
+excluded while retake policy remains unresolved; another framework version is
+kept separate. Eligibility is rechecked inside the save transaction.
+
+The offering's recorded status is displayed; v0.1 does not invent a lifecycle
+policy for the existing free-text status fields. Programs, course offerings,
+curricula, assessments and outcome mappings are configured through Django Admin.
+No import, mass enrollment, withdrawal/status editor or instructor ownership
+policy is introduced. Admin/script writes are outside these native intake guards.
+See [v0.1 acceptance and walkthrough](docs/v01_acceptance.md).
+
 ## Course workspace
 
 Use **Courses** from any staff page to find an offering by course code/title,
@@ -129,9 +153,11 @@ aborts the write. The existing global staff permission boundary is unchanged.
 
 ## Development Status
 
-The local v0.1 demo supports staff-only student selection,
-assessment-to-LO calculations, course and student-wide PO
-results, evidence coverage, and native per-student course grade editing.
+Gnosis v0.1 supports native student registration and compatible course
+enrollment, staff student/course navigation, assessment-to-LO calculations,
+course and student-wide PO results, evidence coverage, native grade editing
+and grade-change history. The owner-approved scope is a local staff application;
+academic configuration remains in Django Admin.
 
 The fictional two-course demo currently covers one PO.
 The separate representative pilot covers all eleven official POs.
