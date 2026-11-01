@@ -1,0 +1,7 @@
+{% load gnosis_ui %}<span class="score"{% if score is not None %} style="--c:{{ score|score_fill }};--t:{{ score|score_text }}"{% endif %}>
+    {% if state == "unmeasured" or state == "error" %}<span class="track unmeasured"></span><span class="val na">–</span>
+    {% elif score is None %}<span class="track missing"></span><span class="val na">No graded evidence</span>
+    {% else %}<span class="track"><span class="f sf" style="width:{{ score|pct }}%"></span></span><span class="val sc">{{ score|floatformat:2 }}%</span>{% endif %}
+    {% if state == "full" %}<span class="note">All evidence graded{% if score == 0 %} · a recorded zero{% endif %}</span>
+    {% elif state == "some" %}<span class="note">{{ coverage|floatformat:"-1" }}% of evidence graded</span>{% endif %}
+</span>

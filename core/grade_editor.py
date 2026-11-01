@@ -58,7 +58,10 @@ class EnrollmentGradeForm(forms.Form):
                 decimal_places=2,
                 initial=grade.score if grade else None,
                 help_text=f"Out of {assessment.max_score}. Leave blank if ungraded.",
-                widget=forms.NumberInput(attrs={"step": "0.01"}),
+                widget=forms.NumberInput(attrs={
+                    "step": "0.01", "inputmode": "decimal", "placeholder": "Not graded",
+                    "data-max": str(assessment.max_score),
+                }),
             )
 
     def clean(self):

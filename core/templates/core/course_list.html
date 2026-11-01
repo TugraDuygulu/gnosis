@@ -1,46 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Course offerings | Gnosis</title>
-    <style>
-        body { margin:0; background:#f4f6fa; color:#202b3a; font-family:system-ui,sans-serif; }
-        main { max-width:960px; margin:40px auto; padding:0 20px; }
-        article { background:white; border:1px solid #e1e5eb; border-radius:12px; padding:24px; margin:20px 0; }
-        a { color:#234e80; } input,button { font:inherit; padding:10px; }
-        input { max-width:100%; box-sizing:border-box; }
-        form { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
-    </style>
-</head>
-<body>
-<main>
-    {% include 'core/workspace_nav.html' %}
-    <h1>Course offerings</h1>
-    <p>Choose a class to see its roster, assessment evidence and grade editor.</p>
-    <form method="get">
-        <label for="course-query">Find a class</label>
-        <input id="course-query" name="q" type="search" value="{{ query }}"
-               placeholder="Course, instructor, term, year or section">
-        <button type="submit">Search</button>
+{% extends "core/base.html" %}
+{% block title %}Course offerings{% endblock %}
+{% block content %}
+<div class="page-title">
+    <div>
+        <h1>Course offerings</h1>
+        <p>Choose a class to see its roster, assessment evidence and grade editor.</p>
+    </div>
+</div>
+
+<section class="panel">
+    <div class="toolbar">
+        <form class="search" method="get" role="search">
+            <svg class="i"><use href="#i-search"/></svg>
+            <label class="sr-only" for="course-query">Find a class</label>
+            <input id="course-query" name="q" type="search" value="{{ query }}" placeholder="Course, instructor, term, year or section">
+        </form>
         {% if query %}<a href="{% url 'course_list' %}">Clear search</a>{% endif %}
-    </form>
-    {% for offering in offerings %}
-    <article>
-        <h2><a href="{% url 'offering_detail' offering.pk %}">{{ offering.course.code }} — {{ offering.course.title }}</a></h2>
-        <p>{{ offering.term }} {{ offering.year }} · Section {{ offering.section }}</p>
-        <p>Instructor: {{ offering.instructor.full_name }}</p>
-        <p>{{ offering.enrollment_count }} enrolled · {{ offering.active_count }} active · Offering status: {{ offering.status }}</p>
-        <p>
-            {% if offering.po_framework %}
-                {{ offering.po_framework.program.name }} · Framework v{{ offering.po_framework.version_number }}
-            {% else %}
-                No program outcome framework assigned.
-            {% endif %}
-        </p>
-    </article>
-    {% empty %}
-    <article>
+        <span class="count">{{ offerings|length }} offering{{ offerings|length|pluralize }}</span>
+    </div>
+    {% if offerings %}
+    <div class="table-scroll">
+        <table class="list">
+            <thead><tr><th>Course</th><th>Term</th><th>Instructor</th><th class="r">Students</th><th>Outcome framework</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for offering in offerings %}
+                <tr>
+                    <td><a href="{% url 'offering_detail' offering.pk %}"><span class="code">{{ offering.course.code }}</span></a> {{ offering.course.title }}</td>
+                    <td>{{ offering.term }} {{ offering.year }}<span class="sub">Section {{ offering.section }}</span></td>
+                    <td>{{ offering.instructor.full_name }}</td>
+                    <td class="r num">{{ offering.enrollment_count }}<span class="sub">{{ offering.active_count }} active</span></td>
+                    <td>
+                        {% if offering.po_framework %}
+                            Framework v{{ offering.po_framework.version_number }}<span class="sub">{{ offering.po_framework.program.name }}</span>
+                        {% else %}
+                            <span class="muted">No program outcome framework assigned.</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="pill status">{{ offering.status }}</span></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty">
         {% if query %}
             <h2>No matching course offerings</h2>
             <p>Try another course code, title, instructor, term, year or section.</p>
@@ -48,13 +51,12 @@
             <h2>No course offerings yet</h2>
             <p>A course offering represents a class in a specific term and section.</p>
             {% if perms.core.add_courseoffering %}
-                <a href="{% url 'admin:core_courseoffering_add' %}">Add a course offering</a>
+                <a class="btn btn-primary" href="{% url 'admin:core_courseoffering_add' %}">Add a course offering</a>
             {% else %}
                 <p>Ask an academic administrator to configure a course offering.</p>
             {% endif %}
         {% endif %}
-    </article>
-    {% endfor %}
-</main>
-</body>
-</html>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

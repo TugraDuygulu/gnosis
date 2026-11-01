@@ -1,228 +1,185 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ student.full_name }} | Gnosis</title>
-    <style>
-        body {
-            margin: 0;
-            background: #f4f6fa;
-            color: #202b3a;
-            font-family: system-ui, sans-serif;
-        }
-        main {
-            max-width: 960px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        section {
-            background: white;
-            border: 1px solid #e1e5eb;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 20px 0;
-        }
-        a { color: #234e80; }
-        summary { cursor: pointer; font-weight: 600; }
-        li { margin: 10px 0; }
-        .muted { color: #526176; }
-        .outcome-card {
-            background: white;
-            border: 1px solid #e1e5eb;
-            border-radius: 12px;
-            padding: 16px;
-            margin: 12px 0;
-        }
+{% extends "core/base.html" %}
+{% load gnosis_ui %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<ol class="crumbs">
+    <li><a href="{% url 'student_list' %}">Students</a></li>
+    <li><a href="{% url 'student_detail' student.pk %}">{{ student.full_name }}</a></li>
+    <li>Program outcomes</li>
+</ol>
+<div class="head">
+    <span class="avatar">{{ student.full_name|initials }}</span>
+    <div>
+        <h1>{{ student.full_name }}</h1>
+        <div class="sub">
+            <span class="tag num">{{ student.student_number }}</span>
+            <span>{{ student.program.name }}</span>
+            <span class="switcher" aria-label="Outcome framework">
+                {% for other in frameworks %}
+                    <a href="{% url 'student_outcomes' student.pk other.pk %}"{% if other.pk == framework.pk %} aria-current="page"{% endif %}>Framework v{{ other.version_number }}</a>
+                {% endfor %}
+            </span>
+        </div>
+        <div class="summary">
+            <b>{{ scored_count }} of {{ po_results|length }}</b> outcomes have a result
+            {% if attention %} · <span class="warn">{{ attention|length }} grade{{ attention|length|pluralize }} missing</span>{% endif %}
+            · <b>{{ enrollments|length }}</b> active course{{ enrollments|length|pluralize }}
+        </div>
+    </div>
+    <div class="actions">
+        <a class="btn btn-ghost" href="{% url 'student_detail' student.pk %}">Student record</a>
+        {% if attention and perms.core.change_grade %}
+            {% with first=attention.0 %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' first.enrollment.pk %}"><svg class="i"><use href="#i-pen"/></svg>Enter missing grade{{ attention|length|pluralize }}</a>{% endwith %}
+        {% endif %}
+    </div>
+</div>
 
-        .outcome-card > summary {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 8px 20px;
-        }
-
-        .outcome-card > summary::before {
-            content: "+";
-        }
-
-        .outcome-card[open] > summary::before {
-            content: "−";
-        }
-
-        .outcome-card > summary strong {
-            min-width: 48px;
-        }
-
-        .outcome-metric {
-            font-weight: 400;
-        }
-
-        .outcome-hint {
-            margin-left: auto;
-            font-size: 0.875rem;
-        }
-
-        @media (max-width: 600px) {
-            main {
-                margin: 24px auto;
-                padding: 0 12px;
-            }
-
-            .outcome-metric {
-                flex-basis: 100%;
-            }
-
-            .outcome-hint {
-                margin-left: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-<main>
-    {% include 'core/workspace_nav.html' %}
-    <a href="{% url 'student_list' %}">← All students</a>
-
-    <h1>{{ student.full_name }}</h1>
-    <p>{{ student.student_number }} · {{ student.program.name }}</p>
-    <p class="muted">
-        Program outcomes · Framework v{{ framework.version_number }}
-    </p>
-
-    <section>
-        <h2>Courses</h2>
-        <ul>
-            {% for enrollment in enrollments %}
-            <li>
-                <a href="{% url 'enrollment_outcomes' enrollment.pk %}">
-                    {{ enrollment.offering.course.code }} —
-                    {{ enrollment.offering.course.title }}
-                </a>
-            </li>
-            {% empty %}
-            <li>No active courses use this framework.</li>
+{% if po_results %}
+<section class="panel overview">
+    <div class="chart">
+        <div class="chart-top">
+            <h2>Outcome overview</h2>
+            <span class="info"><button aria-label="How to read this chart">?</button>
+                <span class="pop" role="tooltip">
+                    <p><b>Achievement</b> summarizes recorded grades. Its colour runs from red (low) to green (high).</p>
+                    <p><b>Coverage</b> measures how much configured evidence is available; it is not an achievement score.</p>
+                    <p>A missing grade is never counted as zero. A recorded 0 is a real grade.</p>
+                </span>
+            </span>
+        </div>
+        <div class="bars" style="--n:{{ po_results|length }}">
+            {% for result in po_results %}
+            <a href="#{{ result.outcome.code|slugify }}"{% if result.score is not None %} style="--c:{{ result.score|score_fill }};--t:{{ result.score|score_text }}"{% endif %}>
+                {% if result.score is not None %}
+                    <span class="v sc">{{ result.score|floatformat:1 }}%{% if result.state == "some" %}<svg><use href="#i-some"/></svg>{% endif %}</span>
+                    <span class="col{% if result.score == 0 %} zero{% endif %}"><span class="f sf" style="height:{{ result.score|pct }}%"></span></span>
+                {% else %}
+                    <span class="v na">–</span>
+                    <span class="col {% if result.state == 'none' %}missing{% else %}unmeasured{% endif %}"></span>
+                {% endif %}
+                <span class="c">{{ result.outcome.code }}</span>
+                <span class="tip" role="tooltip"><b>{{ result.outcome.code }} · {% if result.score is not None %}{{ result.score|floatformat:2 }}%{% elif result.state == "none" %}No graded evidence yet{% else %}Not measured{% endif %}</b>{{ result.outcome.description|truncatechars:120 }}</span>
+            </a>
             {% endfor %}
-        </ul>
+        </div>
+        <div class="key">
+            <span><span>0%</span><span class="grad"></span><span>100%</span></span>
+            <span>Achievement: red is low, green is high</span>
+            <span><svg><use href="#i-some"/></svg>Some grades still missing</span>
+            <span><span class="sw missing"></span>Not graded yet</span>
+            <span><span class="sw unmeasured"></span>Not measured by any course</span>
+        </div>
+    </div>
+    <div class="facts">
+        <div class="fact"><div class="k">Outcomes with a result</div><div class="v num">{{ scored_count }} <small>of {{ po_results|length }}</small></div><div class="d">{% if unmeasured_count %}{{ unmeasured_count }} not measured by this student's courses{% else %}Every outcome is measured{% endif %}</div></div>
+        <div class="fact{% if attention %} warn{% endif %}"><div class="k">Missing grades</div><div class="v num">{{ attention|length }}</div><div class="d">{% if attention %}{% for item in attention|slice:":2" %}{{ item.assessment.name }} in {{ item.enrollment.offering.course.code }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if attention|length > 2 %} and more{% endif %}{% else %}All configured grades are entered{% endif %}</div></div>
+        <div class="fact"><div class="k">Active courses</div><div class="v num">{{ enrollments|length }}</div><div class="d">using Framework v{{ framework.version_number }}</div></div>
+    </div>
+</section>
+{% endif %}
+
+<div class="cols">
+    <section class="panel">
+        <div class="panel-head">
+            <h2>Program outcomes</h2>
+            <div class="tabs" data-filters="outcome-list" role="group" aria-label="Filter outcomes" hidden>
+                <button type="button" aria-pressed="true" data-filter="all">All<b>{{ po_results|length }}</b></button>
+                <button type="button" aria-pressed="false" data-filter="scored">With a result<b>{{ scored_count }}</b></button>
+                <button type="button" aria-pressed="false" data-filter="pending">Incomplete<b>{{ pending_count }}</b></button>
+                <button type="button" aria-pressed="false" data-filter="unmeasured">Not measured<b>{{ unmeasured_count }}</b></button>
+            </div>
+        </div>
+        {% if not enrollments %}
+            <p class="panel-note">This student has no active courses using this framework.</p>
+        {% endif %}
+        <div id="outcome-list">
+        {% for result in po_results %}
+            <details class="outcome" id="{{ result.outcome.code|slugify }}" data-kind="{% if result.state == 'full' %}scored{% elif result.state == 'some' %}scored pending{% elif result.state == 'none' %}pending{% else %}unmeasured{% endif %}">
+                <summary>
+                    <span class="badge">{{ result.outcome.code }}</span>
+                    <span>
+                        <span class="t">{{ result.outcome.description }}</span>
+                        <span class="from">
+                            {% if result.error %}Needs attention
+                            {% elif not enrollments %}No active courses
+                            {% elif not result.courses %}No course contributions configured
+                            {% else %}From {% for course in result.courses %}{{ course.enrollment.offering.course.code }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
+                        </span>
+                    </span>
+                    {% include "core/_score.html" with score=result.score state=result.state coverage=result.coverage %}
+                    <span class="state">{% include "core/_state.html" with state=result.state %}</span>
+                    <svg class="chev"><use href="#i-chev"/></svg>
+                </summary>
+                <div class="detail">
+                    <p class="full">{{ result.outcome.code }} — {{ result.outcome.description }}</p>
+                    {% if result.error %}
+                        <p class="full" role="alert">{{ result.error }}</p>
+                    {% elif not result.courses %}
+                        <h3>Why there is no result</h3>
+                        <p class="full">{% if not enrollments %}This student has no active courses using this framework.{% else %}None of this student's active courses is configured to contribute to this outcome. Review course contribution settings if evidence is expected here.{% endif %}</p>
+                    {% else %}
+                        <h3>{% if result.score is not None %}Where {{ result.score|floatformat:2 }}% comes from{% else %}Why there is no result yet{% endif %}</h3>
+                        <div class="contrib">
+                        {% for course in result.courses %}
+                            <div class="line{% if course.status != 'complete' %} missing{% endif %}">
+                                <span><a href="{% url 'enrollment_outcomes' course.enrollment.pk %}"><b>{{ course.enrollment.offering.course.code }}</b></a> {{ course.enrollment.offering.course.title }}<br>
+                                    <span class="s">{% if course.missing %}Missing: {% for assessment in course.missing %}{{ assessment.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif course.status == "complete" %}All evidence graded{% else %}{{ course.coverage|floatformat:"-1" }}% coverage{% endif %}</span></span>
+                                <span class="w">Weight {{ course.weight }}</span>
+                                <span class="p sc" {% if course.score is not None %}style="--t:{{ course.score|score_text }}"{% endif %}>{% if course.score is not None %}{{ course.score|floatformat:2 }}%{% else %}–{% endif %}</span>
+                                <span>
+                                    {% if course.status == "complete" %}{% include "core/_state.html" with state="full" %}
+                                    {% elif perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' course.enrollment.pk %}">Enter {% if course.missing|length == 1 %}{{ course.missing.0.name }} grade{% else %}grades{% endif %}</a>
+                                    {% elif course.score is not None %}{% include "core/_state.html" with state="some" %}
+                                    {% else %}{% include "core/_state.html" with state="none" %}{% endif %}
+                                </span>
+                            </div>
+                        {% endfor %}
+                        </div>
+                        <p class="foot">
+                            Courses with a higher weight count more.
+                            {% if result.status == "complete" %}All configured evidence is available. This describes coverage, not a pass or mastery threshold.
+                            {% else %}Missing grades are left out instead of counted as zero, so this result can still change.{% endif %}
+                        </p>
+                        {% if result.unmapped_enrollments %}
+                            <p class="foot">{{ result.unmapped_enrollments|length }} active course{{ result.unmapped_enrollments|length|pluralize }} {{ result.unmapped_enrollments|length|pluralize:"has,have" }} no contribution mapping to this outcome and {{ result.unmapped_enrollments|length|pluralize:"is,are" }} excluded.</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </details>
+        {% empty %}
+            <p class="panel-note">No program outcomes have been configured in this framework.</p>
+        {% endfor %}
+        </div>
     </section>
 
-    <h2>What your grades tell us</h2>
-    <p>
-        Achievement summarizes recorded grades.
-        Coverage measures how much configured evidence is available;
-        it is not an achievement score.
-    </p>
-
-    {% for result in po_results %}
-    <details class="outcome-card">
-        <summary>
-            <strong>{{ result.outcome.code }}</strong>
-            <span class="outcome-metric">
-                {% if result.error %}
-                    Needs attention
-                {% elif result.score is not None %}
-                    {{ result.score|floatformat:2 }}% achievement
-                    · {{ result.coverage|floatformat:2 }}% evidence coverage
-                {% elif not enrollments %}
-                    No active courses
-                {% elif not result.courses %}
-                    No course contributions configured
-                {% else %}
-                    No graded evidence yet
-                {% endif %}
-            </span>
-            <span class="outcome-hint muted">Details</span>
-        </summary>
-        <h3>
-            {{ result.outcome.code }} —
-            {{ result.outcome.description }}
-        </h3>
-
-        {% if result.error %}
-        <p role="alert">{{ result.error }}</p>
-        {% else %}
-
-        {% if result.score is not None %}
-        <p>
-            <strong>{{ result.score|floatformat:2 }}% achievement</strong>
-            · {{ result.coverage|floatformat:2 }}% evidence coverage
-        </p>
-        {% elif not enrollments %}
-        <p><strong>No active courses</strong></p>
-        {% elif not result.courses %}
-        <p><strong>No course contributions configured</strong></p>
-        {% else %}
-        <p><strong>No graded evidence yet</strong></p>
-        {% endif %}
-
-        {% if result.status == "complete" %}
-        <p class="muted">
-            All configured evidence is available.
-            This describes coverage, not a pass or mastery threshold.
-        </p>
-        {% elif result.status == "provisional" %}
-        <p class="muted">
-            Some configured evidence is still missing.
-            Open the contributing courses below to inspect their
-            learning outcomes and recorded grades.
-        </p>
-        {% elif not enrollments %}
-        <p class="muted">
-            This student has no active courses using this framework.
-        </p>
-        {% elif not result.courses %}
-        <p class="muted">
-            None of this student's active courses is configured
-            to contribute to this outcome. Review course contribution
-            settings if evidence is expected here.
-        </p>
-        {% else %}
-        <p class="muted">
-            Contributing courses are configured, but no graded evidence
-            is available for this outcome. Open their course pages
-            to inspect assessment mappings and missing grades.
-        </p>
-        {% endif %}
-
-        <details>
-            <summary>Where does this result come from?</summary>
-            <ul>
-                {% for course in result.courses %}
-                <li>
-                    <a href="{% url 'enrollment_outcomes' course.enrollment.pk %}">
-                        {{ course.enrollment.offering.course.code }}
-                    </a>
-                    · Weight {{ course.weight }}
-                    ·
-                    {% if course.score is not None %}
-                        {{ course.score|floatformat:2 }}% achievement
-                    {% else %}
-                        No graded evidence for this outcome
-                    {% endif %}
-                    · {{ course.coverage|floatformat:2 }}% coverage
-                </li>
-                {% empty %}
-                <li>
-                    No contributing courses are configured
-                    for this outcome.
-                </li>
-                {% endfor %}
-            </ul>
-        </details>
-
-        {% if result.unmapped_enrollments %}
-        <p class="muted">
-            {{ result.unmapped_enrollments|length }} active course(s)
-            have no contribution mapping to this outcome and are excluded.
-            Coverage describes configured contributions only.
-        </p>
-        {% endif %}
-
-        {% endif %}
-    </details>
-    {% empty %}
-    <p>No program outcomes have been configured in this framework.</p>
-    {% endfor %}
-</main>
-</body>
-</html>
+    <aside class="side-col">
+        <section class="panel">
+            <div class="panel-head"><h2>Needs attention</h2>{% if attention %}<span class="count-badge">{{ attention|length }}</span>{% endif %}</div>
+            {% for item in attention %}
+                <div class="attn">
+                    <span class="ic"><svg class="i"><use href="#i-alert"/></svg></span>
+                    <div>
+                        <b>{{ item.assessment.name }} grade missing</b>
+                        <p>{{ item.enrollment.offering.course.code }} {{ item.enrollment.offering.course.title }}.{% if item.outcomes %} {% for outcome in item.outcomes %}{{ outcome.code }}{% if not forloop.last %}{% if forloop.revcounter == 2 %} and {% else %}, {% endif %}{% endif %}{% endfor %} {{ item.outcomes|length|pluralize:"stays,stay" }} incomplete until it is entered.{% endif %} A score of 0 also counts.</p>
+                        {% if perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' item.enrollment.pk %}">Enter grade</a>{% else %}<a href="{% url 'enrollment_outcomes' item.enrollment.pk %}">Open course evidence</a>{% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="panel-note">Nothing is waiting. Every configured grade for this student's active courses is entered.</p>
+            {% endfor %}
+        </section>
+        <section class="panel">
+            <div class="panel-head"><h2>Courses</h2><span class="hint">grades entered</span></div>
+            {% for course in courses %}
+                <a class="course" href="{% url 'enrollment_outcomes' course.enrollment.pk %}">
+                    <span class="top"><span><b>{{ course.enrollment.offering.course.code }}</b> {{ course.enrollment.offering.course.title }}</span><span class="g{% if course.graded < course.total %} warn{% endif %}">{{ course.graded }} of {{ course.total }}</span></span>
+                    <span class="meta">{{ course.enrollment.offering.term }} {{ course.enrollment.offering.year }} · {{ course.enrollment.offering.instructor.full_name }}</span>
+                    <span class="track"><span class="f" style="width:{% widthratio course.graded course.total|default:1 100 %}%"></span></span>
+                </a>
+            {% empty %}
+                <p class="panel-note">No active courses use this framework.</p>
+            {% endfor %}
+        </section>
+    </aside>
+</div>
+{% endblock %}
