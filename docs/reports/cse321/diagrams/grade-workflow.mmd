@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant B as Staff browser
+    participant V as View and form
+    participant W as save_grades()
+    participant D as ORM / SQLite
+    participant C as Calculation functions
+    B->>V: GET enrollment grade editor
+    V->>D: Read assessments and current grades
+    V-->>B: HTML form and user/enrollment-bound signed revision
+    B->>V: POST raw scores, revision and CSRF token
+    Note over V: Active staff + change_grade, validate fields and score bounds
+    alt Invalid form
+        V-->>B: HTTP 200 with errors, no grade write
+    else Valid form
+        V->>W: Save validated submission
+        W->>D: BEGIN, re-read context and grades
+        Note over W,D: SQLite has no row locks from select_for_update
+        W->>W: Verify signature, age and current snapshot
+        alt Invalid or stale revision / failed write
+            W->>D: ROLLBACK
+            W-->>V: Error, reload/retry message
+            V-->>B: Form with errors
+        else Current revision
+            W->>D: Create or compare-and-swap Grade, insert LogEntry
+            W->>D: COMMIT all changes together
+            W-->>V: Save completed
+            V-->>B: Redirect to enrollment outcomes
+            B->>V: GET course evidence or student/framework profile
+            V->>C: Calculate requested LO/PO results
+            C->>D: Query grades, mappings and eligible enrollments
+            C-->>V: Score, coverage, status and source evidence
+            V-->>B: Render recalculated HTML
+        end
+    end

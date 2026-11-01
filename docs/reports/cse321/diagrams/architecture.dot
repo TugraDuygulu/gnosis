@@ -1,0 +1,32 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad=0.25, nodesep=0.4, ranksep=0.55, fontname="Helvetica", fontsize=18, label="Gnosis v0.1 — application components", labelloc=t];
+node [shape=box, style="rounded,filled", fillcolor="#eef3f8", color="#17324d", fontname="Helvetica", fontsize=15, margin="0.18,0.14"];
+edge [color="#64748b", arrowsize=0.7];
+B [label="Staff browser"];
+R [label="Django middleware + URL routing\nSession authentication / CSRF"];
+V [label="Native staff views\ncore/views.py"];
+A [label="Django Admin\nGradeAdmin + academic configuration"];
+F [label="Forms + write functions\ngrade_editor / student_intake"];
+C [label="Calculation functions\nLO → course PO → student PO"];
+T [label="Django templates\nHTML + evidence explanations"];
+H [label="Grade history functions\nSupported grade writes only"];
+O [label="Django ORM\nQueries + transactions"];
+D [label="Local SQLite database\n15 core tables + auth/session/admin tables"];
+B -> R;
+R -> V;
+R -> A;
+V -> F;
+V -> C;
+V -> T;
+T -> B;
+F -> H;
+A -> H;
+F -> O;
+A -> O;
+H -> O;
+C -> O;
+V -> O;
+O -> D;
+{rank=same; V; A;}
+{rank=same; F; C; T;}
+}

@@ -1,0 +1,27 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.55, ranksep=0.65, fontname="Helvetica", fontsize=18, label="Gnosis — grading classes and responsibilities\nSelected workflow classes; the complete relational model is documented separately", labelloc=t];
+node [shape=plain, fontname="Helvetica", fontsize=14];
+edge [fontname="Helvetica", fontsize=11, color="#64748b", arrowsize=0.7];
+Form [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>Form</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Django framework</TD></TR></TABLE>>];
+EnrollmentGradeForm [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>EnrollmentGradeForm</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Form subclass</TD></TR><TR><TD ALIGN="LEFT">revision</TD></TR><TR><TD ALIGN="LEFT">__init__(assessments, grades)</TD></TR><TR><TD ALIGN="LEFT">clean()</TD></TR></TABLE>>];
+ModelAdmin [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>ModelAdmin</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Django framework</TD></TR></TABLE>>];
+GradeAdmin [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>GradeAdmin</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">ModelAdmin subclass</TD></TR><TR><TD ALIGN="LEFT">get_readonly_fields()</TD></TR><TR><TD ALIGN="LEFT">save_model()</TD></TR><TR><TD ALIGN="LEFT">delete_model()</TD></TR><TR><TD ALIGN="LEFT">delete_queryset()</TD></TR></TABLE>>];
+Grade [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>Grade</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Django model</TD></TR><TR><TD ALIGN="LEFT">score</TD></TR><TR><TD ALIGN="LEFT">clean()</TD></TR><TR><TD ALIGN="LEFT">save()</TD></TR></TABLE>>];
+Assessment [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>Assessment</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Django model</TD></TR><TR><TD ALIGN="LEFT">max_score</TD></TR><TR><TD ALIGN="LEFT">course_grade_weight</TD></TR></TABLE>>];
+Enrollment [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>Enrollment</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Django model</TD></TR><TR><TD ALIGN="LEFT">status</TD></TR></TABLE>>];
+CourseOffering [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>CourseOffering</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Django model</TD></TR><TR><TD ALIGN="LEFT">clean()</TD></TR><TR><TD ALIGN="LEFT">save()</TD></TR></TABLE>>];
+LogEntry [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7"><TR><TD BGCOLOR="#17324d"><FONT COLOR="white"><B>LogEntry</B></FONT></TD></TR><TR><TD BGCOLOR="#e2e8f0">Django admin model</TD></TR><TR><TD ALIGN="LEFT">change_message</TD></TR><TR><TD ALIGN="LEFT">action_time</TD></TR></TABLE>>];
+EnrollmentGradeForm -> Form [arrowhead=empty, label="inherits", constraint=false];
+GradeAdmin -> ModelAdmin [arrowhead=empty, label="inherits", constraint=false];
+EnrollmentGradeForm -> Assessment [style=dashed, label="field bounds"];
+EnrollmentGradeForm -> Grade [style=dashed, label="initial values"];
+GradeAdmin -> Grade [style=dashed, label="save/delete"];
+GradeAdmin -> LogEntry [style=dashed, label="via history functions"];
+Grade -> Assessment [label="assessment", taillabel="0..*", headlabel="1", labeldistance=2];
+Grade -> Enrollment [label="enrollment", taillabel="0..*", headlabel="1", labeldistance=2];
+Assessment -> CourseOffering [label="offering", taillabel="0..*", headlabel="1", labeldistance=2];
+Enrollment -> CourseOffering [label="offering", taillabel="0..*", headlabel="1", labeldistance=2];
+{rank=same; Form; EnrollmentGradeForm; ModelAdmin; GradeAdmin;}
+{rank=same; Grade; LogEntry;}
+{rank=same; Assessment; Enrollment;}
+}

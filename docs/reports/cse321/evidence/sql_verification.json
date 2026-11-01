@@ -1,0 +1,60 @@
+{
+  "source_revision": "eb23586b2b2f635629d9a08f5db1cfa6b0dee53a",
+  "recipe": [
+    "migrate",
+    "seed_pilot once"
+  ],
+  "database": "fresh temporary SQLite; deleted after run; no development DB connection",
+  "runtime": {
+    "python": "3.14.3",
+    "django": "6.1.2",
+    "sqlite": "3.50.4"
+  },
+  "tests_run": 17,
+  "failures": 0,
+  "errors": 0,
+  "absolute_tolerance_percentage_points": 1e-09,
+  "maximum_observed_absolute_difference": 4.28571428571e-15,
+  "comparison_count": 122,
+  "passed_cases": [
+    "test_all_missing_and_explicit_null_produce_same_lo",
+    "test_all_recorded_zero_is_complete_evidence",
+    "test_all_students_ungraded_summary_has_null_mean",
+    "test_baseline_grades_normalize_raw_maximum",
+    "test_baseline_lo_matches_manual_and_decimal_services",
+    "test_baseline_summary_matches_manual_and_service_mean",
+    "test_empty_roster_preserves_los_and_null_averages",
+    "test_fractional_normalized_grade_uses_real_division",
+    "test_fractional_weights_do_not_round_coverage_into_completeness",
+    "test_grade_row_absence_null_and_zero_are_distinct",
+    "test_inactive_excluded_from_summary_but_individual_history_retained",
+    "test_instructor_examples_both_assessments_out_of_100",
+    "test_no_evidence_student_changes_coverage_not_mean_score",
+    "test_nonexistent_student_offering_and_unenrolled_student_return_no_rows",
+    "test_other_student_changes_do_not_leak_into_individual_queries",
+    "test_same_curriculum_other_offering_is_isolated",
+    "test_unmapped_lo_is_retained_with_no_data"
+  ],
+  "source_sha256": {
+    "sql/03_offering_lo_summary.sql": "0270ff1cc803a1f3399207c2755440f0df3a9db67d86c5cfd935d3264a13ae2d",
+    "sql/01_student_assessment_grades.sql": "c34628c15159b9407ca04cca498ed446d23f7b25b356bce891432b4fb4d4e888",
+    "sql/02_student_lo_attainment.sql": "95656135eabe84e604756fb5679bd2e4f8266a91eedfbf31b1c38012c1df2ac1",
+    "sql/verify_queries.py": "79c1c8ce597a8117bffd5462255559be4cfe84b70e212679eb612d7286ed00d0",
+    "core/models.py": "be7f6524b37f06e141ba3c7e57bfc80806014383f1b6d3599ffc3ec65c416603",
+    "core/migrations/0001_initial.py": "cebce2cbcd09b90bd58d4010aae3ee020ffd9a2659a39fbda0a6ea13c4e6ccbf",
+    "core/migrations/0002_student_coursecurriculum.py": "6d76c91dad2a538f88231eb3cf60ae6799e57e8cff90abe04ab6487c95782ff7",
+    "core/migrations/0003_courseoffering_enrollment_and_more.py": "6f2a77b00cbf6cdd3ab995cfc0a6b13bcc40e9877dbeb92eba1d0c73cde5d993",
+    "core/migrations/0004_assessment_grade_learningoutcome.py": "9adcc931c1aecfb37943039c7ed063e45e158521b81e0cd28f477b149c44af24",
+    "core/migrations/0005_assessmentlomapping.py": "c3f0480c209a9fc01b030b2e2f8e1ee0771b3d68be3b635aab12efb07ce2c167",
+    "core/migrations/0006_poframework_programoutcome_lopomapping_and_more.py": "4af631c92542c9b526335b76a667cd061bac6cdb17c0837cbe541e26a7f02f15",
+    "core/migrations/0007_courseoffering_po_framework.py": "77787dbef60d4b879b938b352f9e98816bfb453e05b44bda6ffac071a8f6feac",
+    "core/migrations/0008_coursepocontribution.py": "d6651dd56cfb5c1a451a9442ae70090c0788d3c762535d30dbff8dcd72472ab8",
+    "core/migrations/0009_assessment_positive_assessment_max_score.py": "ed8b9be11918f7a86b4ddc09d867b8691aa746e0ff7982ed4795477f9b5e7881",
+    "core/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "core/services/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "core/services/lo_calculator.py": "6a1b8cc0dd2ae7971ada7ad23ab4e87d1778d1e593767eae89a39df46f781ecf",
+    "core/services/po_calculator.py": "ab3fcb18a7a38b6961cce458eb814ccffd5b788c9dbf4e8c18f355cd5aecb111",
+    "core/services/student_po_calculator.py": "b1600146c2d9427a31e459f8a0b1974df47c6763fe39a8c1aa807f34ea3f27ff",
+    "core/management/commands/seed_pilot.py": "b916cdf76c97b2ec49a4e5eab31205aef15a0d84027f9099feedec3223a50ff9"
+  }
+}
