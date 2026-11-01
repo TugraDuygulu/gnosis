@@ -384,3 +384,6 @@ table.list { width: 100%; border-collapse: collapse; }
 .skip-link { position: absolute; left: 12px; top: -48px; z-index: 50; padding: 10px 14px; border-radius: 8px; background: var(--navy); color: #fff; font-weight: 700; }
 .skip-link:focus { top: 12px; text-decoration: none; }
 .main:focus { outline: none; }
+
+/* Page headers: the title block takes the free space so actions stay on its row. */
+.head > div:not(.actions), .page-title > div:not(.actions) { flex: 1 1 340px; min-width: 0; }

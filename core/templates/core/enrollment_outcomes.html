@@ -13,12 +13,13 @@
     <div>
         <h1>{{ student.full_name }}</h1>
         <div class="sub"><span class="tag num">{{ student.student_number }}</span><span>{{ offering.course.code }} {{ offering.course.title }} · {{ offering.term }} {{ offering.year }} · Section {{ offering.section }}</span></div>
-        <div class="summary"><b>{{ graded_count }} of {{ assessment_results|length }}</b> grades entered{% if missing %} · <span class="warn">{{ missing|length }} missing</span>{% endif %}</div>
+        <div class="summary"><b>{{ graded_count }} of {{ assessment_results|length }}</b> grades entered{% if missing %} · <span class="warn">{{ missing|length }} missing</span>{% endif %}
+            {% if offering.po_framework_id and offering.po_framework.program_id == student.program_id %}
+                · <a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Program outcome profile →</a>
+            {% endif %}
+        </div>
     </div>
     <div class="actions">
-        {% if offering.po_framework_id and offering.po_framework.program_id == student.program_id %}
-            <a class="btn btn-ghost" href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Student profile</a>
-        {% endif %}
         {% if perms.core.view_grade %}
             <a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-history"/></svg>Grade-change history</a>
         {% endif %}
