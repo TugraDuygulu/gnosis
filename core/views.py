@@ -74,7 +74,7 @@ def enrollment_grade_history(request, enrollment_id):
 @permission_required("core.add_student", raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def student_register(request):
-    form = StudentRegistrationForm(request.POST if request.method == "POST" else None)
+    form = StudentRegistrationForm(request.POST if request.method == "POST" else None, label_suffix="")
     if request.method == "POST" and form.is_valid():
         try:
             with transaction.atomic():
@@ -117,7 +117,7 @@ def student_detail(request, student_id):
 @require_http_methods(["GET", "POST"])
 def student_enroll(request, student_id):
     student = get_object_or_404(Student.objects.select_related("program"), pk=student_id)
-    form = StudentEnrollmentForm(student, request.POST if request.method == "POST" else None)
+    form = StudentEnrollmentForm(student, request.POST if request.method == "POST" else None, label_suffix="")
     if request.method == "POST" and form.is_valid():
         try:
             enrollment = enroll_student(student.pk, form.cleaned_data["offering"].pk)
