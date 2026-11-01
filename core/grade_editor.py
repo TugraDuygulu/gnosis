@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from core.models import Assessment, CourseOffering, Enrollment, Grade
+from core.grade_history import grade_state, record_grade_change
 
 
 SALT = "gnosis.enrollment-grade-editor.v1"
@@ -103,13 +104,17 @@ def save_grades(enrollment_id, user, form):
         grade = grades.get(assessment.pk)
         if grade is None:
             if score is not None:
-                Grade.objects.create(
+                grade = Grade.objects.create(
                     enrollment=enrollment, assessment=assessment, score=score
                 )
+                record_grade_change(user, grade, None, source="native editor", operation="create")
         elif score != grade.score:
+            before = grade_state(grade)
             # Compare-and-swap also detects an intervening Admin grade edit.
             updated = Grade.objects.filter(pk=grade.pk, score=grade.score).update(
                 score=score
             )
             if updated != 1:
                 raise ValidationError(STALE_MESSAGE)
+            grade.score = score
+            record_grade_change(user, grade, before, source="native editor", operation="change")
