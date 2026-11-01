@@ -64,9 +64,11 @@
         </header>
         <main class="main">
             {% for message in messages %}
-            <div class="notice notice-{% if message.level_tag == 'error' %}error{% else %}success{% endif %}" role="status">
-                <svg class="i"><use href="#i-check"/></svg><p>{{ message }}</p>
-            </div>
+            {% if message.level_tag == 'error' or message.level_tag == 'warning' %}
+            <div class="notice notice-error" role="alert"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><p>{{ message }}</p></div>
+            {% else %}
+            <div class="notice notice-success" role="status"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><p>{{ message }}</p></div>
+            {% endif %}
             {% endfor %}
             {% block content %}{% endblock %}
         </main>
