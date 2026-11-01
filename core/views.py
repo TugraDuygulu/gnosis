@@ -309,6 +309,7 @@ def student_outcomes(request, student_id, framework_id):
         "po_results": po_results,
         "courses": courses,
         "attention": attention,
+        "attention_courses": len({item["enrollment"].pk for item in attention}),
         "scored_count": states.count("full") + states.count("some"),
         "pending_count": states.count("some") + states.count("none"),
         "unmeasured_count": states.count("unmeasured"),

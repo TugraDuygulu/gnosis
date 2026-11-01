@@ -29,7 +29,11 @@
     <div class="actions">
         <a class="btn btn-ghost" href="{% url 'student_detail' student.pk %}">Student record</a>
         {% if attention and perms.core.change_grade %}
-            {% with first=attention.0 %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' first.enrollment.pk %}"><svg class="i"><use href="#i-pen"/></svg>Enter missing grade{{ attention|length|pluralize }}</a>{% endwith %}
+            {% if attention_courses == 1 %}
+                {% with first=attention.0 %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' first.enrollment.pk %}"><svg class="i"><use href="#i-pen"/></svg>Enter missing grade{{ attention|length|pluralize }}</a>{% endwith %}
+            {% else %}
+                <a class="btn btn-primary" href="#attention"><svg class="i"><use href="#i-pen"/></svg>Review {{ attention|length }} missing grades</a>
+            {% endif %}
         {% endif %}
     </div>
 </div>
@@ -153,7 +157,7 @@
     </section>
 
     <aside class="side-col">
-        <section class="panel">
+        <section class="panel" id="attention">
             <div class="panel-head"><h2>Needs attention</h2>{% if attention %}<span class="count-badge">{{ attention|length }}</span>{% endif %}</div>
             {% for item in attention %}
                 <div class="attn">
