@@ -200,7 +200,7 @@ svg.i { width: 18px; height: 18px; flex: none; }
 
 .info { position: relative; display: inline-flex; }
 .info > button { all: unset; position: relative; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--border-strong); font: 700 12px/1 var(--sans); }
-.info .pop { display: none; position: absolute; top: 28px; left: -10px; z-index: 7; width: 320px; padding: 14px 16px; border-radius: var(--r-md); background: var(--text); color: var(--tooltip-text); font-size: 14px; box-shadow: 0 10px 30px rgba(18, 28, 46, .25); }
+.info .pop { display: none; position: absolute; top: 28px; left: -10px; z-index: 7; width: min(320px, calc(100vw - 48px)); padding: 14px 16px; border-radius: var(--r-md); background: var(--text); color: var(--tooltip-text); font-size: 14px; box-shadow: 0 10px 30px rgba(18, 28, 46, .25); }
 .info .pop p { margin: 0 0 8px; }
 .info .pop p:last-child { margin: 0; }
 .info .pop b { color: var(--on-dark); }
@@ -421,3 +421,6 @@ table.list { width: 100%; border-collapse: collapse; }
 
 /* Arriving from "Enter grade": the targeted field is highlighted and focused. */
 .entry input:target { border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus-ring); }
+@media (max-width: 860px) {
+  .info .pop { position: fixed; top: 76px; left: 16px; right: 16px; width: auto; }
+}
