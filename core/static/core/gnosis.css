@@ -440,3 +440,9 @@ input, textarea, select { caret-color: var(--navy); accent-color: var(--navy); }
 .btn-ghost:active { background: var(--border); }
 button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 @media (prefers-reduced-motion: reduce) { .btn, .btn:active { transition: none; transform: none; } }
+
+/* Outcomes no course measures yet: kept in order, but quiet. */
+.outcome.quiet > summary { padding-top: 8px; padding-bottom: 8px; }
+.outcome.quiet .t { -webkit-line-clamp: 1; font-weight: 400; color: var(--muted); }
+.outcome.quiet .score { display: none; }
+.outcome.quiet .badge { background: var(--subtle); color: var(--muted); }

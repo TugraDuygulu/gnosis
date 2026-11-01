@@ -96,7 +96,7 @@
         {% endif %}
         <div id="outcome-list">
         {% for result in po_results %}
-            <details class="outcome" id="{{ result.outcome.code|slugify }}" data-kind="{% if result.state == 'full' %}scored{% elif result.state == 'some' %}scored pending{% elif result.state == 'none' %}pending{% else %}unmeasured{% endif %}">
+            <details class="outcome{% if result.state == 'unmeasured' %} quiet{% endif %}" id="{{ result.outcome.code|slugify }}" data-kind="{% if result.state == 'full' %}scored{% elif result.state == 'some' %}scored pending{% elif result.state == 'none' %}pending{% else %}unmeasured{% endif %}">
                 <summary>
                     <span class="badge">{{ result.outcome.code }}</span>
                     <span>
