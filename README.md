@@ -73,6 +73,13 @@ so your results may differ from the initial example.
 This small demo contains one fictional PO, not the full
 eleven-outcome departmental framework.
 
+## Teammate verification
+
+Use [the fresh setup and short review checklist](docs/teammate_verification.md)
+to independently reproduce v0.1 with your own account and fictional database.
+Record the actual commit, results and any blockers in issues #9/#6. Assistant
+checks do not substitute for independent teammate verification.
+
 ## Register and enroll students
 
 From **Students**, authorized staff can select **Register student**, enter a
@@ -160,7 +167,8 @@ and grade-change history. The owner-approved scope is a local staff application;
 academic configuration remains in Django Admin.
 
 The fictional two-course demo currently covers one PO.
-The separate representative pilot covers all eleven official POs.
+The separate representative pilot contains all eleven official PO definitions;
+some outcomes intentionally have no configured or graded evidence.
 Further frontend improvements, REST API and external deployment remain
 future work. The Django checks workflow verifies the development setup;
 successful CI results must be confirmed in GitHub Actions.
