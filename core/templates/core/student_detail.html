@@ -26,7 +26,7 @@
                 {% for enrollment in enrollments %}
                     <tr>
                         <td><a href="{% url 'enrollment_outcomes' enrollment.pk %}" title="Course evidence"><span class="code">{{ enrollment.offering.course.code }}</span> {{ enrollment.offering.course.title }}</a><span class="sub">{{ enrollment.offering.term }} {{ enrollment.offering.year }} · Section {{ enrollment.offering.section }}</span></td>
-                        <td><span class="pill status">{{ enrollment.status }}</span></td>
+                        <td><span class="status-tag">{{ enrollment.status }}</span></td>
                         <td class="num"><span class="progress-count{% if enrollment.graded_total < enrollment.assessment_total %} warn{% endif %}">{{ enrollment.graded_total }} of {{ enrollment.assessment_total }}</span></td>
                         <td>
                             <div class="row-actions">

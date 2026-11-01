@@ -11,7 +11,7 @@
             <li>Instructor: {{ offering.instructor.full_name }}</li>
             <li>Curriculum v{{ offering.curriculum.version_number }}</li>
             {% if offering.po_framework %}<li>{{ offering.po_framework.program.name }}, Framework v{{ offering.po_framework.version_number }}</li>{% endif %}
-            <li><span class="pill status">{{ offering.status }}</span></li>
+            <li><span class="status-tag">{{ offering.status }}</span></li>
         </ul>
     </div>
 </div>
@@ -35,7 +35,7 @@
                             <div><a href="{% url 'student_detail' enrollment.student_id %}"><b>{{ enrollment.student.full_name }}</b></a><span class="num">{{ enrollment.student.student_number }}</span></div>
                         </div>
                     </td>
-                    <td><span class="pill status">{{ enrollment.status }}</span></td>
+                    <td><span class="status-tag">{{ enrollment.status }}</span></td>
                     <td class="num">
                         <span class="progress-count{% if enrollment.graded_total < assessment_total %} warn{% endif %}">{{ enrollment.graded_total }} of {{ assessment_total }}</span>
                     </td>

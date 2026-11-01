@@ -43,7 +43,7 @@
                         <td><b>{{ row.assessment }}</b><span class="sub">out of {{ row.maximum }}</span></td>
                         <td class="r">{% if row.old is None %}<span class="ungraded">Ungraded</span>{% else %}<span class="num">{{ row.old }}</span>{% endif %}</td>
                         <td class="r">{% if row.new is None %}<span class="ungraded">Ungraded</span>{% else %}<span class="num"><b>{{ row.new }}</b></span>{% endif %}</td>
-                        <td><span class="pill status">{{ row.operation }}</span> <span class="muted">{{ row.source }}</span></td>
+                        <td><span class="status-tag">{{ row.operation }}</span> <span class="muted">{{ row.source }}</span></td>
                     {% endif %}
                 </tr>
             {% endfor %}
