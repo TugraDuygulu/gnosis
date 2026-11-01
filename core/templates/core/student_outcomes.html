@@ -104,7 +104,7 @@
                     <span>
                         <span class="t">{{ result.outcome.description }}</span>
                         <span class="from">
-                            {% if result.error %}Needs attention
+                            {% if result.error %}Cannot be calculated: see details
                             {% elif not enrollments %}No active courses
                             {% elif not result.courses %}No course contributions configured
                             {% else %}From {% for course in result.courses %}{{ course.enrollment.offering.course.code }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
