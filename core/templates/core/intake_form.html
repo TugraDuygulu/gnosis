@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }} | Gnosis</title>
+    <style>
+        body { margin:0; font-family:system-ui,sans-serif; color:#202b3a; background:#f4f6fa; }
+        main { max-width:720px; margin:40px auto; padding:0 20px; }
+        section { background:white; border:1px solid #e1e5eb; border-radius:12px; padding:24px; }
+        a { color:#234e80; } label { display:block; margin:16px 0 8px; font-weight:600; }
+        input,select { box-sizing:border-box; width:100%; padding:10px; font:inherit; }
+        .errorlist { color:#9b1c1c; } .helptext { display:block; color:#526176; margin-top:6px; }
+        button { background:#234e80; color:white; border:0; border-radius:6px; padding:12px 20px; font:inherit; }
+    </style>
+</head>
+<body><main>
+    {% include 'core/workspace_nav.html' %}
+    <h1>{{ page_title }}</h1>
+    {% if student %}<p>{{ student.full_name }} · {{ student.student_number }} · {{ student.program }}</p>{% endif %}
+    <p>{{ intro }}</p>
+    <section>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.errors %}<p role="alert">Nothing was saved. Review the errors below.</p>{% endif %}
+            {{ form.as_p }}
+            {% if has_choices %}<button type="submit">{{ submit_label }}</button>
+            {% else %}<p>{{ empty_message }}</p>{% endif %}
+            {% if student %}<a href="{% url cancel_url student.pk %}">Cancel</a>
+            {% else %}<a href="{% url cancel_url %}">Cancel</a>{% endif %}
+        </form>
+    </section>
+</main></body></html>

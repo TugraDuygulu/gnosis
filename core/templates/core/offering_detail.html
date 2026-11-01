@@ -38,7 +38,7 @@
             <tbody>
             {% for enrollment in enrollments %}
                 <tr>
-                    <td>{{ enrollment.student.full_name }}<br>{{ enrollment.student.student_number }}</td>
+                    <td><a href="{% url 'student_detail' enrollment.student_id %}">{{ enrollment.student.full_name }}</a><br>{{ enrollment.student.student_number }}</td>
                     <td>{{ enrollment.status }}</td>
                     <td>
                         <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
@@ -60,7 +60,7 @@
             <h3>No students enrolled</h3>
             <p>This offering has no enrollment records yet.</p>
             {% if perms.core.add_enrollment %}
-                <a href="{% url 'admin:core_enrollment_add' %}">Manage enrollment in Django Admin</a>
+                <a href="{% url 'student_list' %}">Choose a student to enroll</a>
             {% else %}
                 <p>Ask an academic administrator to enroll students.</p>
             {% endif %}

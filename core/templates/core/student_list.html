@@ -36,10 +36,11 @@
     <p class="muted">
         Staff workspace · Choose a student and an outcome framework.
     </p>
+    {% if perms.core.add_student %}<p><a href="{% url 'student_register' %}">Register student</a></p>{% endif %}
 
     {% for student in students %}
         <section>
-            <h2>{{ student.full_name }}</h2>
+            <h2><a href="{% url 'student_detail' student.pk %}">{{ student.full_name }}</a></h2>
             <p class="muted">
                 {{ student.student_number }} · {{ student.program.name }}
             </p>
@@ -60,7 +61,7 @@
         <section>
             <h2>No students yet</h2>
             <p>Add a student to start exploring their outcomes.</p>
-            <a href="{% url 'admin:core_student_add' %}">Add student</a>
+            {% if not perms.core.add_student %}<p>Ask authorized staff to register a student.</p>{% endif %}
         </section>
     {% endfor %}
 </main>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ student.full_name }} | Gnosis</title>
+    <style>
+        body { margin:0; font-family:system-ui,sans-serif; color:#202b3a; background:#f4f6fa; }
+        main { max-width:960px; margin:40px auto; padding:0 20px; }
+        section { background:white; border:1px solid #e1e5eb; border-radius:12px; padding:24px; margin:20px 0; }
+        a { color:#234e80; } li { margin:14px 0; } .actions a { display:inline-block; margin:6px 12px 6px 0; }
+    </style>
+</head>
+<body><main>
+    {% include 'core/workspace_nav.html' %}
+    {% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
+    <h1>{{ student.full_name }}</h1>
+    <p>{{ student.student_number }} · {{ student.program }}</p>
+    {% if perms.core.add_enrollment %}<p><a href="{% url 'student_enroll' student.pk %}">Enroll in a course offering</a></p>{% endif %}
+    <section>
+        <h2>Student outcome profiles</h2>
+        <ul>{% for framework in frameworks %}
+            <li><a href="{% url 'student_outcomes' student.pk framework.pk %}">View outcomes · Framework v{{ framework.version_number }}</a></li>
+        {% empty %}<li>No outcome framework configured for this program.</li>{% endfor %}</ul>
+    </section>
+    <section>
+        <h2>Course enrollments</h2>
+        <p>All recorded statuses are shown; student-wide results use active enrollments only.</p>
+        <ul>{% for enrollment in enrollments %}
+            <li><strong>{{ enrollment.offering }}</strong> · {{ enrollment.status }}
+                <div class="actions">
+                    <a href="{% url 'offering_detail' enrollment.offering_id %}">Class roster</a>
+                    <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
+                    {% if perms.core.change_grade %}<a href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit grades</a>{% endif %}
+                    {% if perms.core.view_grade %}<a href="{% url 'enrollment_grade_history' enrollment.pk %}">Grade-change history</a>{% endif %}
+                </div>
+            </li>
+        {% empty %}<li>No course enrollments yet. Enroll in an existing offering to begin recording evidence.</li>{% endfor %}</ul>
+    </section>
+</main></body></html>
