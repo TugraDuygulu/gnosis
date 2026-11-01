@@ -101,6 +101,10 @@
     input.addEventListener("input", function () { delete input.dataset.serverError; refresh(); });
   });
   refresh();
+
+  // "Enter grade" links point at one assessment (#id_score_N): start typing there.
+  var target = location.hash && document.getElementById(location.hash.slice(1));
+  if (target && target.matches("input[data-max]")) { target.focus(); target.select(); }
   form.addEventListener("submit", function () { dirty = false; });
   window.addEventListener("beforeunload", function (event) {
     if (dirty) { event.preventDefault(); event.returnValue = ""; }

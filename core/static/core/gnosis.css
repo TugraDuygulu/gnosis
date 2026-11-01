@@ -418,3 +418,6 @@ table.list { width: 100%; border-collapse: collapse; }
 /* Record status (active, draft, withdrawn, create/change): a plain tag, never a grading pill. */
 .status-tag { display: inline-block; padding: 2px 8px; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 600; line-height: 1.5; text-transform: capitalize; white-space: nowrap; }
 .contrib .btn-sm { white-space: normal; text-align: center; }
+
+/* Arriving from "Enter grade": the targeted field is highlighted and focused. */
+.entry input:target { border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus-ring); }
