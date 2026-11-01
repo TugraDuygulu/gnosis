@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% block title %}Course offerings{% endblock %}
+{% block topsearch %}<span class="muted">Staff workspace</span>{% endblock %}
 {% block content %}
 <div class="page-title">
     <div>
@@ -13,7 +14,8 @@
         <form class="search" method="get" role="search">
             <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
             <label class="sr-only" for="course-query">Find a class</label>
-            <input id="course-query" name="q" type="search" value="{{ query }}" placeholder="Course, instructor, term, year or section">
+            <input id="course-query" name="q" type="search" value="{{ query }}" placeholder="Course, instructor, term, year or section" data-search>
+            <span class="kbd" aria-hidden="true">/</span>
         </form>
         {% if query %}<a href="{% url 'course_list' %}">Clear search</a>{% endif %}
         <span class="count">{{ offerings|length }} offering{{ offerings|length|pluralize }}</span>
