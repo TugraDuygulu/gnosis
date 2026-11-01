@@ -9,6 +9,9 @@ final source checkpoint. This is owner acceptance, not full-team sign-off.
 
 ## Reproduce
 
+For a teammate's first run, use the concise
+[fresh setup and independent review checklist](teammate_verification.md).
+
 Follow README's Python 3.14 virtual environment and pinned installation steps.
 Run migrations and `python manage.py seed_pilot` on a fresh local database;
 create your own superuser with `python manage.py createsuperuser` and start
