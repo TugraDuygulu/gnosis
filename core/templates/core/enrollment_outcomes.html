@@ -42,7 +42,7 @@
         <b>{{ missing|length }} of {{ assessment_results|length }} grade{{ assessment_results|length|pluralize }} missing: {% for assessment in missing %}{{ assessment.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</b>
         <span>Results that depend on {{ missing|length|pluralize:"it,them" }} stay incomplete. A missing grade is never counted as zero; a recorded 0 is.</span>
     </div>
-    {% if perms.core.change_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Enter grades</a>{% endif %}
+    {% if perms.core.change_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Enter missing grade{{ missing|length|pluralize }}</a>{% endif %}
 </div>
 {% endif %}
 
