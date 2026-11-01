@@ -446,3 +446,6 @@ button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: no
 .outcome.quiet .t { -webkit-line-clamp: 1; font-weight: 400; color: var(--muted); }
 .outcome.quiet .score { display: none; }
 .outcome.quiet .badge { background: var(--subtle); color: var(--muted); }
+@container outcomes (481px <= width <= 800px) {
+  .outcome.quiet > summary { grid-template-areas: "badge text state chev"; row-gap: 0; }
+}

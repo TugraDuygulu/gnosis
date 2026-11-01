@@ -1,10 +1,23 @@
 """Display helpers for the staff workspace templates."""
 
+import os
 from decimal import Decimal, InvalidOperation
 
 from django import template
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
 
 register = template.Library()
+
+
+@register.simple_tag
+def asset(path):
+    """Static URL with the file's modification time, so browsers drop stale copies."""
+    url = static(path)
+    found = finders.find(path)
+    if found:
+        url += f"?v={int(os.path.getmtime(found))}"
+    return url
 
 # Achievement colour scale from DESIGN.md: brick (0) to deep green (100).
 FILL_STOPS = (
