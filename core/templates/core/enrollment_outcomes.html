@@ -42,7 +42,7 @@
 <section class="panel">
     <div class="panel-head">
         <h2>Assessment evidence</h2>
-        {% if perms.core.change_grade %}<a class="hint" href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">Open grades in Django Admin</a>{% endif %}
+        {% if perms.core.change_grade %}<a class="admin-link" href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">Open grades in Django Admin</a>{% endif %}
     </div>
     <p class="panel-note">A recorded zero counts as graded evidence. A missing grade does not count as zero. Mapping weights are relative weights within each learning outcome.</p>
     <div class="table-scroll">

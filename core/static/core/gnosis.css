@@ -371,3 +371,11 @@ table.list { width: 100%; border-collapse: collapse; }
 /* Hit areas: small controls get a larger invisible target. */
 .crumbs a { display: inline-block; padding: 4px 0; }
 .info > button::after { content: ""; position: absolute; inset: -10px; }
+
+/* Links inside prose read as links, not as coloured text. */
+.notice a, .callout a, .panel-note a, .empty p a, .detail .full a, .detail .foot a, .attn p a, .s a, .admin-link {
+  color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
+}
+.notice-error a { font-weight: 700; }
+.admin-link { margin-left: auto; color: var(--navy); font-size: 14px; }
+.notice .notice-more { margin-top: 6px; font-weight: 400; }
