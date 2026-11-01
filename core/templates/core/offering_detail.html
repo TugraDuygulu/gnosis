@@ -37,8 +37,7 @@
                     </td>
                     <td><span class="pill status">{{ enrollment.status }}</span></td>
                     <td class="num">
-                        {% if enrollment.graded_total < assessment_total %}<span style="color:var(--alert);font-weight:700">{{ enrollment.graded_total }} of {{ assessment_total }}</span>
-                        {% else %}{{ enrollment.graded_total }} of {{ assessment_total }}{% endif %}
+                        <span class="progress-count{% if enrollment.graded_total < assessment_total %} warn{% endif %}">{{ enrollment.graded_total }} of {{ assessment_total }}</span>
                     </td>
                     <td>
                         <div class="row-actions">

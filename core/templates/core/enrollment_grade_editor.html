@@ -30,7 +30,7 @@
             <div class="panel-head"><h2>Assessments</h2><span class="hint">Enter raw scores, not percentages.</span></div>
             {% if form.errors %}
             <div class="panel-body">
-                <div class="notice notice-error" role="alert" style="margin:0">
+                <div class="notice notice-error flush" role="alert">
                     <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
                     <div>
                         <p>Nothing was saved. Review the errors below.</p>
@@ -75,7 +75,7 @@
         <div class="rules">
             <div class="rule"><span class="ex blank"></span><span><b>Blank</b> means ungraded. It is left out of results, never counted as zero. Clearing a score makes it ungraded again.</span></div>
             <div class="rule"><span class="ex">0</span><span><b>0</b> is a recorded grade and counts as evidence.</span></div>
-            <div class="rule"><span class="ex" style="color:var(--navy)">✓</span><span>All scores save together. If the page is out of date, nothing is saved and you can reload.</span></div>
+            <div class="rule"><span class="ex ok" aria-hidden="true">✓</span><span>All scores save together. If the page is out of date, nothing is saved and you can reload.</span></div>
         </div>
     </aside>
 </div>
