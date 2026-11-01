@@ -2,6 +2,14 @@
 
 Source baseline: `eb23586b2b2f635629d9a08f5db1cfa6b0dee53a`; Python 3.14.3, Django 6.1.2, SQLite 3.50.4. Tests/tools executed using the actual project virtualenv against a tracked-source copy with no development DB. Installation guards compare every existing source file with the live project before writing documentation.
 
+## Current publication state — 1 November 2026
+
+[Issue #3](https://github.com/TugraDuygulu/gnosis/issues/3) is **closed/completed** with owner-approved verification evidence. [PR #23](https://github.com/TugraDuygulu/gnosis/pull/23) is **open, awaiting merge review**; original report commit `e8bc8cafc693833f5e134beec147a2879607a03e` is published. [GitHub Actions run 41327877627](https://github.com/TugraDuygulu/gnosis/actions/runs/41327877627) passed all **69 Django tests** on that head. The **17 standalone SQL cases and SQLite/report probes were local checks**, not workflow steps. [Issue #13](https://github.com/TugraDuygulu/gnosis/issues/13) remains open; this is not a final submission. Review corrections after that commit require separate commit/push approval; that CI result does not certify later uncommitted edits.
+
+## Historical pre-publication verification
+
+The table and source-copy checks below record the initial preparation before commit e8bc8ca. Their original no-publication statement applies to that phase only.
+
 | Check actually performed | Result | Evidence / limitation |
 | --- | --- | --- |
 | Actual PyCharm Git inspection | Clean sql/issue-4-queries at 95b7139; safe fetch/fast-forward main to eb23586; new docs/cse321-report-workspace | No previous merge/closure repeated; no commit/push/PR in this task |
@@ -28,4 +36,8 @@ To repeat the checks from a normal checkout with its existing environment:
 .venv/bin/python docs/reports/cse321/tools/probe_sqlite_consistency.py --output /tmp/gnosis-report-consistency-review.json
 ```
 
-Choose fresh output paths. The standard application tests use their own test database. The two report tools and SQL verifier always construct temporary fictional databases. They do not change the project's models, production configuration or development data. No GitHub CI run for these uncommitted report files, teammate review, final submission, or issue #3 closure is claimed.
+Choose fresh output paths. The standard application tests use their own test database. The two report tools and SQL verifier always construct temporary fictional databases. They do not change the project's models, production configuration or development data. At the historical pre-publication checkpoint, no CI run for the then-uncommitted report files or issue #3 closure was claimed. Publication, successful CI and approved closure subsequently occurred as recorded above. Formal teammate review and final submission are still not claimed.
+
+## PR #23 review corrections
+
+See [REVIEW_CORRECTIONS.md](REVIEW_CORRECTIONS.md) for the current documentation checks and [LAYOUT_REVIEW.md](LAYOUT_REVIEW.md) for representative-page inspection. These local checks are separate from the published-head CI result.

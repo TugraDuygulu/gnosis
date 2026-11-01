@@ -14,4 +14,6 @@ for(const name of (await fs.readdir(dir)).filter(n=>n.endsWith('.dot'))){
  await fs.writeFile(path.join(dir,name.replace('.dot','.svg')),svg);
  await fs.writeFile(path.join(dir,name.replace('.dot','.png')),new Resvg(svg,{fitTo:{mode:'width',value:2000}}).render().asPng());
 }
-console.log('Rendered component and grading-class views. Workflow source is a Mermaid sequence diagram.');
+const workflow=await fs.readFile(path.join(dir,'grade-workflow.svg'),'utf8');
+await fs.writeFile(path.join(dir,'grade-workflow.png'),new Resvg(workflow,{fitTo:{mode:'width',value:2400}}).render().asPng());
+console.log('Rendered component/class views and the separately source-derived sequence export.');

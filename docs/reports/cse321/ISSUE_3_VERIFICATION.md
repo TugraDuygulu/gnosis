@@ -1,6 +1,11 @@
 # Issue #3 — model/documentation alignment completion record
 
-Prepared 1 November 2026 against actual local source `eb23586b2b2f635629d9a08f5db1cfa6b0dee53a`. **Ready for owner approval to close; issue not changed by this verification.** This is technical alignment verification, not evidence of formal team or instructor sign-off.
+Prepared 1 November 2026 against actual local source `eb23586b2b2f635629d9a08f5db1cfa6b0dee53a`. This is technical alignment verification, not evidence of formal team or instructor sign-off.
+
+## Current publication state — 1 November 2026
+
+[Issue #3](https://github.com/TugraDuygulu/gnosis/issues/3) is **closed/completed** with owner-approved verification evidence. [PR #23](https://github.com/TugraDuygulu/gnosis/pull/23) is **open, awaiting merge review**; original report commit `e8bc8cafc693833f5e134beec147a2879607a03e` is published. [GitHub Actions run 41327877627](https://github.com/TugraDuygulu/gnosis/actions/runs/41327877627) passed all **69 Django tests** on that head. The **17 standalone SQL cases and SQLite/report probes were local checks**, not workflow steps. [Issue #13](https://github.com/TugraDuygulu/gnosis/issues/13) remains open; this is not a final submission. Review corrections after that commit require separate commit/push approval; that CI result does not certify later uncommitted edits.
+
 
 ## Checks performed
 
@@ -43,6 +48,8 @@ No blocking model/schema documentation discrepancy was found. Historical issue #
 - [PR #21](https://github.com/TugraDuygulu/gnosis/pull/21), merged documentation; [PR #22](https://github.com/TugraDuygulu/gnosis/pull/22), merged SQL evidence.
 - [Original academic structure 9bf65d8](https://github.com/TugraDuygulu/gnosis/commit/9bf65d8), [assessment/grade/LO f87f0da](https://github.com/TugraDuygulu/gnosis/commit/f87f0da), [framework work 3555fc4](https://github.com/TugraDuygulu/gnosis/commit/3555fc4), [framework work d01a221](https://github.com/TugraDuygulu/gnosis/commit/d01a221), [course contribution 907e695](https://github.com/TugraDuygulu/gnosis/commit/907e695), [curriculum validation 0e72f58](https://github.com/TugraDuygulu/gnosis/commit/0e72f58). These identifiers are preserved from issue #3's delivered-evidence record; they are not new work or invented team approvals.
 
-## Proposed closure wording — not posted
+## Historical proposed closure wording — superseded by approved closure
+
+The following paragraph was drafted before publication and owner approval. It is retained as a historical proposal, not a current instruction to close the issue again. The actual dated completion record is on [issue #3](https://github.com/TugraDuygulu/gnosis/issues/3).
 
 Issue #3's documented model-alignment work is complete at source eb23586. A fresh isolated migrate+pilot run confirmed 15 models, 64 columns, 20 FK relationships, 14 unique plus 20 FK indexes, agreement of model/migration state and documented physical DDL, complete ERD/dictionary coverage, and successful integrity/FK checks. SQL-enforced rules, application validations and unresolved policies remain distinguished. No model, migration or application behavior changed. The report workspace records reproducible verification and exact implementation/documentation links. This establishes technical alignment; formal team/instructor schema sign-off is not claimed. Close only after owner approval, preserving the original issue history.

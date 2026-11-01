@@ -55,7 +55,7 @@ The intake path has separate `StudentRegistrationForm` (ModelForm), `StudentEnro
 
 ### 2.3 Grade-save and result-inspection workflow
 
-The [sequence diagram](diagrams/grade-workflow.mmd) distinguishes form validation, transactional saving and the subsequent read request.
+The [sequence diagram](diagrams/grade-workflow.mmd) ([reusable SVG](diagrams/grade-workflow.svg), [PNG](diagrams/grade-workflow.png)) distinguishes form validation, transactional saving and the subsequent read request.
 
 ```mermaid
 sequenceDiagram
