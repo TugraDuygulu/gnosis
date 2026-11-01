@@ -1,0 +1,44 @@
+erDiagram
+    direction TB
+    POFramework {
+        BigAutoField id PK
+        ForeignKey program_id FK
+        PositiveIntegerField version_number
+        CharField_20 status
+    }
+    CourseCurriculum {
+        BigAutoField id PK
+        ForeignKey course_id FK
+        PositiveIntegerField version_number
+        CharField_20 status
+    }
+    ProgramOutcome {
+        BigAutoField id PK
+        ForeignKey framework_id FK
+        CharField_20 code
+        TextField description
+    }
+    LearningOutcome {
+        BigAutoField id PK
+        ForeignKey curriculum_id FK
+        CharField_20 code
+        TextField description
+    }
+    CoursePOContribution {
+        BigAutoField id PK
+        ForeignKey curriculum_id FK
+        ForeignKey program_outcome_id FK
+        PositiveSmallIntegerField weight
+    }
+    LOPOMapping {
+        BigAutoField id PK
+        ForeignKey learning_outcome_id FK
+        ForeignKey program_outcome_id FK
+        PositiveSmallIntegerField strength
+    }
+    POFramework ||--o{ ProgramOutcome : "framework_id"
+    CourseCurriculum ||--o{ LearningOutcome : "curriculum_id"
+    CourseCurriculum ||--o{ CoursePOContribution : "curriculum_id"
+    ProgramOutcome ||--o{ CoursePOContribution : "program_outcome_id"
+    LearningOutcome ||--o{ LOPOMapping : "learning_outcome_id"
+    ProgramOutcome ||--o{ LOPOMapping : "program_outcome_id"

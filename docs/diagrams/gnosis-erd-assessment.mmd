@@ -1,0 +1,58 @@
+erDiagram
+    direction TB
+    CourseCurriculum {
+        BigAutoField id PK
+        ForeignKey course_id FK
+        PositiveIntegerField version_number
+        CharField_20 status
+    }
+    CourseOffering {
+        BigAutoField id PK
+        ForeignKey course_id FK
+        ForeignKey curriculum_id FK
+        ForeignKey instructor_id FK
+        ForeignKey po_framework_id FK "nullable"
+        PositiveIntegerField year
+        CharField_20 term
+        CharField_10 section
+        CharField_20 status
+    }
+    LearningOutcome {
+        BigAutoField id PK
+        ForeignKey curriculum_id FK
+        CharField_20 code
+        TextField description
+    }
+    Enrollment {
+        BigAutoField id PK
+        ForeignKey student_id FK
+        ForeignKey offering_id FK
+        CharField_20 status
+    }
+    Assessment {
+        BigAutoField id PK
+        ForeignKey offering_id FK
+        CharField_100 name
+        Decimal_7_2 max_score
+        Decimal_5_2 course_grade_weight
+    }
+    AssessmentLOMapping {
+        BigAutoField id PK
+        ForeignKey assessment_id FK
+        ForeignKey learning_outcome_id FK
+        Decimal_5_2 weight
+    }
+    Grade {
+        BigAutoField id PK
+        ForeignKey enrollment_id FK
+        ForeignKey assessment_id FK
+        Decimal_7_2 score "nullable"
+    }
+    CourseCurriculum ||--o{ CourseOffering : "curriculum_id"
+    CourseCurriculum ||--o{ LearningOutcome : "curriculum_id"
+    CourseOffering ||--o{ Enrollment : "offering_id"
+    CourseOffering ||--o{ Assessment : "offering_id"
+    Assessment ||--o{ AssessmentLOMapping : "assessment_id"
+    LearningOutcome ||--o{ AssessmentLOMapping : "learning_outcome_id"
+    Enrollment ||--o{ Grade : "enrollment_id"
+    Assessment ||--o{ Grade : "assessment_id"

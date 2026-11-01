@@ -1,0 +1,62 @@
+erDiagram
+    direction TB
+    Program {
+        BigAutoField id PK
+        CharField_20 code UK
+        CharField_200 name
+    }
+    Course {
+        BigAutoField id PK
+        CharField_20 code UK
+        CharField_200 title
+        Decimal_4_1 credits
+    }
+    Instructor {
+        BigAutoField id PK
+        CharField_200 full_name
+        EmailField_254 email UK
+    }
+    Student {
+        BigAutoField id PK
+        ForeignKey program_id FK
+        CharField_20 student_number UK
+        CharField_200 full_name
+    }
+    POFramework {
+        BigAutoField id PK
+        ForeignKey program_id FK
+        PositiveIntegerField version_number
+        CharField_20 status
+    }
+    CourseCurriculum {
+        BigAutoField id PK
+        ForeignKey course_id FK
+        PositiveIntegerField version_number
+        CharField_20 status
+    }
+    CourseOffering {
+        BigAutoField id PK
+        ForeignKey course_id FK
+        ForeignKey curriculum_id FK
+        ForeignKey instructor_id FK
+        ForeignKey po_framework_id FK "nullable"
+        PositiveIntegerField year
+        CharField_20 term
+        CharField_10 section
+        CharField_20 status
+    }
+    Enrollment {
+        BigAutoField id PK
+        ForeignKey student_id FK
+        ForeignKey offering_id FK
+        CharField_20 status
+    }
+    Program ||--o{ Student : "program_id"
+    Program ||--o{ POFramework : "program_id"
+    Course ||--o{ CourseCurriculum : "course_id"
+    Course ||--o{ CourseOffering : "course_id"
+    CourseCurriculum ||--o{ CourseOffering : "curriculum_id"
+    Instructor ||--o{ CourseOffering : "instructor_id"
+    POFramework |o--o{ CourseOffering : "po_framework_id"
+    Student ||--o{ Enrollment : "student_id"
+    CourseOffering ||--o{ Enrollment : "offering_id"
