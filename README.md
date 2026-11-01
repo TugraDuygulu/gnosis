@@ -185,3 +185,14 @@ Run `python manage.py test` from the project root.
 
 See [implemented calculation policy](docs/calculation_policy.md) for the
 missing-versus-zero rules, relative weights and exact instructor examples.
+
+
+## Reproducible CSE321 SQL evidence
+
+See [the three SQL questions and verification guide](sql/README.md) for student assessment grades, weighted LO attainment and an explicitly defined course-offering summary. Run the saved statements and edge-case checks in a fresh temporary fictional database with:
+
+```sh
+.venv/bin/python sql/verify_queries.py --output-dir /tmp/gnosis-sql-review
+```
+
+Choose a new output directory. The verifier never reseeds or opens the development database.
