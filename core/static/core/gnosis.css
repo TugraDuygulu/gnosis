@@ -425,3 +425,7 @@ table.list { width: 100%; border-collapse: collapse; }
 @container outcomes (max-width: 480px) {
   .outcome > summary { grid-template-columns: 40px minmax(0, 1fr) 18px; grid-template-areas: "badge text chev" ". score ." ". state ."; }
 }
+
+/* Typesetting: balanced headings, no orphans in prose. */
+h1, h2, h3 { text-wrap: balance; }
+p, .callout .text span, .attn p { text-wrap: pretty; }

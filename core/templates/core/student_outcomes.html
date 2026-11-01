@@ -75,7 +75,7 @@
         </div>
     </div>
     <div class="facts">
-        <div class="fact"><div class="k">Outcomes with a result</div><div class="v num">{{ scored_count }} <small>of {{ po_results|length }}</small></div><div class="d">{% if unmeasured_count %}{{ unmeasured_count }} not measured by this student's courses{% else %}Every outcome is measured{% endif %}</div></div>
+        <div class="fact"><div class="k">Outcomes with a result</div><div class="v num">{{ scored_count }} <small>of {{ po_results|length }}</small></div><div class="d">{% if unmeasured_count %}{{ unmeasured_count }} not measured by this student’s courses{% else %}Every outcome is measured{% endif %}</div></div>
         <div class="fact{% if attention %} warn{% endif %}"><div class="k">Missing grades</div><div class="v num">{{ attention|length }}</div><div class="d">{% if attention %}{% for item in attention|slice:":2" %}{{ item.assessment.name }} in {{ item.enrollment.offering.course.code }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if attention|length > 2 %} and more{% endif %}{% else %}All configured grades are entered{% endif %}</div></div>
         <div class="fact"><div class="k">Active courses</div><div class="v num">{{ enrollments|length }}</div><div class="d">using Framework v{{ framework.version_number }}</div></div>
     </div>
@@ -120,7 +120,7 @@
                         <p class="full" role="alert">{{ result.error }}</p>
                     {% elif not result.courses %}
                         <h3>Why there is no result</h3>
-                        <p class="full">{% if not enrollments %}This student has no active courses using this framework.{% else %}None of this student's active courses is configured to contribute to this outcome. Review course contribution settings if evidence is expected here.{% endif %}</p>
+                        <p class="full">{% if not enrollments %}This student has no active courses using this framework.{% else %}None of this student’s active courses is configured to contribute to this outcome. Review course contribution settings if evidence is expected here.{% endif %}</p>
                     {% else %}
                         <h3>{% if result.score is not None %}Where {{ result.score|floatformat:2 }}% comes from{% else %}Why there is no result yet{% endif %}</h3>
                         <div class="contrib">
@@ -169,7 +169,7 @@
                     </div>
                 </div>
             {% empty %}
-                <p class="panel-note">Nothing is waiting. Every configured grade for this student's active courses is entered.</p>
+                <p class="panel-note">Nothing is waiting. Every configured grade for this student’s active courses is entered.</p>
             {% endfor %}
         </section>
         <section class="panel">
