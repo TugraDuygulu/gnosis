@@ -468,7 +468,7 @@ button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: no
 .login-form > .muted { margin: 4px 0 16px; }
 .login-form .form-body { padding: 4px 0; }
 .login-submit { width: 100%; min-height: 44px; }
-.login-help { margin: 16px 0 0; font-size: 14px; }
+.login-form > .login-help { margin: 16px 0 0; font-size: 14px; }
 @media (max-width: 860px) {
   .login { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .login-brand { padding: 24px 16px; gap: 16px; }
