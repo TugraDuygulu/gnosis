@@ -102,6 +102,22 @@
   });
   refresh();
 
+  // Grade book: Enter or the arrow keys move down/up the same assessment column.
+  if (form.hasAttribute("data-grid")) {
+    form.addEventListener("keydown", function (event) {
+      var input = event.target;
+      if (!input.matches || !input.matches("input[data-max]")) return;
+      var step = event.key === "Enter" || event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : 0;
+      if (!step) return;
+      event.preventDefault();
+      var cell = input.closest("td"), row = cell.parentElement;
+      var column = Array.prototype.indexOf.call(row.children, cell);
+      var next = step > 0 ? row.nextElementSibling : row.previousElementSibling;
+      var target = next && next.children[column] && next.children[column].querySelector("input[data-max]");
+      if (target) { target.focus(); target.select(); }
+    });
+  }
+
   // "Enter grade" links point at one assessment (#id_score_N): start typing there.
   var target = location.hash && document.getElementById(location.hash.slice(1));
   if (target && target.matches("input[data-max]")) { target.focus(); target.select(); }

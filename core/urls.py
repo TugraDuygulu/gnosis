@@ -9,6 +9,7 @@ urlpatterns = [
          views.enrollment_grade_history, name="enrollment_grade_history"),
     path("courses/", views.course_list, name="course_list"),
     path("offerings/<int:offering_id>/", views.offering_detail, name="offering_detail"),
+    path("offerings/<int:offering_id>/grades/", views.offering_gradebook, name="offering_gradebook"),
     path(
         "enrollments/<int:enrollment_id>/grades/",
         views.enrollment_grade_editor,

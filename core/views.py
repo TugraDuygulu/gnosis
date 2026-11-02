@@ -426,3 +426,63 @@ def offering_detail(request, offering_id):
         "enrollments": enrollments,
         "assessment_total": offering.assessments.count(),
     })
+
+
+@staff_member_required
+@permission_required("core.change_grade", raise_exception=True)
+@require_http_methods(["GET", "POST"])
+def offering_gradebook(request, offering_id):
+    """Every student and assessment of one class on one page, saved together."""
+    offering = get_object_or_404(
+        CourseOffering.objects.select_related("course", "instructor"),
+        pk=offering_id,
+    )
+    assessments = list(offering.assessments.order_by("pk"))
+    rows = []
+    for enrollment in offering.enrollments.select_related("student").order_by(
+        "student__full_name", "student__student_number", "pk",
+    ):
+        enrollment_assessments, grades, revision = snapshot(enrollment)
+        form = EnrollmentGradeForm(
+            enrollment_assessments, grades,
+            request.POST if request.method == "POST" else None,
+            prefix=f"e{enrollment.pk}",
+            initial={"revision": revision_token(enrollment, request.user, revision)},
+        )
+        rows.append({
+            "enrollment": enrollment,
+            "form": form,
+            "fields": [form[f"score_{assessment.pk}"] for assessment in enrollment_assessments],
+            "graded": sum(1 for grade in grades.values() if grade.score is not None),
+        })
+
+    if request.method == "POST" and all([row["form"].is_valid() for row in rows]):
+        changed = [row for row in rows if set(row["form"].changed_data) - {"revision"}]
+        current = None
+        try:
+            with transaction.atomic():
+                for current in changed:
+                    save_grades(current["enrollment"].pk, request.user, current["form"])
+        except ValidationError as error:
+            current["form"].add_error(None, error)
+        except IntegrityError:
+            current["form"].add_error(None, STALE_MESSAGE)
+        except OperationalError as error:
+            if "locked" not in str(error).lower():
+                raise
+            current["form"].add_error(None, "Another save is in progress. Nothing was saved. "
+                                      "Reload grades and try again.")
+        else:
+            if changed:
+                messages.success(request, f"Grades saved for {len(changed)} student{'s' if len(changed) != 1 else ''}. "
+                                          "Scores are updated.")
+            else:
+                messages.success(request, "No grades changed.")
+            return redirect("offering_gradebook", offering_id=offering.pk)
+
+    return render(request, "core/offering_gradebook.html", {
+        "offering": offering,
+        "assessments": assessments,
+        "rows": rows,
+        "has_errors": any(row["form"].errors for row in rows),
+    })

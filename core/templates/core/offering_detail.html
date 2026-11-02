@@ -14,6 +14,9 @@
             <li><span class="status-tag">{{ offering.status }}</span></li>
         </ul>
     </div>
+    {% if perms.core.change_grade %}
+    <div class="actions"><a class="btn btn-primary" href="{% url 'offering_gradebook' offering.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Open grade book</a></div>
+    {% endif %}
 </div>
 {% if not offering.po_framework %}
     <div class="notice notice-info"><p>No program outcome framework assigned. Grades and LO scores still work; PO scores need a framework.</p></div>

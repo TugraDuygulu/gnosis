@@ -1,0 +1,103 @@
+{% extends "core/base.html" %}
+{% load gnosis_ui %}
+{% block title %}{{ offering.course.code }} grade book{% endblock %}
+{% block content %}
+<ol class="crumbs">
+    <li><a href="{% url 'course_list' %}">Courses</a></li>
+    <li><a href="{% url 'offering_detail' offering.pk %}">{{ offering.course.code }} roster</a></li>
+    <li aria-current="page">Grade book</li>
+</ol>
+<div class="page-title">
+    <div>
+        <h1>{{ offering.course.code }} grade book</h1>
+        <ul class="meta-list">
+            <li>{{ offering.course.title }}</li>
+            <li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
+            <li>{{ offering.instructor.full_name }}</li>
+        </ul>
+    </div>
+    <div class="actions"><a class="btn btn-ghost" href="{% url 'offering_detail' offering.pk %}">Back to roster</a></div>
+</div>
+
+{% if not assessments %}
+<section class="panel">
+    <div class="empty">
+        <h2>No assessments configured</h2>
+        <p>Assessments are added to a class in Django Admin.</p>
+    </div>
+</section>
+{% elif not rows %}
+<section class="panel">
+    <div class="empty">
+        <h2>No students enrolled</h2>
+        <p>Students are enrolled from their student record.</p>
+    </div>
+</section>
+{% else %}
+<section class="panel">
+    <form method="post" data-grade-form data-grid novalidate>
+        {% csrf_token %}
+        <div class="panel-head">
+            <h2>Enter grades</h2>
+            <span class="hint">Raw scores, not percentages. Leave a cell blank if it isn’t graded yet. Enter moves down.</span>
+        </div>
+        {% if has_errors %}
+        <div class="panel-body">
+            <div class="notice notice-error flush" role="alert">
+                <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
+                <div>
+                    <p>Nothing was saved. Fix the highlighted cells and save again.</p>
+                    <p class="notice-more"><a href="{% url 'offering_gradebook' offering.pk %}">Reload grades (discards unsaved entries)</a></p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="table-scroll">
+            <table class="list gradebook">
+                <thead>
+                    <tr>
+                        <th scope="col">Student</th>
+                        {% for assessment in assessments %}
+                            <th scope="col" class="r">{{ assessment.name }}<span class="sub">out of {{ assessment.max_score|floatformat:"-2" }}</span></th>
+                        {% endfor %}
+                        <th scope="col" class="r">Graded</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr{% if row.form.errors %} class="row-error"{% endif %}>
+                        <th scope="row">
+                            {{ row.form.revision }}
+                            <div class="who">
+                                <span class="avatar">{{ row.enrollment.student.full_name|initials }}</span>
+                                <div>
+                                    <a href="{% url 'enrollment_outcomes' row.enrollment.pk %}"><b>{{ row.enrollment.student.full_name }}</b></a>
+                                    <span class="num">{{ row.enrollment.student.student_number }}</span>
+                                    {% if row.enrollment.status != "active" %}<span class="status-tag">{{ row.enrollment.status }}</span>{% endif %}
+                                </div>
+                            </div>
+                            {% if row.form.non_field_errors %}<div class="row-message">{{ row.form.non_field_errors }}</div>{% endif %}
+                        </th>
+                        {% for field in row.fields %}
+                            <td class="r">
+                                <span class="entry compact"><label class="sr-only" for="{{ field.auto_id }}">{{ field.label }}, {{ row.enrollment.student.full_name }}</label>{{ field }}<span class="sr-only" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</span></span>
+                                {{ field.errors }}
+                            </td>
+                        {% endfor %}
+                        <td class="r num"><span class="progress-count{% if row.graded < assessments|length %} warn{% endif %}">{{ row.graded }}/{{ assessments|length }}</span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="savebar">
+            <span class="pending" data-pending>No changes yet</span>
+            <span class="sp">
+                <a class="btn btn-ghost" href="{% url 'offering_detail' offering.pk %}">Cancel</a>
+                <button class="btn btn-primary" type="submit">Save grades</button>
+            </span>
+        </div>
+    </form>
+</section>
+{% endif %}
+{% endblock %}

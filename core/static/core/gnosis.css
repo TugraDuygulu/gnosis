@@ -476,3 +476,18 @@ button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: no
   .login-pitch p, .login-chain, .login-foot { display: none; }
   .login-form { padding: 32px 16px; }
 }
+
+/* ---------- Grade book ---------- */
+.gradebook th[scope="row"] { min-width: 220px; text-align: left; font-weight: 400; }
+.gradebook td, .gradebook th[scope="row"] { padding-top: 8px; padding-bottom: 8px; }
+.gradebook .entry { justify-content: flex-end; }
+.entry.compact input { width: 96px; height: 40px; font-size: 16px; }
+.gradebook .errorlist { margin-top: 4px; font-size: 13px; text-align: right; }
+.gradebook tr.row-error th[scope="row"] { box-shadow: inset 3px 0 0 var(--danger); }
+.gradebook .row-message .errorlist { text-align: left; }
+.gradebook .status-tag { margin-left: 4px; }
+/* Score inputs: no spinner buttons; arrows move between cells instead. */
+.entry input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+.entry input[type="number"]::-webkit-inner-spin-button, .entry input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.entry.compact input { width: 108px; }
+.list tbody tr:hover > th { background: var(--subtle); }
