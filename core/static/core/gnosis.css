@@ -524,3 +524,5 @@ button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: no
 /* Row headers (th scope=row) read as body cells, not column headers. */
 .list tbody th { padding: 12px 20px; background: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: inherit; font-weight: 400; text-align: left; white-space: normal; }
 .list tbody tr:last-child th { border-bottom: 0; }
+.heat th[scope="col"]:first-child { padding-left: 20px; }
+.table-scroll, .flow-scroll { position: relative; } /* keeps absolutely positioned sr-only text inside the scroller */
