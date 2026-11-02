@@ -7,6 +7,7 @@ urlpatterns = [
     path("students/<int:student_id>/enroll/", views.student_enroll, name="student_enroll"),
     path("enrollments/<int:enrollment_id>/grades/history/",
          views.enrollment_grade_history, name="enrollment_grade_history"),
+    path("overview/", views.program_overview, name="program_overview"),
     path("courses/", views.course_list, name="course_list"),
     path("offerings/<int:offering_id>/", views.offering_detail, name="offering_detail"),
     path("offerings/<int:offering_id>/grades/", views.offering_gradebook, name="offering_gradebook"),

@@ -488,3 +488,80 @@ def offering_gradebook(request, offering_id):
         "rows": rows,
         "has_errors": any(row["form"].errors for row in rows),
     })
+
+
+@staff_member_required
+@require_http_methods(["GET"])
+def program_overview(request):
+    """Program-wide PO scores for every student: the department head's view."""
+    frameworks = list(POFramework.objects.select_related("program").annotate(
+        active_enrollments=Count(
+            "offerings__enrollments",
+            filter=Q(offerings__enrollments__status="active"),
+            distinct=True,
+        ),
+    ).order_by("program__code", "version_number", "pk"))
+    if not frameworks:
+        return render(request, "core/program_overview.html", {"frameworks": []})
+    selected = request.GET.get("framework", "")
+    framework = next((item for item in frameworks if str(item.pk) == selected), None) or max(
+        frameworks, key=lambda item: item.active_enrollments,
+    )
+
+    outcomes = sorted(
+        framework.program_outcomes.all(),
+        key=lambda outcome: (len(outcome.code), outcome.code),
+    )
+    students = []
+    for student in Student.objects.filter(program=framework.program).order_by("full_name", "pk"):
+        cells = []
+        for po in outcomes:
+            try:
+                result = calculate_student_po_achievement(student, po)
+            except ValueError:
+                result = {"error": True, "score": None}
+            cells.append({
+                "outcome": po,
+                "score": result.get("score"),
+                "state": evidence_state(result, bool(result.get("courses"))),
+            })
+        students.append({"student": student, "cells": cells})
+
+    summary = []
+    for index, po in enumerate(outcomes):
+        column = [row["cells"][index] for row in students]
+        scores = [cell["score"] for cell in column if cell["score"] is not None]
+        summary.append({
+            "outcome": po,
+            "average": sum(scores) / len(scores) if scores else None,
+            "scored": len(scores),
+            "incomplete": sum(1 for cell in column if cell["state"] in ("some", "none")),
+        })
+
+    classes = []
+    for offering in CourseOffering.objects.filter(po_framework=framework).select_related(
+        "course", "instructor",
+    ).order_by("course__code", "-year", "section", "pk"):
+        active = offering.enrollments.filter(status="active").count()
+        assessments = offering.assessments.count()
+        graded = Grade.objects.filter(
+            enrollment__offering=offering, enrollment__status="active", score__isnull=False,
+        ).count()
+        classes.append({
+            "offering": offering,
+            "students": active,
+            "expected": active * assessments,
+            "graded": graded,
+            "missing": active * assessments - graded,
+        })
+
+    return render(request, "core/program_overview.html", {
+        "frameworks": frameworks,
+        "framework": framework,
+        "outcomes": outcomes,
+        "students": students,
+        "summary": summary,
+        "classes": classes,
+        "measured_count": sum(1 for item in summary if item["scored"]),
+        "missing_total": sum(item["missing"] for item in classes),
+    })
