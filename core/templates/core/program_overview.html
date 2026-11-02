@@ -22,11 +22,14 @@
         </ul>
     </div>
     {% if frameworks|length > 1 %}
-    <nav class="switcher" aria-label="Framework">
-        {% for item in frameworks %}
-            <a href="?framework={{ item.pk }}"{% if item.pk == framework.pk %} aria-current="page"{% endif %}>{{ item.program.code }} v{{ item.version_number }}</a>
-        {% endfor %}
-    </nav>
+    <div class="program-pick">
+        <span class="muted" id="program-pick-label">Program</span>
+        <nav class="switcher" aria-labelledby="program-pick-label">
+            {% for item in frameworks %}
+                <a href="?framework={{ item.pk }}"{% if item.pk == framework.pk %} aria-current="page"{% endif %}>{{ item.program.name }}<small>PO framework v{{ item.version_number }}</small></a>
+            {% endfor %}
+        </nav>
+    </div>
     {% endif %}
 </div>
 
