@@ -26,7 +26,7 @@ class ScoreFlowTests(TestCase):
         titles = [node["title"] for node in flow["nodes"]]
         self.assertEqual(titles, ["Midterm", "Project", "LO1", "LO2", "PO2", "PO3"])
         labels = sorted(edge["label"] for edge in flow["edges"])
-        self.assertEqual(labels, ["100%", "1/5", "2/5", "40%", "40%", "5/5", "60%"])
+        self.assertEqual(labels, sorted(["60%", "40%", "40%", "100%", "2/5", "1/5", "5/5"]))
         lo1 = next(node for node in flow["nodes"] if node["title"] == "LO1")
         self.assertEqual(lo1["value"], "86.00%")
 
