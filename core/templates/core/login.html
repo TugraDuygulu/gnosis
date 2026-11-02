@@ -1,0 +1,65 @@
+{% load gnosis_ui %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in | Gnosis</title>
+    <meta name="description" content="Sign in to Gnosis, the program outcome workspace for department staff.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C9A44C'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' text-anchor='middle' fill='%2313254A'%3EG%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+    <link rel="stylesheet" href="{% asset 'core/gnosis.css' %}">
+</head>
+<body class="login-page">
+<main class="login" id="main">
+    <section class="login-brand" aria-label="About Gnosis">
+        <div class="brand"><span class="mark" aria-hidden="true">G</span>Gnosis</div>
+        <div class="login-pitch">
+            <h1>Grades in.<br>Program outcome scores out.</h1>
+            <p>Enter assessment grades once. Gnosis turns them into learning outcome and program outcome scores for every student, and shows what is still missing.</p>
+            <ol class="login-chain" aria-label="How scores are built">
+                <li><b>Assessments</b><span>Midterm, project, lab</span></li>
+                <li><b>Learning outcomes</b><span>per course</span></li>
+                <li><b>Program outcomes</b><span>PO1 to PO11</span></li>
+            </ol>
+        </div>
+        <p class="login-foot">Acıbadem University · Computer Engineering</p>
+    </section>
+
+    <section class="login-form" aria-labelledby="signin-title">
+        <h2 id="signin-title">Sign in</h2>
+        <p class="muted">Use your staff account.</p>
+
+        {% if form.errors and not form.non_field_errors %}
+            <div class="notice notice-error" role="alert"><p>Check the fields below.</p></div>
+        {% endif %}
+        {% for error in form.non_field_errors %}
+            <div class="notice notice-error" role="alert"><p>{{ error }}</p></div>
+        {% endfor %}
+        {% if user.is_authenticated %}
+            <div class="notice notice-info" role="status"><p>You’re signed in as {{ user.get_username }}, but this account can’t open the staff workspace. Sign in with a staff account.</p></div>
+        {% endif %}
+
+        <form action="{{ app_path }}" method="post" id="login-form">
+            {% csrf_token %}
+            <div class="form-body">
+                <p>
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </p>
+                <p>
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {{ form.password.errors }}
+                </p>
+                <input type="hidden" name="next" value="{{ next }}">
+            </div>
+            <button class="btn btn-primary login-submit" type="submit">Sign in</button>
+        </form>
+        <p class="login-help muted">No account yet? Ask your department’s Gnosis admin.</p>
+    </section>
+</main>
+</body>
+</html>
