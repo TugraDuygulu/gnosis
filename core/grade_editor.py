@@ -58,15 +58,23 @@ class EnrollmentGradeForm(forms.Form):
                 decimal_places=2,
                 initial=grade.score if grade else None,
                 help_text=f"Out of {assessment.max_score}. Leave blank if ungraded.",
-                widget=forms.NumberInput(attrs={"step": "0.01"}),
+                widget=forms.NumberInput(attrs={
+                    "step": "0.01", "inputmode": "decimal", "placeholder": "Not graded",
+                    "data-max": str(assessment.max_score),
+                }),
             )
 
     def clean(self):
         cleaned = super().clean()
         expected = set(self.fields)
-        submitted = {key for key in self.data if key.startswith("score_")}
+        # A prefix lets one page hold a form per enrollment (class grade book).
+        prefix = f"{self.prefix}-" if self.prefix else ""
+        submitted = {
+            key[len(prefix):] for key in self.data
+            if key.startswith(prefix + "score_")
+        }
         if submitted != expected - {"revision"} or any(
-            len(self.data.getlist(key)) != 1 for key in expected
+            len(self.data.getlist(self.add_prefix(key))) != 1 for key in expected
         ):
             raise ValidationError(
                 "The submitted form is incomplete or contains unexpected grades. "

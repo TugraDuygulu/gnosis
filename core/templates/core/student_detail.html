@@ -1,39 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ student.full_name }} | Gnosis</title>
-    <style>
-        body { margin:0; font-family:system-ui,sans-serif; color:#202b3a; background:#f4f6fa; }
-        main { max-width:960px; margin:40px auto; padding:0 20px; }
-        section { background:white; border:1px solid #e1e5eb; border-radius:12px; padding:24px; margin:20px 0; }
-        a { color:#234e80; } li { margin:14px 0; } .actions a { display:inline-block; margin:6px 12px 6px 0; }
-    </style>
-</head>
-<body><main>
-    {% include 'core/workspace_nav.html' %}
-    {% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
-    <h1>{{ student.full_name }}</h1>
-    <p>{{ student.student_number }} · {{ student.program }}</p>
-    {% if perms.core.add_enrollment %}<p><a href="{% url 'student_enroll' student.pk %}">Enroll in a course offering</a></p>{% endif %}
-    <section>
-        <h2>Student outcome profiles</h2>
-        <ul>{% for framework in frameworks %}
-            <li><a href="{% url 'student_outcomes' student.pk framework.pk %}">View outcomes · Framework v{{ framework.version_number }}</a></li>
-        {% empty %}<li>No outcome framework configured for this program.</li>{% endfor %}</ul>
+{% extends "core/base.html" %}
+{% load gnosis_ui %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<ol class="crumbs"><li><a href="{% url 'student_list' %}">Students</a></li><li aria-current="page">{{ student.full_name }}</li></ol>
+<div class="head">
+    <span class="avatar">{{ student.full_name|initials }}</span>
+    <div>
+        <h1>{{ student.full_name }}</h1>
+        <div class="sub"><span class="tag num">{{ student.student_number }}</span><span>{{ student.program }}</span></div>
+    </div>
+    {% if perms.core.add_enrollment %}
+    <div class="actions"><a class="btn btn-primary" href="{% url 'student_enroll' student.pk %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Enroll in a course offering</a></div>
+    {% endif %}
+</div>
+
+<div class="cols">
+    <section class="panel">
+        <div class="panel-head"><h2>Course enrollments</h2></div>
+        <p class="panel-note">Only active enrollments count toward PO scores.</p>
+        {% if enrollments %}
+        <div class="table-scroll">
+            <table class="list">
+                <thead><tr><th>Course</th><th>Status</th><th>Grades entered</th><th>Actions</th></tr></thead>
+                <tbody>
+                {% for enrollment in enrollments %}
+                    <tr>
+                        <td><a href="{% url 'enrollment_outcomes' enrollment.pk %}" title="Course evidence"><span class="code">{{ enrollment.offering.course.code }}</span> {{ enrollment.offering.course.title }}</a><span class="sub">{{ enrollment.offering.term }} {{ enrollment.offering.year }} · Section {{ enrollment.offering.section }}</span></td>
+                        <td><span class="status-tag">{{ enrollment.status }}</span></td>
+                        <td class="num"><span class="progress-count{% if enrollment.graded_total < enrollment.assessment_total %} warn{% endif %}">{{ enrollment.graded_total }} of {{ enrollment.assessment_total }}</span></td>
+                        <td>
+                            <div class="row-actions">
+                                {% if perms.core.change_grade %}<a class="btn btn-ghost btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit course grades</a>{% endif %}
+                                <a href="{% url 'offering_detail' enrollment.offering_id %}">Roster</a>
+                                {% if perms.core.view_grade %}<a href="{% url 'enrollment_grade_history' enrollment.pk %}">History</a>{% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty">
+            <h3>No course enrollments yet</h3>
+            <p>Enroll the student in a class to start recording grades.</p>
+        </div>
+        {% endif %}
     </section>
-    <section>
-        <h2>Course enrollments</h2>
-        <p>All recorded statuses are shown; student-wide results use active enrollments only.</p>
-        <ul>{% for enrollment in enrollments %}
-            <li><strong>{{ enrollment.offering }}</strong> · {{ enrollment.status }}
-                <div class="actions">
-                    <a href="{% url 'offering_detail' enrollment.offering_id %}">Class roster</a>
-                    <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
-                    {% if perms.core.change_grade %}<a href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit grades</a>{% endif %}
-                    {% if perms.core.view_grade %}<a href="{% url 'enrollment_grade_history' enrollment.pk %}">Grade-change history</a>{% endif %}
-                </div>
-            </li>
-        {% empty %}<li>No course enrollments yet. Enroll in an existing offering to begin recording evidence.</li>{% endfor %}</ul>
-    </section>
-</main></body></html>
+
+    <aside class="side-col">
+        <section class="panel">
+            <div class="panel-head"><h2>PO scores</h2></div>
+            {% for framework in frameworks %}
+                <a class="course" href="{% url 'student_outcomes' student.pk framework.pk %}"><span class="top"><b>View outcomes · Framework v{{ framework.version_number }}</b><span aria-hidden="true">→</span></span><span class="meta">Program outcome results across active courses</span></a>
+            {% empty %}
+                <p class="panel-note">No outcome framework configured for this program yet.</p>
+            {% endfor %}
+        </section>
+    </aside>
+</div>
+{% endblock %}

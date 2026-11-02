@@ -10,6 +10,13 @@ from .models import (
     CoursePOContribution,
 )
 
+admin.site.site_header = "Gnosis administration"
+admin.site.site_title = "Gnosis admin"
+admin.site.index_title = "Courses, outcomes and mappings"
+admin.site.site_url = "/"
+# Staff land on the admin login when signed out; give it the workspace look.
+admin.site.login_template = "core/login.html"
+
 admin.site.register([
     Program, Course, Instructor, Student,
     CourseCurriculum, CourseOffering, Enrollment,

@@ -1,0 +1,128 @@
+{% extends "core/base.html" %}
+{% load gnosis_ui %}
+{% block title %}Program overview{% endblock %}
+{% block content %}
+{% if not frameworks %}
+<div class="page-title"><div><h1>Program overview</h1></div></div>
+<section class="panel">
+    <div class="empty">
+        <h2>No outcome framework yet</h2>
+        <p>Program outcome frameworks are set up in Django Admin.</p>
+    </div>
+</section>
+{% else %}
+<div class="page-title">
+    <div>
+        <h1>Program overview</h1>
+        <ul class="meta-list">
+            <li>{{ framework.program.name }}</li>
+            <li>Framework v{{ framework.version_number }}</li>
+            <li>{{ students|length }} student{{ students|length|pluralize }}</li>
+            <li>{{ classes|length }} class{{ classes|length|pluralize:"es" }}</li>
+        </ul>
+    </div>
+    {% if frameworks|length > 1 %}
+    <div class="program-pick">
+        <span class="muted" id="program-pick-label">Program</span>
+        <nav class="switcher" aria-labelledby="program-pick-label">
+            {% for item in frameworks %}
+                <a href="?framework={{ item.pk }}"{% if item.pk == framework.pk %} aria-current="page"{% endif %}>{{ item.program.name }}<small>PO framework v{{ item.version_number }}</small></a>
+            {% endfor %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<section class="panel overview">
+    <div class="chart">
+        <div class="chart-top">
+            <h2>Average score per PO</h2>
+            <span class="info"><button aria-label="How averages are calculated">?</button>
+                <span class="pop" role="tooltip">
+                    <p>Each bar is the average PO score of the students who have one. Students without a score for a PO are left out of its average.</p>
+                    <p>The number under a bar is how many students it includes.</p>
+                </span>
+            </span>
+        </div>
+        <div class="bars" style="--n:{{ summary|length }}">
+            {% for item in summary %}
+            <a href="#heatmap" aria-label="{{ item.outcome.code }}: {% if item.average is not None %}average {{ item.average|floatformat:2 }}% over {{ item.scored }} student{{ item.scored|pluralize }}{% else %}no scores yet{% endif %}"{% if item.average is not None %} style="--c:{{ item.average|score_fill }};--t:{{ item.average|score_text }}"{% endif %}>
+                {% if item.average is not None %}
+                    <span class="v sc">{{ item.average|floatformat:1 }}%</span>
+                    <span class="col{% if item.average == 0 %} zero{% endif %}"><span class="f sf" style="height:{{ item.average|pct }}%"></span></span>
+                {% else %}
+                    <span class="v na">–</span>
+                    <span class="col unmeasured"></span>
+                {% endif %}
+                <span class="c">{{ item.outcome.code }}<span class="n">{% if item.scored %}n={{ item.scored }}{% else %}&nbsp;{% endif %}</span></span>
+                <span class="tip" aria-hidden="true"><b>{{ item.outcome.code }} · {% if item.average is not None %}{{ item.average|floatformat:2 }}% average{% else %}No scores yet{% endif %}</b>{{ item.outcome.description|truncatechars:120 }}</span>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="key">
+            <span><span>0%</span><span class="grad"></span><span>100%</span></span>
+            <span><span class="sw unmeasured"></span>No student has a score yet</span>
+        </div>
+    </div>
+    <div class="facts">
+        <div class="fact"><div class="k">POs measured</div><div class="v num">{{ measured_count }} <small>of {{ summary|length }}</small></div><div class="d">at least one student has a score</div></div>
+        <div class="fact{% if missing_total %} warn{% endif %}"><div class="k">Missing grades</div><div class="v num">{{ missing_total }}</div><div class="d">{% if missing_total %}across {{ classes|length }} class{{ classes|length|pluralize:"es" }}{% else %}All grades are in{% endif %}</div></div>
+        <div class="fact"><div class="k">Students</div><div class="v num">{{ students|length }}</div><div class="d">{{ framework.program.code }}</div></div>
+    </div>
+</section>
+
+<div class="cols">
+    <section class="panel" id="heatmap">
+        <div class="panel-head"><h2>Students by PO</h2><span class="hint">Click a cell to open that student’s PO scores.</span></div>
+        {% if students %}
+        <div class="table-scroll">
+            <table class="list heat">
+                <thead>
+                    <tr>
+                        <th scope="col">Student</th>
+                        {% for outcome in outcomes %}<th scope="col" title="{{ outcome.description }}">{{ outcome.code }}</th>{% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in students %}
+                    <tr>
+                        <th scope="row"><a href="{% url 'student_outcomes' row.student.pk framework.pk %}"><b>{{ row.student.full_name }}</b></a><span class="sub num">{{ row.student.student_number }}</span></th>
+                        {% for cell in row.cells %}
+                            <td>
+                                <a class="cell {{ cell.state }}" href="{% url 'student_outcomes' row.student.pk framework.pk %}#{{ cell.outcome.code|slugify }}"{% if cell.score is not None %} style="--c:{{ cell.score|score_fill }};--t:{{ cell.score|score_text }}"{% endif %} title="{{ row.student.full_name }}, {{ cell.outcome.code }}: {% if cell.score is not None %}{{ cell.score|floatformat:2 }}%{% if cell.state == 'some' %}, grades missing{% endif %}{% elif cell.state == 'none' %}not graded yet{% else %}not measured{% endif %}">
+                                    {% if cell.score is not None %}{{ cell.score|floatformat:0 }}{% if cell.state == "some" %}<svg aria-hidden="true"><use href="#i-some"/></svg>{% endif %}{% elif cell.state == "none" %}<span class="sr-only">not graded yet</span>{% else %}–{% endif %}
+                                </a>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="key key-inline">
+            <span><svg aria-hidden="true"><use href="#i-some"/></svg>Grades missing</span>
+            <span><span class="sw missing"></span>Not graded yet</span>
+            <span>– Not measured</span>
+        </div>
+        {% else %}
+            <p class="panel-note">No students in {{ framework.program.name }} yet.</p>
+        {% endif %}
+    </section>
+
+    <aside class="side-col">
+        <section class="panel">
+            <div class="panel-head"><h2>Grading progress</h2></div>
+            {% for item in classes %}
+                <a class="course" href="{% if perms.core.change_grade %}{% url 'offering_gradebook' item.offering.pk %}{% else %}{% url 'offering_detail' item.offering.pk %}{% endif %}">
+                    <span class="top"><span><b>{{ item.offering.course.code }}</b> {{ item.offering.course.title }}</span><span class="g{% if item.missing %} warn{% endif %}">{% if item.missing %}{{ item.missing }} missing{% else %}Done{% endif %}</span></span>
+                    <span class="meta">{{ item.offering.term }} {{ item.offering.year }}, {{ item.students }} student{{ item.students|pluralize }}</span>
+                    <span class="track"><span class="f" style="width:{% widthratio item.graded item.expected|default:1 100 %}%"></span></span>
+                </a>
+            {% empty %}
+                <p class="panel-note">No classes use this framework yet.</p>
+            {% endfor %}
+        </section>
+    </aside>
+</div>
+{% endif %}
+{% endblock %}

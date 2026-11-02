@@ -1,208 +1,160 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gnosis | Academic Outcomes</title>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            background: #f4f6fa;
-            color: #202b3a;
-            margin: 0;
-        }
-        main {
-            max-width: 850px;
-            margin: 50px auto;
-            padding: 0 20px;
-        }
-        h1 { color: #234e80; }
-        section {
-            background: white;
-            border: 1px solid #e1e5eb;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 24px 0;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th, td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #e8ebef;
-        }
-        th { color: #526176; }
-        .muted { color: #64748b; }
-    </style>
-</head>
-<body>
-<main>
-    {% include 'core/workspace_nav.html' %}
-    <p><a href="{% url 'offering_detail' enrollment.offering_id %}">← Class roster</a></p>
-    {% for message in messages %}
-        <p role="status">{{ message }}</p>
-    {% endfor %}
-    {% if enrollment.offering.po_framework_id and enrollment.offering.po_framework.program_id == enrollment.student.program_id %}
-    <p>
-        <a href="{% url 'student_outcomes' enrollment.student_id enrollment.offering.po_framework_id %}">
-            ← Back to student profile
-        </a>
-    </p>
-{% endif %}
-    <h1>Gnosis</h1>
-    {% if perms.core.view_grade %}
-    <p><a href="{% url 'enrollment_grade_history' enrollment.pk %}">Grade-change history</a></p>
-    {% endif %}
-    <p class="muted">Academic Outcome Dashboard</p>
-
-    <section>
-        <h2>{{ enrollment.student.full_name }}</h2>
-        <p>Student ID: {{ enrollment.student.student_number }}</p>
-        <p>Course: {{ enrollment.offering.course.code }}
-            — {{ enrollment.offering.course.title }}</p>
-        <p>Term: {{ enrollment.offering.term }}
-            {{ enrollment.offering.year }}</p>
-        {% if perms.core.change_grade %}
-            <p>
-                <a href="{% url 'enrollment_grade_editor' enrollment.pk %}">
-                    Edit course grades
-                </a>
-            </p>
-            <p>
-                <a href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">
-                    Open grades in Django Admin
-                </a>
-            </p>
+{% extends "core/base.html" %}
+{% load gnosis_ui %}
+{% block title %}{{ enrollment.offering.course.code }} · {{ enrollment.student.full_name }}{% endblock %}
+{% block content %}
+{% with offering=enrollment.offering student=enrollment.student %}
+<ol class="crumbs">
+    <li><a href="{% url 'course_list' %}">Courses</a></li>
+    <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
+    <li aria-current="page">{{ student.full_name }}</li>
+</ol>
+<div class="head">
+    <span class="avatar">{{ student.full_name|initials }}</span>
+    <div>
+        <h1>{{ student.full_name }}</h1>
+        <ul class="meta-list">
+            <li class="tag num">{{ student.student_number }}</li>
+            <li>{{ offering.course.code }} {{ offering.course.title }}</li>
+            <li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
+        </ul>
+        <ul class="meta-list summary">
+            <li><b>{{ graded_count }} of {{ assessment_results|length }}</b>&nbsp;graded</li>
+            {% if missing %}<li class="warn">{{ missing|length }} missing</li>{% endif %}
+            {% if offering.po_framework_id and offering.po_framework.program_id == student.program_id %}
+                <li><a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">All PO scores →</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="actions">
+        {% if perms.core.view_grade %}
+            <a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-history"/></svg>Grade-change history</a>
         {% endif %}
-    </section>
-    <section>
-        <h2>Assessment evidence</h2>
-        <p>
-            A recorded zero counts as graded evidence.
-            A missing grade does not count as zero.
-            Mapping weights are relative weights within each learning outcome.
-        </p>
+        {% if perms.core.change_grade %}
+            <a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Edit course grades</a>
+        {% endif %}
+    </div>
+</div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Assessment</th>
-                    <th>Recorded score</th>
-                    <th>Learning outcome mappings</th>
-                </tr>
-            </thead>
+{% if missing %}
+<div class="callout" role="status">
+    <span class="ic"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg></span>
+    <div class="text">
+        <b>Missing: {% for assessment in missing %}{{ assessment.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</b>
+        <span>Scores that depend on {{ missing|length|pluralize:"it,them" }} stay incomplete until {{ missing|length|pluralize:"it’s,they’re" }} entered.</span>
+    </div>
+    {% if perms.core.change_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}#id_score_{{ missing.0.pk }}">Enter missing grade{{ missing|length|pluralize }}</a>{% endif %}
+</div>
+{% endif %}
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>Grades</h2>
+        {% if perms.core.change_grade %}<a class="admin-link" href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">Open in Django Admin</a>{% endif %}
+    </div>
+    <div class="table-scroll">
+        <table class="list">
+            <thead><tr><th>Assessment</th><th class="r">Score</th><th>Counts toward</th></tr></thead>
             <tbody>
-                {% for row in assessment_results %}
-                    <tr>
-                        <td>{{ row.assessment.name }}</td>
-                        <td>
-                            {% if row.score is not None %}
-                                {{ row.score|floatformat:2 }} /
-                                {{ row.assessment.max_score|floatformat:2 }}
-                            {% else %}
-                                No grade recorded
-                                (out of {{ row.assessment.max_score|floatformat:2 }})
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% for mapping in row.mappings %}
-                                <div>
-                                    {{ mapping.learning_outcome.code }}
-                                    — {{ mapping.learning_outcome.description }}
-                                    · Weight {{ mapping.weight|floatformat:2 }}
-                                </div>
-                            {% empty %}
-                                No learning outcome mappings configured.
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="3">No assessments configured.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
-    <section>
-        <h2>Learning Outcomes</h2>
-        <table>
-            <thead>
+            {% for row in assessment_results %}
                 <tr>
-                    <th>Outcome</th>
-                    <th>Score</th>
-                    <th>Coverage</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for result in lo_results %}
-                <tr>
-                    <td>{{ result.outcome.code }}</td>
-                    <td>
-                        {% if result.score is not None %}
-                            {{ result.score|floatformat:2 }}%
+                    <td><b>{{ row.assessment.name }}</b></td>
+                    <td class="r">
+                        {% if row.score is not None %}
+                            <span class="num"><b>{{ row.score|floatformat:2 }}</b> / {{ row.assessment.max_score|floatformat:2 }}</span>
                         {% else %}
-                            Not assessed
+                            <span class="ungraded">Not graded yet</span> <span class="num muted">/ {{ row.assessment.max_score|floatformat:2 }}</span>
                         {% endif %}
                     </td>
-                    <td>{{ result.coverage|floatformat:2 }}%</td>
-                    <td>{{ result.status }}</td>
+                    <td class="feeds">
+                        {% for mapping in row.mappings %}
+                            <span title="{{ mapping.learning_outcome.description }}"><b>{{ mapping.learning_outcome.code }}</b> · weight {{ mapping.weight|floatformat:"-2" }}</span>{% if not forloop.last %}<br>{% endif %}
+                        {% empty %}
+                            Not linked to an LO
+                        {% endfor %}
+                    </td>
                 </tr>
-                {% empty %}
-                <tr><td colspan="4">No learning outcomes configured.</td></tr>
-                {% endfor %}
+            {% empty %}
+                <tr><td colspan="3" class="muted">No assessments configured.</td></tr>
+            {% endfor %}
             </tbody>
         </table>
-    </section>
+    </div>
+</section>
 
-    <section>
-        <h2>Program Outcomes</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Outcome</th>
-                    <th>Score</th>
-                    <th>Coverage</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for result in po_results %}
-                <tr>
-                    <td>
-                        {{ result.outcome.code }}
-                        <details>
-                            <summary>Contributing learning outcomes</summary>
-                            <ul>
-                                {% for mapping in result.mappings %}
-                                    <li>
-                                        {{ mapping.learning_outcome.code }}
-                                        — {{ mapping.learning_outcome.description }}
-                                        · Strength {{ mapping.strength }}/5
-                                    </li>
-                                {% empty %}
-                                    <li>No learning outcome mappings configured.</li>
-                                {% endfor %}
-                            </ul>
-                        </details>
-                    </td>
-                    <td>
-                        {% if result.score is not None %}
-                            {{ result.score|floatformat:2 }}%
-                        {% else %}
-                            Not assessed
-                        {% endif %}
-                    </td>
-                    <td>{{ result.coverage|floatformat:2 }}%</td>
-                    <td>{{ result.status }}</td>
-                </tr>
+{% if flow %}{% include "core/_flow.html" %}{% endif %}
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>Learning outcomes</h2>
+        <span class="info"><button aria-label="How these scores work">?</button>
+            <span class="pop" role="tooltip"><p>An LO score is the weighted average of the grades that count toward it.</p><p>Missing grades are left out, not counted as 0. Open a row to see the calculation.</p></span>
+        </span>
+    </div>
+    {% for result in lo_results %}
+        <details class="outcome">
+            <summary>
+                <span class="badge">{{ result.outcome.code }}</span>
+                <span><span class="t">{{ result.outcome.description }}</span></span>
+                {% include "core/_score.html" with score=result.score state=result.state coverage=result.coverage %}
+                <span class="state">{% include "core/_state.html" with state=result.state %}</span>
+                <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
+            </summary>
+            <div class="detail">
+                <h3>{% if result.score is not None %}How {{ result.score|floatformat:2 }}% is calculated{% else %}Why there’s no score yet{% endif %}</h3>
+                <div class="contrib">
+                {% for source in result.sources %}
+                    <div class="line{% if source.score is None %} missing{% endif %}">
+                        <span><b>{{ source.assessment.name }}</b><br><span class="s">{% if source.score is not None %}{{ source.score|floatformat:2 }} / {{ source.assessment.max_score|floatformat:2 }}{% else %}Not graded yet{% endif %}</span></span>
+                        <span class="w">Weight {{ source.weight|floatformat:"-2" }}</span>
+                        <span></span>
+                        <span>{% if source.score is not None %}{% include "core/_state.html" with state="full" %}{% elif perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}#id_score_{{ source.assessment.pk }}">Enter grade</a>{% else %}{% include "core/_state.html" with state="none" %}{% endif %}</span>
+                    </div>
                 {% empty %}
-                <tr><td colspan="4">No program outcomes configured.</td></tr>
+                    <p class="full">No assessment in this course counts toward {{ result.outcome.code }}.</p>
                 {% endfor %}
-            </tbody>
-        </table>
-    </section>
-</main>
-</body>
-</html>
+                </div>
+            </div>
+        </details>
+    {% empty %}
+        <p class="panel-note">This course has no learning outcomes yet.</p>
+    {% endfor %}
+</section>
+
+<section class="panel">
+    <div class="panel-head"><h2>Program outcomes</h2><span class="hint">from this course</span></div>
+    {% if not offering.po_framework %}
+        <p class="panel-note">No program outcome framework assigned.</p>
+    {% endif %}
+    {% for result in po_results %}
+        <details class="outcome">
+            <summary>
+                <span class="badge">{{ result.outcome.code }}</span>
+                <span><span class="t">{{ result.outcome.description }}</span></span>
+                {% include "core/_score.html" with score=result.score state=result.state coverage=result.coverage %}
+                <span class="state">{% include "core/_state.html" with state=result.state %}</span>
+                <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
+            </summary>
+            <div class="detail">
+                <h3>{% if result.score is not None %}How {{ result.score|floatformat:2 }}% is calculated{% else %}Why there’s no score yet{% endif %}</h3>
+                <div class="contrib">
+                {% for source in result.sources %}
+                    <div class="line{% if source.lo.score is None %} missing{% endif %}">
+                        <span><b>{{ source.mapping.learning_outcome.code }}</b> {{ source.mapping.learning_outcome.description|truncatechars:70 }}</span>
+                        <span class="w">Strength {{ source.mapping.strength }}/5</span>
+                        <span class="p sc" {% if source.lo.score is not None %}style="--t:{{ source.lo.score|score_text }}"{% endif %}>{% if source.lo.score is not None %}{{ source.lo.score|floatformat:2 }}%{% else %}–{% endif %}</span>
+                        <span>{% include "core/_state.html" with state=source.lo.state %}</span>
+                    </div>
+                {% endfor %}
+                </div>
+                <p class="foot">Each LO counts by its strength (1–5). LOs without grades are left out.</p>
+            </div>
+        </details>
+    {% endfor %}
+    {% if unmapped_po_count %}
+        <div class="more">{{ unmapped_po_count }} other PO{{ unmapped_po_count|pluralize }} {{ unmapped_po_count|pluralize:"isn’t,aren’t" }} linked to this course.</div>
+    {% elif offering.po_framework and not po_results %}
+        <p class="panel-note">This framework has no program outcomes yet.</p>
+    {% endif %}
+</section>
+{% endwith %}
+{% endblock %}

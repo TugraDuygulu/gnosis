@@ -1,69 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gnosis | Students</title>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            background: #f4f6fa;
-            color: #202b3a;
-            margin: 0;
-        }
-        main {
-            max-width: 960px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-        section {
-            background: white;
-            border: 1px solid #e1e5eb;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 20px 0;
-        }
-        a { color: #234e80; }
-        li { margin: 12px 0; }
-        .muted { color: #526176; }
-    </style>
-</head>
-<body>
-<main>
-    {% include 'core/workspace_nav.html' %}
-    <h1>Gnosis</h1>
-    <p>Explore what recorded grades reveal about learning.</p>
-    <p class="muted">
-        Staff workspace · Choose a student and an outcome framework.
-    </p>
-    {% if perms.core.add_student %}<p><a href="{% url 'student_register' %}">Register student</a></p>{% endif %}
+{% extends "core/base.html" %}
+{% load gnosis_ui %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<div class="page-title">
+    <div>
+        <h1>Students</h1>
+        <p>Open a student to see their grades and PO scores.</p>
+    </div>
+    {% if perms.core.add_student %}
+    <div class="actions"><a class="btn btn-primary" href="{% url 'student_register' %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Register student</a></div>
+    {% endif %}
+</div>
 
-    {% for student in students %}
-        <section>
-            <h2><a href="{% url 'student_detail' student.pk %}">{{ student.full_name }}</a></h2>
-            <p class="muted">
-                {{ student.student_number }} · {{ student.program.name }}
-            </p>
-
-            <ul>
-                {% for framework in student.program.po_frameworks.all %}
-                    <li>
-                        <a href="{% url 'student_outcomes' student.pk framework.pk %}">
-                            View outcomes · Framework v{{ framework.version_number }}
-                        </a>
-                    </li>
-                {% empty %}
-                    <li>No outcome framework is configured for this program.</li>
-                {% endfor %}
-            </ul>
-        </section>
-    {% empty %}
-        <section>
+<section class="panel">
+    <div class="toolbar">
+        {% if query %}<span>Results for “{{ query }}”</span><a href="{% url 'student_list' %}">Clear search</a>{% else %}<span class="muted">Everyone in the system, A to Z</span>{% endif %}
+        <span class="count">{{ students|length }} student{{ students|length|pluralize }}</span>
+    </div>
+    {% if students %}
+    <div class="table-scroll">
+        <table class="list">
+            <thead><tr><th>Student</th><th>Program</th><th class="r">Active courses</th><th>PO scores</th></tr></thead>
+            <tbody>
+            {% for student in students %}
+                <tr>
+                    <td>
+                        <div class="who">
+                            <span class="avatar">{{ student.full_name|initials }}</span>
+                            <div><a href="{% url 'student_detail' student.pk %}"><b>{{ student.full_name }}</b></a><span class="num">{{ student.student_number }}</span></div>
+                        </div>
+                    </td>
+                    <td>{{ student.program.name }}</td>
+                    <td class="r num">{{ student.active_courses }}</td>
+                    <td>
+                        <div class="link-list">
+                        {% for framework in student.program.po_frameworks.all %}
+                            <a href="{% url 'student_outcomes' student.pk framework.pk %}">Framework v{{ framework.version_number }} →</a>
+                        {% empty %}
+                            <span class="muted">No framework for this program</span>
+                        {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty">
+        {% if query %}
+            <h2>No matching students</h2>
+            <p>Check the spelling, or search by student number.</p>
+        {% else %}
             <h2>No students yet</h2>
-            <p>Add a student to start exploring their outcomes.</p>
-            {% if not perms.core.add_student %}<p>Ask authorized staff to register a student.</p>{% endif %}
-        </section>
-    {% endfor %}
-</main>
-</body>
-</html>
+            <p>Register a student to get started.</p>
+            {% if perms.core.add_student %}
+                <a class="btn btn-primary" href="{% url 'student_register' %}">Register the first student</a>
+            {% else %}
+                <p>Ask someone with permission to register students.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
