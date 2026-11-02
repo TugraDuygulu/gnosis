@@ -13,6 +13,7 @@ from core.grade_editor import (
 )
 from core.grade_history import history_entries, history_row
 from core.student_intake import StudentRegistrationForm, StudentEnrollmentForm, enroll_student
+from core.score_flow import build_flow
 
 from core.models import (
     AssessmentLOMapping,
@@ -227,6 +228,7 @@ def enrollment_outcomes(request, enrollment_id):
         "assessment_results": assessment_results,
         "missing": missing,
         "graded_count": len(assessment_results) - len(missing),
+        "flow": build_flow(assessment_results, lo_results, po_results),
     })
 @staff_member_required
 def student_outcomes(request, student_id, framework_id):

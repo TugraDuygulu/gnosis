@@ -491,3 +491,19 @@ button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: no
 .entry input[type="number"]::-webkit-inner-spin-button, .entry input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .entry.compact input { width: 108px; }
 .list tbody tr:hover > th { background: var(--subtle); }
+
+/* ---------- Score flow diagram ---------- */
+.flow-scroll { overflow-x: auto; padding: 0 20px 20px; }
+.flow svg { display: block; max-width: 100%; height: auto; min-width: 640px; font-family: var(--sans); }
+.flow .col-head { font-size: 13px; font-weight: 700; fill: var(--muted); }
+.flow .edge { fill: none; stroke: var(--border-strong); stroke-width: 1.5; }
+.flow .edge.missing { stroke-dasharray: 5 4; }
+.flow .edge-label rect { fill: var(--surface); stroke: var(--border); }
+.flow .edge-label text { font-size: 12px; font-weight: 700; fill: var(--muted); text-anchor: middle; }
+.flow .node rect { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.2; }
+.flow .node:hover rect { stroke: var(--navy); stroke-width: 2; }
+.flow .node.missing rect { fill: url(#flow-hatch); stroke-dasharray: 5 4; }
+.flow .node-title { font-size: 15px; font-weight: 700; fill: var(--text); }
+.flow .node-value { font-size: 14px; font-weight: 700; fill: var(--muted); }
+.flow .hatch-bg { fill: var(--subtle); }
+.flow .hatch-line { stroke: var(--border); stroke-width: 2; }

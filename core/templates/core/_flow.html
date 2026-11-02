@@ -1,0 +1,33 @@
+{% load gnosis_ui %}<section class="panel flow">
+    <div class="panel-head">
+        <h2>How the scores flow</h2>
+        <span class="hint">Grades feed learning outcomes, which feed program outcomes. Numbers on the lines are the weights.</span>
+    </div>
+    <div class="flow-scroll">
+        <svg viewBox="0 0 {{ flow.width }} {{ flow.height }}" width="{{ flow.width }}" role="img" aria-labelledby="flow-title flow-desc">
+            <title id="flow-title">Score flow for {{ enrollment.student.full_name }} in {{ enrollment.offering.course.code }}</title>
+            <desc id="flow-desc">{% for node in flow.nodes %}{{ node.title }}: {{ node.value }}. {% endfor %}</desc>
+            <defs>
+                <pattern id="flow-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                    <rect width="6" height="6" class="hatch-bg"/><line x1="0" y1="0" x2="0" y2="6" class="hatch-line"/>
+                </pattern>
+            </defs>
+            {% for column in flow.columns %}<text class="col-head" x="{{ column.x }}" y="14">{{ column.label }}</text>{% endfor %}
+            {% for edge in flow.edges %}<path class="edge{% if edge.missing %} missing{% endif %}" d="{{ edge.d }}"/>{% endfor %}
+            {% for edge in flow.edges %}
+                <g class="edge-label">
+                    <rect x="{{ edge.lx|floatformat:1 }}" y="{{ edge.ly|floatformat:1 }}" width="{{ edge.lw }}" height="20" rx="10" transform="translate(-{% widthratio edge.lw 2 1 %} -10)"/>
+                    <text x="{{ edge.lx|floatformat:1 }}" y="{{ edge.ly|floatformat:1 }}" dy="4">{{ edge.label }}</text>
+                </g>
+            {% endfor %}
+            {% for node in flow.nodes %}
+                <g class="node{% if node.missing %} missing{% endif %}">
+                    <title>{{ node.hint }}</title>
+                    <rect x="{{ node.x }}" y="{{ node.y|floatformat:1 }}" width="{{ node.w }}" height="{{ node.h }}" rx="10"/>
+                    <text class="node-title" x="{{ node.x|add:16 }}" y="{{ node.y|floatformat:1 }}" dy="23">{{ node.title }}</text>
+                    <text class="node-value" x="{{ node.x|add:16 }}" y="{{ node.y|floatformat:1 }}" dy="43"{% if node.percent is not None %} style="fill:{{ node.percent|score_text }}"{% endif %}>{{ node.value }}</text>
+                </g>
+            {% endfor %}
+        </svg>
+    </div>
+</section>
