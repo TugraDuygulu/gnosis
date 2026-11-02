@@ -133,10 +133,15 @@ Panels 12px radius, buttons and inputs 9px, small chips 6px, status pills fully 
 ## Components
 
 - **Status pill (completeness):** Fully graded (navy soft, check icon), Some grades missing (white with navy outline, half-circle icon), Not graded yet (grey, dashed-circle icon), Not measured (outlined, dash icon), Needs attention (error). Rendered by `core/_state.html`.
-- **Score:** bar plus percentage in the score colour, with a short note ("87.5% of evidence graded", "a recorded zero"). Missing evidence shows a hatched track and "No graded evidence"; not measured shows an empty outlined track. Rendered by `core/_score.html`.
+- **Score:** bar plus percentage in the score colour, with a short note ("87.5% graded", "a real 0"). Missing evidence shows a hatched track and "No graded evidence"; not measured shows an empty outlined track. Rendered by `core/_score.html`.
 - **Outcome row:** a `<details>` element; the summary shows code badge, description (two lines), score and status; the open state lists contributing courses, LOs or assessments with weights and an "Enter grade" button where a grade is missing.
 - **Outcome overview:** one column per PO, height = achievement, colour = score scale; hatched column = not graded yet; dashed = not measured; hover tooltip shows the description.
-- **Needs attention:** one item per missing assessment, naming the course and the outcomes it holds back, with a direct "Enter grade" action (only for users with `change_grade`).
+- **Missing grades panel:** one item per missing assessment, naming the course and the POs it holds back, with an "Enter grade" link that opens the editor focused on that field (`#id_score_N`, only for users with `change_grade`).
+- **Quiet outcome row:** POs no course measures yet stay in PO order but collapse to one muted line with a "Not measured" pill.
+- **Grade book:** one table per class, students × assessments, compact hatched inputs; Enter and the arrow keys move down a column; every changed row saves in one transaction with the per-enrollment revision check and grade history.
+- **Score flow diagram:** SVG in three columns (assessments → LOs → POs) with weights (%) and strengths (n/5) on the lines, labels near the receiving node; ungraded nodes are hatched and their lines dashed. Built by `core/score_flow.py`.
+- **Program overview:** average score per PO (bars with n), a student × PO heat map (cells tinted with the score colour, hatched when not graded, dash when not measured) and grading progress per class.
+- **Sign-in page:** the admin login rendered with `core/login.html` (navy brand panel, form on paper white); URLs stay `/admin/login/`.
 - **Grade editor:** one row per assessment with LO links and help text; an empty input is hatched with the placeholder "Not graded"; the live column shows the percentage in the score colour or an inline error; the sticky save bar counts unsaved changes and the page warns before leaving with unsaved edits.
 - **Buttons:** primary (navy), ghost (white with border), small variant for inline actions. Focus-visible: 3px navy ring at 45% alpha on every interactive element.
 
@@ -144,7 +149,8 @@ Panels 12px radius, buttons and inputs 9px, small chips 6px, status pills fully 
 
 - Do keep score colour and completeness status as two separate signals on every result.
 - Do turn every missing grade into a named next step with a link to the grade editor (permission-gated).
-- Do show a recorded zero as `0.00%` with the note "a recorded zero"; never show a missing grade as 0 or as an empty bar.
+- Do show a recorded zero as `0.00%` with the note "a real 0"; never show a missing grade as 0 or as an empty bar.
+- Do write copy the way an instructor talks: short, plain, no "evidence/configured" jargon; say what to do next.
 - Do keep the texts that tests rely on ("No graded evidence", two-decimal percentages, "Nothing was saved", "Out of 50.00").
 - Don't use the score colours for buttons, links or status pills, or navy for scores.
 - Don't add inline `<style>` blocks to templates; extend `core/base.html` and use `core/static/core/gnosis.css`.
@@ -165,3 +171,5 @@ Panels 12px radius, buttons and inputs 9px, small chips 6px, status pills fully 
 | 2026-11-01 | Modern workspace layout (sidebar, overview chart, needs-attention panel) chosen | User picked direction A of three HTML directions and asked for an improved version. |
 | 2026-11-01 | Achievement coloured by value | User asked for different colours per percentage; implemented as a muted academic scale separate from completeness. |
 | 2026-11-01 | Navy, gold accent and Source Serif 4 / Source Sans 3 | User asked for colours more suitable for an academic setting. |
+| 2026-11-01 | Design review: 24 findings fixed | /design-review; design score B → A-. |
+| 2026-11-02 | Plain-language copy pass; grade book, score flow, program overview, sign-in page | User asked to remove artificial-sounding text and push the frontend further; screens answer the Brief's FAQ (how grades are entered, what a department head sees) and mirror its flow slides. |
