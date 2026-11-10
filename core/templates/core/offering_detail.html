@@ -14,7 +14,10 @@
             <li><span class="status-tag">{{ offering.status }}</span></li>
         </ul>
     </div>
-    {% if perms.core.change_grade %}
+    {% if academic_manager %}
+    <div class="actions"><a class="btn btn-ghost" href="{% url 'management_edit' 'offerings' offering.pk %}">Edit offering</a></div>
+    {% endif %}
+    {% if academic_can_grade %}
     <div class="actions"><a class="btn btn-primary" href="{% url 'offering_gradebook' offering.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Open grade book</a></div>
     {% endif %}
 </div>
@@ -34,7 +37,7 @@
                     <td>
                         <div class="who">
                             <span class="avatar">{{ enrollment.student.full_name|initials }}</span>
-                            <div><a href="{% url 'student_detail' enrollment.student_id %}"><b>{{ enrollment.student.full_name }}</b></a><span class="num">{{ enrollment.student.student_number }}</span></div>
+                            <div>{% if academic_directory %}<a href="{% url 'student_detail' enrollment.student_id %}"><b>{{ enrollment.student.full_name }}</b></a>{% else %}<b>{{ enrollment.student.full_name }}</b>{% endif %}<span class="num">{{ enrollment.student.student_number }}</span></div>
                         </div>
                     </td>
                     <td><span class="status-tag">{{ enrollment.status }}</span></td>
@@ -43,11 +46,11 @@
                     </td>
                     <td>
                         <div class="row-actions">
-                            {% if perms.core.change_grade %}
+                            {% if academic_can_grade %}
                                 <a class="btn btn-ghost btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit course grades</a>
                             {% endif %}
                             <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
-                            {% if offering.po_framework_id and offering.po_framework.program_id == enrollment.student.program_id %}
+                            {% if academic_directory and offering.po_framework_id and offering.po_framework.program_id == enrollment.student.program_id %}
                                 <a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">Outcome profile</a>
                             {% endif %}
                         </div>
@@ -64,7 +67,7 @@
     <div class="empty">
         <h3>No students enrolled</h3>
         <p>Students are enrolled from their student record.</p>
-        {% if perms.core.add_enrollment %}
+        {% if academic_can_enroll %}
             <a class="btn btn-ghost" href="{% url 'student_list' %}">Choose a student to enroll</a>
         {% else %}
             <p>Ask someone with permission to enroll students.</p>

@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+{% block title %}{{ label }} login{% endblock %}
+{% block content %}
+<ol class="crumbs"><li><a href="{% url 'management_home' %}">Academic management</a></li><li><a href="{% url 'management_records' kind %}">{{ label }} records</a></li><li aria-current="page">Login</li></ol>
+<div class="page-title"><div><h1>{{ label }} login</h1><p>{{ record }}</p></div></div>
+<section class="panel form-panel">
+    {% if account %}
+        <p class="panel-note lead">Username <b>{{ account.get_username }}</b>. Login {% if account.is_active %}enabled{% else %}disabled{% endif %}.</p>
+    {% else %}
+        <p class="panel-note lead">Create a {{ label|lower }} login for this academic record.</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="{% if account %}reset{% else %}create{% endif %}">
+        <div class="form-body">
+            {% if form.errors %}<div class="notice notice-error" role="alert"><p>Review the fields below.</p></div>{% endif %}
+            {{ form.as_p }}
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if account %}Reset password{% else %}Create login{% endif %}</button></div>
+    </form>
+    {% if account %}
+        <form method="post" class="form-actions">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{% if account.is_active %}disable{% else %}enable{% endif %}">
+            <button class="btn btn-ghost" type="submit">{% if account.is_active %}Disable login{% else %}Enable login{% endif %}</button>
+            <p class="hint">Disabling clears the password. Set a new password before the account is used again.</p>
+        </form>
+    {% endif %}
+</section>
+{% endblock %}

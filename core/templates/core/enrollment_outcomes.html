@@ -4,8 +4,12 @@
 {% block content %}
 {% with offering=enrollment.offering student=enrollment.student %}
 <ol class="crumbs">
+    {% if academic_role == 'student' %}
+    <li><a href="{% url 'student_detail' enrollment.student_id %}">My courses</a></li>
+    {% else %}
     <li><a href="{% url 'course_list' %}">Courses</a></li>
     <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
+    {% endif %}
     <li aria-current="page">{{ student.full_name }}</li>
 </ol>
 <div class="head">
@@ -20,16 +24,16 @@
         <ul class="meta-list summary">
             <li><b>{{ graded_count }} of {{ assessment_results|length }}</b>&nbsp;graded</li>
             {% if missing %}<li class="warn">{{ missing|length }} missing</li>{% endif %}
-            {% if offering.po_framework_id and offering.po_framework.program_id == student.program_id %}
+            {% if academic_role != 'instructor' and offering.po_framework_id and offering.po_framework.program_id == student.program_id %}
                 <li><a href="{% url 'student_outcomes' enrollment.student_id offering.po_framework_id %}">All PO scores →</a></li>
             {% endif %}
         </ul>
     </div>
     <div class="actions">
-        {% if perms.core.view_grade %}
+        {% if academic_can_read_history %}
             <a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-history"/></svg>Grade-change history</a>
         {% endif %}
-        {% if perms.core.change_grade %}
+        {% if academic_can_grade %}
             <a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Edit course grades</a>
         {% endif %}
     </div>
@@ -42,14 +46,14 @@
         <b>Missing: {% for assessment in missing %}{{ assessment.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</b>
         <span>Scores that depend on {{ missing|length|pluralize:"it,them" }} stay incomplete until {{ missing|length|pluralize:"it’s,they’re" }} entered.</span>
     </div>
-    {% if perms.core.change_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}#id_score_{{ missing.0.pk }}">Enter missing grade{{ missing|length|pluralize }}</a>{% endif %}
+    {% if academic_can_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}#id_score_{{ missing.0.pk }}">Enter missing grade{{ missing|length|pluralize }}</a>{% endif %}
 </div>
 {% endif %}
 
 <section class="panel">
     <div class="panel-head">
         <h2>Grades</h2>
-        {% if perms.core.change_grade %}<a class="admin-link" href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">Open in Django Admin</a>{% endif %}
+        {% if academic_system_admin and academic_can_grade %}<a class="admin-link" href="{% url 'admin:core_grade_changelist' %}?enrollment__id__exact={{ enrollment.pk }}">Open in Django Admin</a>{% endif %}
     </div>
     <div class="table-scroll">
         <table class="list">
@@ -107,7 +111,7 @@
                         <span><b>{{ source.assessment.name }}</b><br><span class="s">{% if source.score is not None %}{{ source.score|floatformat:2 }} / {{ source.assessment.max_score|floatformat:2 }}{% else %}Not graded yet{% endif %}</span></span>
                         <span class="w">Weight {{ source.weight|floatformat:"-2" }}</span>
                         <span></span>
-                        <span>{% if source.score is not None %}{% include "core/_state.html" with state="full" %}{% elif perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}#id_score_{{ source.assessment.pk }}">Enter grade</a>{% else %}{% include "core/_state.html" with state="none" %}{% endif %}</span>
+                        <span>{% if source.score is not None %}{% include "core/_state.html" with state="full" %}{% elif academic_can_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}#id_score_{{ source.assessment.pk }}">Enter grade</a>{% else %}{% include "core/_state.html" with state="none" %}{% endif %}</span>
                     </div>
                 {% empty %}
                     <p class="full">No assessment in this course counts toward {{ result.outcome.code }}.</p>

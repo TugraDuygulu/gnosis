@@ -200,3 +200,8 @@ Choose a new output directory. The verifier never reseeds or opens the developme
 ## CSE321 report workspace
 
 The [November 12 working report workspace](docs/reports/cse321/README.md) contains the six-section draft, architecture/class diagrams, verified model alignment, SQLite consistency evidence and remaining information checklist. It is a review draft, not a final submission.
+
+## Academic accounts
+
+See [Academic accounts](docs/academic_roles.md) for permissions, database
+migration, account provisioning, and the fictional demonstration walkthrough.

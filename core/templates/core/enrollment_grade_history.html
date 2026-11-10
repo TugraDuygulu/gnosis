@@ -18,7 +18,7 @@
     </div>
     <div class="actions">
         <a class="btn btn-ghost" href="{% url 'enrollment_outcomes' enrollment.pk %}">Course evidence</a>
-        {% if perms.core.change_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Edit course grades</a>{% endif %}
+        {% if academic_can_grade %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Edit course grades</a>{% endif %}
     </div>
 </div>
 

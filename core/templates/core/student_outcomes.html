@@ -3,7 +3,7 @@
 {% block title %}{{ student.full_name }}{% endblock %}
 {% block content %}
 <ol class="crumbs">
-    <li><a href="{% url 'student_list' %}">Students</a></li>
+    {% if academic_directory %}<li><a href="{% url 'student_list' %}">Students</a></li>{% endif %}
     <li><a href="{% url 'student_detail' student.pk %}">{{ student.full_name }}</a></li>
     <li aria-current="page">PO scores</li>
 </ol>
@@ -28,7 +28,7 @@
     </div>
     <div class="actions">
         <a class="btn btn-ghost" href="{% url 'student_detail' student.pk %}">Student record</a>
-        {% if attention and perms.core.change_grade %}
+        {% if attention and academic_can_grade %}
             {% if attention_courses == 1 %}
                 {% with first=attention.0 %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' first.enrollment.pk %}#id_score_{{ first.assessment.pk }}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Enter missing grade{{ attention|length|pluralize }}</a>{% endwith %}
             {% else %}
@@ -130,7 +130,7 @@
                                 <span class="p sc" {% if course.score is not None %}style="--t:{{ course.score|score_text }}"{% endif %}>{% if course.score is not None %}{{ course.score|floatformat:2 }}%{% else %}–{% endif %}</span>
                                 <span>
                                     {% if course.status == "complete" %}{% include "core/_state.html" with state="full" %}
-                                    {% elif perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' course.enrollment.pk %}{% if course.missing %}#id_score_{{ course.missing.0.pk }}{% endif %}">Enter grade{{ course.missing|length|pluralize }}</a>
+                                    {% elif academic_can_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' course.enrollment.pk %}{% if course.missing %}#id_score_{{ course.missing.0.pk }}{% endif %}">Enter grade{{ course.missing|length|pluralize }}</a>
                                     {% elif course.score is not None %}{% include "core/_state.html" with state="some" %}
                                     {% else %}{% include "core/_state.html" with state="none" %}{% endif %}
                                 </span>
@@ -159,7 +159,7 @@
                     <div>
                         <b>{{ item.assessment.name }}, {{ item.enrollment.offering.course.code }}</b>
                         <p>{% if item.outcomes %}{% for outcome in item.outcomes %}{{ outcome.code }}{% if not forloop.last %}{% if forloop.revcounter == 2 %} and {% else %}, {% endif %}{% endif %}{% endfor %} {{ item.outcomes|length|pluralize:"stays,stay" }} incomplete until it’s entered.{% else %}{{ item.enrollment.offering.course.title }}{% endif %}</p>
-                        {% if perms.core.change_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' item.enrollment.pk %}#id_score_{{ item.assessment.pk }}">Enter grade</a>{% else %}<a href="{% url 'enrollment_outcomes' item.enrollment.pk %}">Open course</a>{% endif %}
+                        {% if academic_can_grade %}<a class="btn btn-primary btn-sm" href="{% url 'enrollment_grade_editor' item.enrollment.pk %}#id_score_{{ item.assessment.pk }}">Enter grade</a>{% else %}<a href="{% url 'enrollment_outcomes' item.enrollment.pk %}">Open course</a>{% endif %}
                     </div>
                 </div>
             {% empty %}

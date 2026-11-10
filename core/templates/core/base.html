@@ -35,23 +35,34 @@
 <div class="app">
     <aside class="side">
         <a class="brand" href="{% url 'student_list' %}"><span class="mark" aria-hidden="true">G</span>Gnosis</a>
-        <nav aria-label="Staff workspace">
+        <nav aria-label="Workspace">
             <div class="group">Workspace</div>
+            {% if academic_directory %}
             <a class="nav{% if name == 'program_overview' %} on{% endif %}"{% if name == 'program_overview' %} aria-current="page"{% endif %} href="{% url 'program_overview' %}"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg>Overview</a>
             <a class="nav{% if name in 'student_list student_detail student_register student_enroll student_outcomes' %} on{% endif %}"{% if name in 'student_list student_detail student_register student_enroll student_outcomes' %} aria-current="{% if name == 'student_list' or name == 'course_list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'student_list' %}"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Students</a>
-            <a class="nav{% if name in 'course_list offering_detail offering_gradebook enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} on{% endif %}"{% if name in 'course_list offering_detail offering_gradebook enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} aria-current="{% if name == 'student_list' or name == 'course_list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'course_list' %}"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>Courses</a>
-            {% if perms.core.add_student %}
+            {% endif %}
+            {% if academic_role == 'student' %}
+            <a class="nav" href="{% url 'student_list' %}"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>My courses and outcomes</a>
+            {% elif academic_role %}
+            <a class="nav{% if name in 'course_list offering_detail offering_gradebook enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} on{% endif %}"{% if name in 'course_list offering_detail offering_gradebook enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} aria-current="{% if name == 'student_list' or name == 'course_list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'course_list' %}"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</a>
+            {% endif %}
+            {% if academic_can_register %}
             <div class="group">Quick actions</div>
             <a class="nav" href="{% url 'student_register' %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Register student</a>
             {% endif %}
-            <div class="group">Configuration</div>
+            {% if academic_manager %}
+            <div class="group">Management</div>
+            <a class="nav" href="{% url 'management_home' %}"><svg class="i" aria-hidden="true"><use href="#i-cog"/></svg>Academic management</a>
+            {% endif %}
+            {% if academic_system_admin %}
             <a class="nav" href="{% url 'admin:index' %}"><svg class="i" aria-hidden="true"><use href="#i-cog"/></svg>Django Admin</a>
+            {% endif %}
         </nav>
         <div class="me">
             <span class="avatar">{{ user.get_username|initials }}</span>
             <div>
                 <b>{{ user.get_username }}</b>
-                <form method="post" action="{% url 'admin:logout' %}">{% csrf_token %}<button>Log out</button></form>
+                <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Log out</button></form>
             </div>
         </div>
     </aside>
@@ -59,12 +70,14 @@
     <div>
         <header class="topline">
             {% block topsearch %}
+            {% if academic_directory %}
             <form class="search" method="get" action="{% url 'student_list' %}" role="search">
                 <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
                 <label class="sr-only" for="global-search">Search students</label>
                 <input id="global-search" name="q" type="search" value="{% if name == 'student_list' %}{{ query }}{% endif %}" placeholder="Search students by name, number or program" data-search>
                 <span class="kbd" aria-hidden="true">/</span>
             </form>
+            {% endif %}
             {% endblock %}
         </header>
         <main class="main" id="main" tabindex="-1">

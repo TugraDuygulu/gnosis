@@ -41,7 +41,9 @@
             <h2>Enter grades</h2>
             <span class="hint">Raw scores, not percentages. Leave a cell blank if it isn’t graded yet. Enter moves down.</span>
         </div>
-        {% if has_errors %}
+        {% if malformed %}
+        <div class="panel-body"><div class="notice notice-error" role="alert"><p>Nothing was saved. The submitted grade fields do not match this roster. Reload and try again.</p></div></div>
+        {% elif has_errors %}
         <div class="panel-body">
             <div class="notice notice-error flush" role="alert">
                 <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>

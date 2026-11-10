@@ -113,7 +113,7 @@
         <section class="panel">
             <div class="panel-head"><h2>Grading progress</h2></div>
             {% for item in classes %}
-                <a class="course" href="{% if perms.core.change_grade %}{% url 'offering_gradebook' item.offering.pk %}{% else %}{% url 'offering_detail' item.offering.pk %}{% endif %}">
+                <a class="course" href="{% if academic_can_grade %}{% url 'offering_gradebook' item.offering.pk %}{% else %}{% url 'offering_detail' item.offering.pk %}{% endif %}">
                     <span class="top"><span><b>{{ item.offering.course.code }}</b> {{ item.offering.course.title }}</span><span class="g{% if item.missing %} warn{% endif %}">{% if item.missing %}{{ item.missing }} missing{% else %}Done{% endif %}</span></span>
                     <span class="meta">{{ item.offering.term }} {{ item.offering.year }}, {{ item.students }} student{{ item.students|pluralize }}</span>
                     <span class="track"><span class="f" style="width:{% widthratio item.graded item.expected|default:1 100 %}%"></span></span>

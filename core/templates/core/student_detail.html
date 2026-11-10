@@ -2,14 +2,17 @@
 {% load gnosis_ui %}
 {% block title %}{{ student.full_name }}{% endblock %}
 {% block content %}
-<ol class="crumbs"><li><a href="{% url 'student_list' %}">Students</a></li><li aria-current="page">{{ student.full_name }}</li></ol>
+<ol class="crumbs">{% if academic_directory %}<li><a href="{% url 'student_list' %}">Students</a></li>{% endif %}<li aria-current="page">{{ student.full_name }}</li></ol>
 <div class="head">
     <span class="avatar">{{ student.full_name|initials }}</span>
     <div>
-        <h1>{{ student.full_name }}</h1>
-        <div class="sub"><span class="tag num">{{ student.student_number }}</span><span>{{ student.program }}</span></div>
+        <h1>{% if academic_role == "student" %}My courses and outcomes{% else %}{{ student.full_name }}{% endif %}</h1>
+        <div class="sub">{% if academic_role == "student" %}{{ student.full_name }} · {% endif %}<span class="tag num">{{ student.student_number }}</span><span>{{ student.program }}</span></div>
     </div>
-    {% if perms.core.add_enrollment %}
+    {% if academic_manager %}
+    <div class="actions"><a class="btn btn-ghost" href="{% url 'management_account' 'students' student.pk %}">Manage login</a></div>
+    {% endif %}
+    {% if academic_can_enroll %}
     <div class="actions"><a class="btn btn-primary" href="{% url 'student_enroll' student.pk %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Enroll in a course offering</a></div>
     {% endif %}
 </div>
@@ -30,9 +33,14 @@
                         <td class="num"><span class="progress-count{% if enrollment.graded_total < enrollment.assessment_total %} warn{% endif %}">{{ enrollment.graded_total }} of {{ enrollment.assessment_total }}</span></td>
                         <td>
                             <div class="row-actions">
-                                {% if perms.core.change_grade %}<a class="btn btn-ghost btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit course grades</a>{% endif %}
-                                <a href="{% url 'offering_detail' enrollment.offering_id %}">Roster</a>
-                                {% if perms.core.view_grade %}<a href="{% url 'enrollment_grade_history' enrollment.pk %}">History</a>{% endif %}
+                                {% if academic_can_grade %}<a class="btn btn-ghost btn-sm" href="{% url 'enrollment_grade_editor' enrollment.pk %}">Edit course grades</a>{% endif %}
+                                {% if academic_directory %}
+                                    <a href="{% url 'offering_detail' enrollment.offering_id %}">Roster</a>
+                                {% else %}
+                                    <a href="{% url 'enrollment_outcomes' enrollment.pk %}">Grades and LO/PO evidence</a>
+                                {% endif %}
+                                {% if academic_manager %}<a href="{% url 'management_enrollment_status' enrollment.pk %}">Edit status</a>{% endif %}
+                                {% if academic_can_read_history %}<a href="{% url 'enrollment_grade_history' enrollment.pk %}">History</a>{% endif %}
                             </div>
                         </td>
                     </tr>
@@ -43,7 +51,7 @@
         {% else %}
         <div class="empty">
             <h3>No course enrollments yet</h3>
-            <p>Enroll the student in a class to start recording grades.</p>
+            <p>{% if academic_role == "student" %}Your enrolled courses will appear here.{% else %}Enroll the student in a class to start recording grades.{% endif %}</p>
         </div>
         {% endif %}
     </section>

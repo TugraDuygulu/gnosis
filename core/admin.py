@@ -1,5 +1,11 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
+from django.contrib.auth.models import Group
 from django.db import transaction
+
+from core.access import MANAGERS, role_for
+from core.admin_sites import academic_admin
 from core.grade_history import grade_state, record_grade_change
 from .models import (
     Program, Course, Instructor, Student,
@@ -14,11 +20,11 @@ admin.site.site_header = "Gnosis administration"
 admin.site.site_title = "Gnosis admin"
 admin.site.index_title = "Courses, outcomes and mappings"
 admin.site.site_url = "/"
-# Staff land on the admin login when signed out; give it the workspace look.
+# Give the full Admin login the workspace look.
 admin.site.login_template = "core/login.html"
 
 admin.site.register([
-    Program, Course, Instructor, Student,
+    Program, Course,
     CourseCurriculum, CourseOffering, Enrollment,
     Assessment, LearningOutcome,
     AssessmentLOMapping, POFramework,
@@ -72,3 +78,63 @@ class CoursePOContributionAdmin(admin.ModelAdmin):
         "curriculum__course",
         "program_outcome__framework",
     )
+
+
+class AcademicPersonAdmin(admin.ModelAdmin):
+    def get_readonly_fields(self, request, obj=None):
+        return () if request.user.is_superuser else ("user",)
+
+
+admin.site.register([Instructor, Student], AcademicPersonAdmin)
+
+
+class AdministratorOnly:
+    def has_module_permission(self, request):
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    has_add_permission = has_change_permission = has_delete_permission = has_view_permission
+
+
+class SystemUserAdmin(AdministratorOnly, UserAdmin):
+    pass
+
+
+class SystemGroupAdmin(AdministratorOnly, GroupAdmin):
+    pass
+
+
+admin.site.unregister(get_user_model())
+admin.site.unregister(Group)
+admin.site.register(get_user_model(), SystemUserAdmin)
+admin.site.register(Group, SystemGroupAdmin)
+
+
+class AcademicConfigurationAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return role_for(request.user) in MANAGERS
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_module_permission(request)
+
+    has_change_permission = has_view_permission
+    has_add_permission = has_module_permission
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None or request.user.is_superuser:
+            return ()
+        fields = [field.name for field in obj._meta.fields if field.many_to_one]
+        if isinstance(obj, Assessment) and Grade.objects.filter(assessment=obj).exists():
+            fields.append("max_score")
+        return fields
+
+
+academic_admin.register([
+    CourseCurriculum, POFramework, ProgramOutcome, Assessment, LearningOutcome,
+    AssessmentLOMapping, LOPOMapping, CoursePOContribution,
+], AcademicConfigurationAdmin)
