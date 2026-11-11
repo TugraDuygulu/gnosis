@@ -51,6 +51,16 @@ python manage.py runserver
 
 Open the local address shown in the terminal.
 
+### Windows setup notes
+
+The commands above are for macOS/Linux. On Windows (PowerShell in VS Code):
+
+```powershell
+py -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python manage.py test
+```
 ## Running the demo (for teammates)
 
 After completing Local Setup:
