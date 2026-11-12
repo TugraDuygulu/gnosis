@@ -1,5 +1,14 @@
 # Gnosis
 
+## Shared project context
+
+Team Nous: start with [AGENTS.md](AGENTS.md), then the dated
+[project snapshot](docs/PROJECT_CONTEXT.md) and the relevant GitHub issue.
+The [Sprint 1 record](docs/sprints/SPRINT_01.md) is a **draft**, not a started
+sprint. Use [task handoffs](docs/handoffs/README.md) to preserve unfinished work.
+Tool-specific entry points should link to these shared files rather than duplicate
+them. No access to a personal Notion workspace is required.
+
 ## About
 
 Gnosis is a web application for managing course assessments,
