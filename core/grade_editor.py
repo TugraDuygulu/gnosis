@@ -6,9 +6,10 @@ from decimal import Decimal
 
 from django import forms
 from django.core import signing
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 
+from core.access import ADMIN, INSTRUCTOR, LEGACY, role_for
 from core.models import Assessment, CourseOffering, Enrollment, Grade
 from core.grade_history import grade_state, record_grade_change
 
@@ -94,8 +95,16 @@ def save_grades(enrollment_id, user, form):
     # Parent locks serialize this editor on databases supporting row locks.
     # SQLite instead rejects competing snapshot writes; the view handles that.
     enrollment = Enrollment.objects.get(pk=enrollment_id)
-    CourseOffering.objects.select_for_update().get(pk=enrollment.offering_id)
+    offering = CourseOffering.objects.select_for_update().get(pk=enrollment.offering_id)
+    role = role_for(user)
+    if role == INSTRUCTOR:
+        if offering.instructor.user_id != user.pk:
+            raise PermissionDenied
+    elif role != ADMIN and not (role == LEGACY and user.has_perm("core.change_grade")):
+        raise PermissionDenied
     enrollment = Enrollment.objects.select_for_update().get(pk=enrollment_id)
+    if enrollment.offering_id != offering.pk:
+        raise ValidationError(STALE_MESSAGE)
     assessments, grades, revision = snapshot(enrollment, lock=True)
     try:
         expected = signing.loads(form.cleaned_data["revision"], salt=SALT, max_age=7200)

@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+{% block title %}{{ label }} records{% endblock %}
+{% block content %}
+<ol class="crumbs"><li><a href="{% url 'management_home' %}">Academic management</a></li><li aria-current="page">{{ label }} records</li></ol>
+<div class="page-title">
+    <div><h1>{{ label }} records</h1></div>
+    <div class="actions"><a class="btn btn-primary" href="{% url 'management_create' kind %}">Add {{ label|lower }}</a></div>
+</div>
+<section class="panel">
+    {% if records %}
+        <div class="table-scroll">
+            <table class="list">
+                <thead><tr><th scope="col">Record</th><th scope="col">Actions</th></tr></thead>
+                <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record }}{% if kind == "offerings" %}<span class="sub">{{ record.instructor }}</span>{% endif %}</td>
+                        <td><div class="row-actions">
+                            <a href="{% url 'management_edit' kind record.pk %}">Edit</a>
+                            {% if has_accounts %}<a href="{% url 'management_account' kind record.pk %}">{% if record.user_id %}Manage login{% else %}Create login{% endif %}</a>{% endif %}
+                            {% if kind == "students" %}<a href="{% url 'student_detail' record.pk %}">Student record</a>{% endif %}
+                            {% if kind == "offerings" %}<a href="{% url 'offering_detail' record.pk %}">Roster</a>{% endif %}
+                        </div></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty"><h2>No records yet</h2><p>Use the add button to create the first one.</p></div>
+    {% endif %}
+</section>
+{% endblock %}

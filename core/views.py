@@ -1,5 +1,3 @@
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, OperationalError, transaction
@@ -8,6 +6,10 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+from core.access import (
+    COURSES, DIRECTORY, GRADERS, INSTRUCTOR, STUDENT, enrollments_for,
+    offerings_for, require_roles, students_for,
+)
 from core.grade_editor import (
     EnrollmentGradeForm, revision_token, save_grades, snapshot, STALE_MESSAGE,
 )
@@ -18,7 +20,6 @@ from core.score_flow import build_flow
 from core.models import (
     AssessmentLOMapping,
     CoursePOContribution,
-    Enrollment,
     LearningOutcome,
     ProgramOutcome,
     Student,
@@ -56,12 +57,11 @@ def missing_assessments(enrollment):
         if assessment.pk not in graded
     ]
 
-@staff_member_required
-@permission_required("core.view_grade", raise_exception=True)
+@require_roles(*COURSES, legacy_permission="core.view_grade")
 @require_http_methods(["GET"])
 def enrollment_grade_history(request, enrollment_id):
     enrollment = get_object_or_404(
-        Enrollment.objects.select_related("student", "offering__course"),
+        enrollments_for(request).select_related("student", "offering__course"),
         pk=enrollment_id,
     )
     page = Paginator(history_entries(enrollment.pk), 50).get_page(request.GET.get("page"))
@@ -71,8 +71,7 @@ def enrollment_grade_history(request, enrollment_id):
     })
 
 
-@staff_member_required
-@permission_required("core.add_student", raise_exception=True)
+@require_roles(*DIRECTORY, legacy_permission="core.add_student")
 @require_http_methods(["GET", "POST"])
 def student_register(request):
     form = StudentRegistrationForm(request.POST if request.method == "POST" else None, label_suffix="")
@@ -92,15 +91,15 @@ def student_register(request):
     return render(request, "core/intake_form.html", {
         "form": form, "page_title": "Register student", "submit_label": "Register student",
         "cancel_url": "student_list", "has_choices": form.fields["program"].queryset.exists(),
-        "intro": "Adds the student to Gnosis. It doesn’t create a login for them.",
+        "intro": "Adds the student to Gnosis. You can create a login from the student record after registration.",
         "empty_message": "No programs configured yet. Ask an admin to add one in Django Admin.",
     })
 
 
-@staff_member_required
+@require_roles(*DIRECTORY, STUDENT)
 @require_http_methods(["GET"])
 def student_detail(request, student_id):
-    student = get_object_or_404(Student.objects.select_related("program"), pk=student_id)
+    student = get_object_or_404(students_for(request).select_related("program"), pk=student_id)
     enrollments = student.enrollments.select_related(
         "offering__course", "offering__po_framework",
     ).annotate(
@@ -113,11 +112,10 @@ def student_detail(request, student_id):
     })
 
 
-@staff_member_required
-@permission_required("core.add_enrollment", raise_exception=True)
+@require_roles(*DIRECTORY, legacy_permission="core.add_enrollment")
 @require_http_methods(["GET", "POST"])
 def student_enroll(request, student_id):
-    student = get_object_or_404(Student.objects.select_related("program"), pk=student_id)
+    student = get_object_or_404(students_for(request).select_related("program"), pk=student_id)
     form = StudentEnrollmentForm(student, request.POST if request.method == "POST" else None, label_suffix="")
     if request.method == "POST" and form.is_valid():
         try:
@@ -143,10 +141,11 @@ def student_enroll(request, student_id):
     })
 
 
-@staff_member_required
+@require_roles(*COURSES, STUDENT)
+@require_http_methods(["GET"])
 def enrollment_outcomes(request, enrollment_id):
     enrollment = get_object_or_404(
-        Enrollment,
+        enrollments_for(request),
         pk=enrollment_id,
     )
 
@@ -230,10 +229,11 @@ def enrollment_outcomes(request, enrollment_id):
         "graded_count": len(assessment_results) - len(missing),
         "flow": build_flow(assessment_results, lo_results, po_results),
     })
-@staff_member_required
+@require_roles(*DIRECTORY, STUDENT)
+@require_http_methods(["GET"])
 def student_outcomes(request, student_id, framework_id):
     student = get_object_or_404(
-        Student.objects.select_related("program"),
+        students_for(request).select_related("program"),
         pk=student_id,
     )
     framework = get_object_or_404(
@@ -316,8 +316,14 @@ def student_outcomes(request, student_id, framework_id):
         "pending_count": states.count("some") + states.count("none"),
         "unmeasured_count": states.count("unmeasured"),
     })
-@staff_member_required
+@require_roles(*COURSES, STUDENT)
+@require_http_methods(["GET"])
 def student_list(request):
+    if request.academic_role == INSTRUCTOR:
+        return redirect("course_list")
+    if request.academic_role == STUDENT:
+        student = get_object_or_404(students_for(request))
+        return redirect("student_detail", student_id=student.pk)
     query = request.GET.get("q", "").strip()
     students = (
         Student.objects
@@ -338,12 +344,11 @@ def student_list(request):
     })
 
 
-@staff_member_required
-@permission_required("core.change_grade", raise_exception=True)
+@require_roles(*GRADERS, legacy_permission="core.change_grade")
 @require_http_methods(["GET", "POST"])
 def enrollment_grade_editor(request, enrollment_id):
     enrollment = get_object_or_404(
-        Enrollment.objects.select_related("student", "offering__course"),
+        enrollments_for(request).select_related("student", "offering__course"),
         pk=enrollment_id,
     )
     assessments, grades, revision = snapshot(enrollment)
@@ -384,11 +389,11 @@ def enrollment_grade_editor(request, enrollment_id):
     })
 
 
-@staff_member_required
+@require_roles(*COURSES)
 @require_http_methods(["GET"])
 def course_list(request):
     query = request.GET.get("q", "").strip()
-    offerings = CourseOffering.objects.select_related(
+    offerings = offerings_for(request).select_related(
         "course", "instructor", "po_framework__program",
     ).annotate(
         enrollment_count=Count("enrollments"),
@@ -409,11 +414,11 @@ def course_list(request):
     })
 
 
-@staff_member_required
+@require_roles(*COURSES)
 @require_http_methods(["GET"])
 def offering_detail(request, offering_id):
     offering = get_object_or_404(
-        CourseOffering.objects.select_related(
+        offerings_for(request).select_related(
             "course", "instructor", "curriculum", "po_framework__program",
         ),
         pk=offering_id,
@@ -430,13 +435,12 @@ def offering_detail(request, offering_id):
     })
 
 
-@staff_member_required
-@permission_required("core.change_grade", raise_exception=True)
+@require_roles(*GRADERS, legacy_permission="core.change_grade")
 @require_http_methods(["GET", "POST"])
 def offering_gradebook(request, offering_id):
     """Every student and assessment of one class on one page, saved together."""
     offering = get_object_or_404(
-        CourseOffering.objects.select_related("course", "instructor"),
+        offerings_for(request).select_related("course", "instructor"),
         pk=offering_id,
     )
     assessments = list(offering.assessments.order_by("pk"))
@@ -458,7 +462,15 @@ def offering_gradebook(request, offering_id):
             "graded": sum(1 for grade in grades.values() if grade.score is not None),
         })
 
-    if request.method == "POST" and all([row["form"].is_valid() for row in rows]):
+    malformed = False
+    if request.method == "POST":
+        fields = {"csrfmiddlewaretoken"}
+        for row in rows:
+            form = row["form"]
+            fields.update(form.add_prefix(field) for field in form.fields)
+        malformed = bool(request.POST.keys() - fields)
+
+    if request.method == "POST" and not malformed and all([row["form"].is_valid() for row in rows]):
         changed = [row for row in rows if set(row["form"].changed_data) - {"revision"}]
         current = None
         try:
@@ -487,10 +499,11 @@ def offering_gradebook(request, offering_id):
         "assessments": assessments,
         "rows": rows,
         "has_errors": any(row["form"].errors for row in rows),
+        "malformed": malformed,
     })
 
 
-@staff_member_required
+@require_roles(*DIRECTORY)
 @require_http_methods(["GET"])
 def program_overview(request):
     """Program-wide PO scores for every student: the department head's view."""

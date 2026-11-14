@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign in | Gnosis</title>
-    <meta name="description" content="Sign in to Gnosis, the program outcome workspace for department staff.">
+    <meta name="description" content="Sign in to Gnosis, the academic outcomes workspace.">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C9A44C'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' text-anchor='middle' fill='%2313254A'%3EG%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,7 @@
 
     <section class="login-form" aria-labelledby="signin-title">
         <h2 id="signin-title">Sign in</h2>
-        <p class="muted">Use your staff account.</p>
+        <p class="muted">Use your Gnosis account.</p>
 
         {% if form.errors and not form.non_field_errors %}
             <div class="notice notice-error" role="alert"><p>Check the fields below.</p></div>
@@ -38,7 +38,7 @@
             <div class="notice notice-error" role="alert"><p>{{ error }}</p></div>
         {% endfor %}
         {% if user.is_authenticated %}
-            <div class="notice notice-info" role="status"><p>You’re signed in as {{ user.get_username }}, but this account can’t open the staff workspace. Sign in with a staff account.</p></div>
+            <div class="notice notice-info" role="status"><p>You’re signed in as {{ user.get_username }}, and can sign in with another account below.</p></div>
         {% endif %}
 
         <form action="{{ app_path }}" method="post" id="login-form">

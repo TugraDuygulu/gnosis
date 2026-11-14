@@ -16,7 +16,7 @@
             <li>{{ offering.course.code }} {{ offering.course.title }}</li><li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
         </ul>
     </div>
-    {% if perms.core.view_grade %}
+    {% if academic_can_read_history %}
     <div class="actions"><a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-history"/></svg>Grade-change history</a></div>
     {% endif %}
 </div>

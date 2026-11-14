@@ -1,0 +1,19 @@
+{% extends "core/base.html" %}
+{% block title %}Academic management{% endblock %}
+{% block content %}
+<div class="page-title"><div><h1>Academic management</h1><p>Manage records, course assignments and academic logins.</p></div></div>
+<section class="panel">
+    <div class="panel-head"><h2>Academic records</h2></div>
+    <div class="panel-body">
+        <ul>
+            {% for kind, label in sections %}
+                <li><a href="{% url 'management_records' kind %}">{{ label }} records</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+<section class="panel">
+    <div class="panel-head"><h2>Curriculum and assessment</h2></div>
+    <div class="panel-body"><a href="{% url 'academic_admin:index' %}">Configure curricula, outcomes, assessments and mappings</a></div>
+</section>
+{% endblock %}
