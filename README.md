@@ -1,5 +1,18 @@
 # Gnosis
 
+## Shared project context
+
+Team Nous: start with [AGENTS.md](AGENTS.md), then the dated
+[project snapshot](docs/PROJECT_CONTEXT.md) and the relevant GitHub issue.
+The [six-week sprint plan](docs/sprints/SIX_WEEK_PLAN.md) schedules 16 November
+through 27 December 2026; [Sprint 1](docs/sprints/SPRINT_01.md) starts 16 November.
+Use [roadmap #27](https://github.com/TugraDuygulu/gnosis/issues/27) and its linked
+issues for live planning, assignments, digital check-ins and reviews. Estimates
+come from actual team Planning Poker; no completed sprints are implied by setup.
+Use [task handoffs](docs/handoffs/README.md) to preserve unfinished work.
+Tool-specific entry points link to these shared files rather than duplicate them.
+No access to a personal Notion workspace or another sprint app is required.
+
 ## About
 
 Gnosis is a web application for managing course assessments,
