@@ -141,7 +141,10 @@ Panels 12px radius, buttons and inputs 9px, small chips 6px, status pills fully 
 - **Grade book:** one table per class, students × assessments, compact hatched inputs; Enter and the arrow keys move down a column; every changed row saves in one transaction with the per-enrollment revision check and grade history.
 - **Score flow diagram:** SVG in three columns (assessments → LOs → POs) with weights (%) and strengths (n/5) on the lines, labels near the receiving node; ungraded nodes are hatched and their lines dashed. Built by `core/score_flow.py`.
 - **Program overview:** average score per PO (bars with n), a student × PO heat map (cells tinted with the score colour, hatched when not graded, dash when not measured) and grading progress per class.
-- **Sign-in page:** the admin login rendered with `core/login.html` (navy brand panel, form on paper white); URLs stay `/admin/login/`.
+- **Sign-in page:** `core/login.html` at `/login/`, also used by Django Admin (navy brand panel, form on paper white). It shows messages such as "You’ve signed out.", says why a signed-in account without one role can’t open the workspace, and says when a signed-in account can’t open Django Admin.
+- **Role label:** under the username in the sidebar (Administrator, Coordinator, Instructor, Student, Staff). The navigation shows only the role’s own items, and the item for the current section is marked. The top bar hides itself when a role has nothing to put in it.
+- **Error pages (403, 404):** standalone card under the brand: a small "Error 403 · No access" line, a plain heading, one sentence naming the account’s role, "Go to my workspace" and "Sign in with another account", and who is signed in. A record outside the account’s scope shows the 404 page.
+- **Management cards:** one card per record type with its count, a one-line description and, for people, how many can sign in. Record tables show the sign-in account (Active, Disabled or "None yet").
 - **Grade editor:** one row per assessment with LO links and help text; an empty input is hatched with the placeholder "Not graded"; the live column shows the percentage in the score colour or an inline error; the sticky save bar counts unsaved changes and the page warns before leaving with unsaved edits.
 - **Buttons:** primary (navy), ghost (white with border), small variant for inline actions. Focus-visible: 3px navy ring at 45% alpha on every interactive element.
 
@@ -173,3 +176,4 @@ Panels 12px radius, buttons and inputs 9px, small chips 6px, status pills fully 
 | 2026-11-01 | Navy, gold accent and Source Serif 4 / Source Sans 3 | User asked for colours more suitable for an academic setting. |
 | 2026-11-01 | Design review: 24 findings fixed | /design-review; design score B → A-. |
 | 2026-11-02 | Plain-language copy pass; grade book, score flow, program overview, sign-in page | User asked to remove artificial-sounding text and push the frontend further; screens answer the Brief's FAQ (how grades are entered, what a department head sees) and mirror its flow slides. |
+| 2026-11-19 | Role-specific navigation and account screens (#39) | Finished the gaps in PR #25's role screens: role label, marked navigation, error pages, sign-in feedback and management cards, using the existing tokens. |

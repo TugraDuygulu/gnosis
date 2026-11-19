@@ -1,17 +1,19 @@
-"""Access-control matrix for every page of the staff application.
+"""Access-control matrix for every page of the academic application.
 
 Instead of checking routes one by one, these tests walk ``core.urls`` so that a
 newly added page without login/permission protection fails the suite.
 """
 from io import StringIO
 
+from django.contrib.admin.models import LogEntry
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from core import urls as core_urls
+from core.access import COORDINATOR_GROUP
 from core.models import Enrollment, Grade, POFramework, Student
 
 # Route name -> permission codename required on top of active staff (None = staff only).
@@ -31,6 +33,16 @@ ROUTE_PERMISSIONS = {
 }
 
 
+AUTH_ROUTES = {"login", "logout"}
+MANAGEMENT = {"management_home", "management_records", "management_create",
+              "management_edit", "management_account", "management_enrollment_status"}
+
+
+def academic_state():
+    return [list(model.objects.order_by("pk").values_list())
+            for model in (Student, Enrollment, Grade, LogEntry)]
+
+
 class RouteAccessMatrixTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -47,6 +59,11 @@ class RouteAccessMatrixTests(TestCase):
     def url(self, name):
         e = self.enrollment
         args = {
+            "management_records": ["students"],
+            "management_create": ["students"],
+            "management_edit": ["students", e.student_id],
+            "management_account": ["students", e.student_id],
+            "management_enrollment_status": [e.pk],
             "student_detail": [e.student_id],
             "student_enroll": [e.student_id],
             "student_outcomes": [e.student_id, self.framework.pk],
@@ -68,7 +85,7 @@ class RouteAccessMatrixTests(TestCase):
     def test_every_route_is_listed_in_the_matrix(self):
         names = {p.name for p in core_urls.urlpatterns if p.name}
         self.assertEqual(
-            names, set(ROUTE_PERMISSIONS),
+            names, set(ROUTE_PERMISSIONS) | MANAGEMENT | AUTH_ROUTES,
             "A route was added or removed: update ROUTE_PERMISSIONS with its access rule.",
         )
 
@@ -78,12 +95,12 @@ class RouteAccessMatrixTests(TestCase):
             self.client.logout()
             if user is not None:
                 self.client.force_login(user)
-            for name in ROUTE_PERMISSIONS:
+            for name in set(ROUTE_PERMISSIONS) | MANAGEMENT:
                 url = self.url(name)
                 with self.subTest(user=label, route=name):
                     response = self.client.get(url)
                     self.assertRedirects(
-                        response, f"{reverse('admin:login')}?next={url}",
+                        response, f"{reverse('login')}?next={url}",
                         fetch_redirect_response=False,
                     )
 
@@ -104,20 +121,70 @@ class RouteAccessMatrixTests(TestCase):
                 self.client.logout()
 
     def test_unauthorized_posts_change_nothing(self):
-        before = (Student.objects.count(), Enrollment.objects.count(),
-                  list(Grade.objects.order_by("pk").values_list("pk", "score")))
-        for label, user in (("anonymous", None), ("plain_staff", self.plain_staff)):
+        before = academic_state()
+        for user, status in ((None, 302), (self.plain_staff, 403)):
             self.client.logout()
-            if user is not None:
+            if user:
                 self.client.force_login(user)
-            for name, codename in ROUTE_PERMISSIONS.items():
-                if codename is None:
-                    continue
-                with self.subTest(user=label, route=name):
-                    response = self.client.post(self.url(name), {
-                        "full_name": "Should Not Exist", "student_number": "X999",
-                    })
-                    self.assertIn(response.status_code, (302, 403))
-        after = (Student.objects.count(), Enrollment.objects.count(),
-                 list(Grade.objects.order_by("pk").values_list("pk", "score")))
-        self.assertEqual(after, before)
+            routes = MANAGEMENT | {name for name, perm in ROUTE_PERMISSIONS.items() if perm}
+            for name in routes:
+                with self.subTest(route=name, status=status):
+                    response = self.client.post(self.url(name), {"status": "withdrawn"})
+                    self.assertEqual(response.status_code, status)
+                    self.assertEqual(academic_state(), before)
+
+    def test_csrf_rejection_preserves_academic_state(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(get_user_model().objects.create_superuser("matrix_admin"))
+        before = academic_state()
+        response = client.post(self.url("management_enrollment_status"), {"status": "withdrawn"})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(academic_state(), before)
+
+    def test_authentication_routes_and_admin_redirect(self):
+        self.assertEqual(self.client.get(reverse("login")).status_code, 200)
+        self.assertEqual(self.client.get(reverse("logout")).status_code, 405)
+        self.assertRedirects(self.client.post(reverse("logout")), reverse("login"))
+        admin = reverse("admin:index")
+        self.assertRedirects(self.client.get(admin), f"{reverse('admin:login')}?next={admin}",
+                             fetch_redirect_response=False)
+
+    def test_academic_role_gets_and_forbidden_posts(self):
+        users = get_user_model().objects
+        coordinator = users.create_user("matrix_coordinator")
+        coordinator.groups.add(Group.objects.create(name=COORDINATOR_GROUP))
+        instructor = users.create_user("matrix_instructor")
+        teacher = self.enrollment.offering.instructor
+        teacher.user = instructor
+        teacher.save(update_fields=["user"])
+        student = users.create_user("matrix_student")
+        pupil = self.enrollment.student
+        pupil.user = student
+        pupil.save(update_fields=["user"])
+
+        all_routes = set(ROUTE_PERMISSIONS) | MANAGEMENT
+        grading = {"offering_gradebook", "enrollment_grade_editor"}
+        allowed = {
+            coordinator: all_routes - grading,
+            instructor: grading | {"student_list", "course_list", "offering_detail",
+                                   "enrollment_outcomes", "enrollment_grade_history"},
+            student: {"student_list", "student_detail", "student_outcomes", "enrollment_outcomes"},
+        }
+        writable = grading | {"student_register", "student_enroll", "management_create",
+                              "management_edit", "management_account", "management_enrollment_status"}
+        for user, accessible in allowed.items():
+            self.client.force_login(user)
+            for name in sorted(all_routes):
+                with self.subTest(user=user.username, route=name):
+                    url = self.url(name)
+                    response = self.client.get(url)
+                    if name == "student_list" and user != coordinator:
+                        destination = reverse("course_list") if user == instructor else self.url("student_detail")
+                        self.assertRedirects(response, destination, fetch_redirect_response=False)
+                    else:
+                        self.assertEqual(response.status_code, 200 if name in accessible else 403)
+                    if name not in accessible or name not in writable:
+                        before = academic_state()
+                        response = self.client.post(url, {"status": "withdrawn"})
+                        self.assertEqual(response.status_code, 403 if name not in accessible else 405)
+                        self.assertEqual(academic_state(), before)

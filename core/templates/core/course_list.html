@@ -11,8 +11,8 @@
 {% block content %}
 <div class="page-title">
     <div>
-        <h1>Courses</h1>
-        <p>Open a class to see its roster and enter grades.</p>
+        <h1>{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</h1>
+        <p>Open a class to see its roster{% if academic_can_grade %} and enter grades{% endif %}.</p>
     </div>
 </div>
 
@@ -52,8 +52,11 @@
             <p>Try a course code, instructor, term or year.</p>
         {% else %}
             <h2>No course offerings yet</h2>
-            <p>Each class (a course in a given term and section) is set up in Django Admin.</p>
-            {% if perms.core.add_courseoffering %}
+            {% if academic_role == "instructor" %}
+                <p>Your classes will appear here once a coordinator assigns them to you.</p>
+            {% elif academic_manager %}
+                <a class="btn btn-primary" href="{% url 'management_create' 'offerings' %}">Add a course offering</a>
+            {% elif perms.core.add_courseoffering %}
                 <a class="btn btn-primary" href="{% url 'admin:core_courseoffering_add' %}">Add a course offering</a>
             {% else %}
                 <p>Ask an admin to set one up.</p>
