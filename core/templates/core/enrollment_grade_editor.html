@@ -3,7 +3,7 @@
 {% block content %}
 {% with offering=enrollment.offering student=enrollment.student %}
 <ol class="crumbs">
-    <li><a href="{% url 'course_list' %}">Courses</a></li>
+    <li><a href="{% url 'course_list' %}">{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</a></li>
     <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
     <li><a href="{% url 'enrollment_outcomes' enrollment.pk %}">{{ student.full_name }}</a></li>
     <li aria-current="page">Edit course grades</li>
@@ -16,7 +16,7 @@
             <li>{{ offering.course.code }} {{ offering.course.title }}</li><li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
         </ul>
     </div>
-    {% if perms.core.view_grade %}
+    {% if academic_can_read_history %}
     <div class="actions"><a class="btn btn-ghost" href="{% url 'enrollment_grade_history' enrollment.pk %}"><svg class="i" aria-hidden="true"><use href="#i-history"/></svg>Grade-change history</a></div>
     {% endif %}
 </div>

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from django.core.exceptions import ValidationError
@@ -23,12 +24,20 @@ class Course(models.Model):
 
 
 class Instructor(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="academic_instructor",
+    )
     full_name = models.CharField(max_length=200)
     email = models.EmailField(unique=True)
 
     def __str__(self):
         return self.full_name
 class Student(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="academic_student",
+    )
     program = models.ForeignKey(
         Program,
         on_delete=models.PROTECT,
