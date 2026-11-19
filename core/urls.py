@@ -4,7 +4,7 @@ from . import management_views as management, views
 
 urlpatterns = [
     path("login/", auth_views.LoginView.as_view(template_name="core/login.html"), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("logout/", views.SignOutView.as_view(), name="logout"),
     path("manage/", management.index, name="management_home"),
     path("manage/<str:kind>/", management.records, name="management_records"),
     path("manage/<str:kind>/new/", management.edit, name="management_create"),

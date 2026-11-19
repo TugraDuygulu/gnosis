@@ -42,7 +42,7 @@
             <a class="nav{% if name in 'student_list student_detail student_register student_enroll student_outcomes' %} on{% endif %}"{% if name in 'student_list student_detail student_register student_enroll student_outcomes' %} aria-current="{% if name == 'student_list' or name == 'course_list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'student_list' %}"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Students</a>
             {% endif %}
             {% if academic_role == 'student' %}
-            <a class="nav" href="{% url 'student_list' %}"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>My courses and outcomes</a>
+            <a class="nav{% if name in 'student_detail student_outcomes enrollment_outcomes' %} on{% endif %}"{% if name in 'student_detail student_outcomes enrollment_outcomes' %} aria-current="{% if name == 'student_detail' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'student_list' %}"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>My courses and outcomes</a>
             {% elif academic_role %}
             <a class="nav{% if name in 'course_list offering_detail offering_gradebook enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} on{% endif %}"{% if name in 'course_list offering_detail offering_gradebook enrollment_outcomes enrollment_grade_editor enrollment_grade_history' %} aria-current="{% if name == 'student_list' or name == 'course_list' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'course_list' %}"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</a>
             {% endif %}
@@ -52,7 +52,7 @@
             {% endif %}
             {% if academic_manager %}
             <div class="group">Management</div>
-            <a class="nav" href="{% url 'management_home' %}"><svg class="i" aria-hidden="true"><use href="#i-cog"/></svg>Academic management</a>
+            <a class="nav{% if name in 'management_home management_records management_create management_edit management_account management_enrollment_status' %} on{% endif %}"{% if name in 'management_home management_records management_create management_edit management_account management_enrollment_status' %} aria-current="{% if name == 'management_home' %}page{% else %}true{% endif %}"{% endif %} href="{% url 'management_home' %}"><svg class="i" aria-hidden="true"><use href="#i-cog"/></svg>Academic management</a>
             {% endif %}
             {% if academic_system_admin %}
             <a class="nav" href="{% url 'admin:index' %}"><svg class="i" aria-hidden="true"><use href="#i-cog"/></svg>Django Admin</a>
@@ -62,6 +62,7 @@
             <span class="avatar">{{ user.get_username|initials }}</span>
             <div>
                 <b>{{ user.get_username }}</b>
+                {% if academic_role_label %}<span class="role">{{ academic_role_label }}</span>{% endif %}
                 <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Log out</button></form>
             </div>
         </div>

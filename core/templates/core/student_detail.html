@@ -2,18 +2,18 @@
 {% load gnosis_ui %}
 {% block title %}{{ student.full_name }}{% endblock %}
 {% block content %}
-<ol class="crumbs">{% if academic_directory %}<li><a href="{% url 'student_list' %}">Students</a></li>{% endif %}<li aria-current="page">{{ student.full_name }}</li></ol>
+{% if academic_directory %}<ol class="crumbs"><li><a href="{% url 'student_list' %}">Students</a></li><li aria-current="page">{{ student.full_name }}</li></ol>{% endif %}
 <div class="head">
     <span class="avatar">{{ student.full_name|initials }}</span>
     <div>
         <h1>{% if academic_role == "student" %}My courses and outcomes{% else %}{{ student.full_name }}{% endif %}</h1>
-        <div class="sub">{% if academic_role == "student" %}{{ student.full_name }} · {% endif %}<span class="tag num">{{ student.student_number }}</span><span>{{ student.program }}</span></div>
+        <div class="sub">{% if academic_role == "student" %}<span>{{ student.full_name }}</span>{% endif %}<span class="tag num">{{ student.student_number }}</span><span>{{ student.program }}</span></div>
     </div>
-    {% if academic_manager %}
-    <div class="actions"><a class="btn btn-ghost" href="{% url 'management_account' 'students' student.pk %}">Manage login</a></div>
-    {% endif %}
-    {% if academic_can_enroll %}
-    <div class="actions"><a class="btn btn-primary" href="{% url 'student_enroll' student.pk %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Enroll in a course offering</a></div>
+    {% if academic_manager or academic_can_enroll %}
+    <div class="actions">
+        {% if academic_manager %}<a class="btn btn-ghost" href="{% url 'management_account' 'students' student.pk %}">{% if student.user_id %}Manage login{% else %}Create login{% endif %}</a>{% endif %}
+        {% if academic_can_enroll %}<a class="btn btn-primary" href="{% url 'student_enroll' student.pk %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Enroll in a course offering</a>{% endif %}
+    </div>
     {% endif %}
 </div>
 

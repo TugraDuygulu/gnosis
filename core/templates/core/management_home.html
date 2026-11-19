@@ -1,19 +1,24 @@
 {% extends "core/base.html" %}
 {% block title %}Academic management{% endblock %}
 {% block content %}
-<div class="page-title"><div><h1>Academic management</h1><p>Manage records, course assignments and academic logins.</p></div></div>
+<div class="page-title"><div><h1>Academic management</h1><p>Add and edit academic records, assign instructors to classes, and create sign-in accounts.</p></div></div>
 <section class="panel">
     <div class="panel-head"><h2>Academic records</h2></div>
-    <div class="panel-body">
-        <ul>
-            {% for kind, label in sections %}
-                <li><a href="{% url 'management_records' kind %}">{{ label }} records</a></li>
-            {% endfor %}
-        </ul>
-    </div>
+    <ul class="manage-grid">
+        {% for section in sections %}
+            <li>
+                <a class="manage-card" href="{% url 'management_records' section.kind %}">
+                    <span class="top"><b>{{ section.label }} records</b><span class="n num">{{ section.count }}</span></span>
+                    <span class="d">{{ section.summary }}</span>
+                    {% if section.with_login is not None %}<span class="d num">{{ section.with_login }} of {{ section.count }} can sign in</span>{% endif %}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 </section>
 <section class="panel">
     <div class="panel-head"><h2>Curriculum and assessment</h2></div>
-    <div class="panel-body"><a href="{% url 'academic_admin:index' %}">Configure curricula, outcomes, assessments and mappings</a></div>
+    <p class="panel-note">Curricula, learning and program outcomes, assessments, weights and mappings are set up in the configuration area.</p>
+    <div class="panel-body"><a class="btn btn-ghost" href="{% url 'academic_admin:index' %}"><svg class="i" aria-hidden="true"><use href="#i-cog"/></svg>Open curriculum configuration</a></div>
 </section>
 {% endblock %}

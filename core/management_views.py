@@ -27,6 +27,13 @@ RECORDS = {
     ),
 }
 PEOPLE = ("students", "instructors")
+SUMMARIES = {
+    "programs": "Program codes and names.",
+    "courses": "Course codes, titles and credits.",
+    "instructors": "Instructor names, emails and sign-in accounts.",
+    "students": "Student numbers, programs and sign-in accounts.",
+    "offerings": "Classes by term and section, and who teaches each one.",
+}
 
 
 def record_config(kind):
@@ -39,9 +46,14 @@ def record_config(kind):
 @require_roles(*MANAGERS)
 @require_http_methods(["GET"])
 def index(request):
-    return render(request, "core/management_home.html", {
-        "sections": [(kind, config[1]) for kind, config in RECORDS.items()],
-    })
+    sections = []
+    for kind, (model, label, _, _) in RECORDS.items():
+        records = model.objects.all()
+        sections.append({
+            "kind": kind, "label": label, "summary": SUMMARIES[kind], "count": records.count(),
+            "with_login": records.filter(user__isnull=False).count() if kind in PEOPLE else None,
+        })
+    return render(request, "core/management_home.html", {"sections": sections})
 
 
 @require_roles(*MANAGERS)
@@ -59,7 +71,9 @@ def records(request, kind):
 
 
 def record_form(model, fields, record, data=None):
-    form = modelform_factory(model, fields=fields)(data, instance=record)
+    form = modelform_factory(model, fields=fields)(data, instance=record, label_suffix="")
+    if "po_framework" in form.fields:
+        form.fields["po_framework"].label = "PO framework"
     locked = ()
     if isinstance(record, Student) and record.enrollments.exists():
         locked = ("program",)
@@ -141,7 +155,7 @@ def account(request, kind, pk):
     other_model = Student if model is Instructor else Instructor
     record = get_object_or_404(model, pk=pk)
     user = manageable_user(record, other_model)
-    form = SetPasswordForm(user) if user else UserCreationForm()
+    form = SetPasswordForm(user, label_suffix="") if user else UserCreationForm(label_suffix="")
     if request.method == "POST":
         try:
             with transaction.atomic():
@@ -149,7 +163,7 @@ def account(request, kind, pk):
                 user = manageable_user(record, other_model, lock=True)
                 action = request.POST.get("action")
                 if action == "create" and user is None:
-                    form = UserCreationForm(request.POST)
+                    form = UserCreationForm(request.POST, label_suffix="")
                     check_account_fields(request.POST, form.fields)
                     if form.is_valid():
                         record.user = form.save()
@@ -157,7 +171,7 @@ def account(request, kind, pk):
                         messages.success(request, f"{label} login created.")
                         return redirect("management_account", kind=kind, pk=pk)
                 elif action == "reset" and user is not None:
-                    form = SetPasswordForm(user, request.POST)
+                    form = SetPasswordForm(user, request.POST, label_suffix="")
                     check_account_fields(request.POST, form.fields)
                     if form.is_valid():
                         form.save()
@@ -195,6 +209,7 @@ def enrollment_status(request, pk):
         choices.insert(0, (enrollment.status, enrollment.status))
     form = EnrollmentStatusForm(
         request.POST if request.method == "POST" else None, initial={"status": enrollment.status},
+        label_suffix="",
     )
     form.fields["status"].choices = choices
     if request.method == "POST" and form.is_valid():
