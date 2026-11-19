@@ -127,8 +127,10 @@ class RoleNavigationTests(TestCase):
                 self.assertContains(page, "Academic management</a>")
                 self.assertContains(page, "nav on")
                 self.assertNotContains(page, ":</label>")
+        self.student.is_active = False
+        self.student.save(update_fields=["is_active"])
         home = self.client.get(pages["home"])
-        self.assertContains(home, "1 of 2 can sign in")
+        self.assertContains(home, "1 of 2 have linked accounts")
         records = self.client.get(pages["records"])
         self.assertContains(records, "nav_student")
         self.assertContains(records, "None yet")
