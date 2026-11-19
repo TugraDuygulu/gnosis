@@ -100,3 +100,59 @@ framework/program mismatch rejection, exact-version/active selection, unmapped
 reporting, repeated-course rejection and missing/NULL/zero distinctions. These
 tests preserve existing services and policy. Their PR provides final test/CI
 evidence after owner approval. Assistant reproduction is not teammate sign-off.
+
+
+
+
+
+
+## Independent teammate verification (Windows, current main) — 20 November 2026
+
+- **Verifier:** Ramazan (independent clean install & genuine browser walkthrough)
+- **Date:** 20 November 2026 (Istanbul, UTC+3; UTC grade-history timestamps `2026-11-19 21:29–21:30`)
+- **Source revision:** `main` @ `2882890` (tracked source downloaded as ZIP into a fresh directory; no existing DB, virtualenv, or another developer's credentials copied or reset)
+- **Environment:** `Windows-11-10.0.26300-SP0`, Python `3.14.2`, Django `6.1.2`, SQLite `3.50.4` (`asgiref==3.13.0`, `sqlparse==0.6.0`, `tzdata==2026.6`)
+
+### Exact setup and check commands (Windows PowerShell)
+
+```powershell
+py -3.14 -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pip check
+python manage.py migrate
+python manage.py seed_pilot
+python manage.py createsuperuser
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py test --verbosity 2
+python manage.py runserver
+```
+
+### Automated and test-client checks (distinct from browser actions)
+
+- `pip install -r requirements.txt` and `pip check`: passed (`No broken requirements found.`).
+- `manage.py migrate`: applied cleanly up to `core.0009_assessment_positive_assessment_max_score` on a fresh disposable SQLite database.
+- `manage.py seed_pilot`: prepared `PILOT311`, `PILOT321` (`Fall 2026, section PILOT`), `PILOT001`, `PILOT002`, and `PILOT PO Framework v1`.
+- `manage.py check`: `System check identified no issues (0 silenced).`
+- `manage.py makemigrations --check --dry-run`: `No changes detected`.
+- `manage.py test`: `Ran 97 tests in 3.707s` — `OK (expected failures=1)` (known SQLite ASCII-only case-insensitive `LIKE` expected failure in `test_search_ignores_case_for_turkish_letters`).
+
+### Genuine browser walkthrough (local fictional superuser `test22`)
+
+1. **Login & student registration (`/students/new/`):** Signed in manually at `http://127.0.0.1:8000/` with local fictional superuser `test22`. Registered fictional student `test` (`21212121`) in `PILOT — Fictional Computer Engineering Pilot` (academic record only; UI states `"It doesn't create a login for them."`). Duplicate submission for `21212121` (`test2`) was rejected with `"Nothing was saved. Review the errors below."` and `"Student with this Student number already exists."`
+2. **Course enrollment:** Enrolled student `21212121` in `PILOT311` and `PILOT321` (`Fall 2026, section PILOT`); verified student record, class rosters, and removal of already-enrolled offerings from choices.
+3. **Grade entry & outcome calculations:** Entered `PILOT311` Midterm `80.00/100.00`, Project `40.00/50.00` (score flow displayed `LO1 80.00%`, `LO2 80.00%`, `PO2 80.00%`, `PO3 80.00%`) and `PILOT321` Midterm `0`, Lab `35`; confirmed expected student PO calculations (`PO2 58.75%`, `PO3 80%`, `PO4 0%` recorded zero, `PO5 70%`, all `100%` coverage).
+4. **Grade correction, clear, history & cancel:** Verified editing scores, clearing a score to ungraded (missing evidence does not become `0%`), preserving other students' records, and cancelling unsaved changes. Confirmed **Grade-change history** (`PILOT311`, `test` / `21212121`) recorded actor `test22`, UTC timestamps (`2026-11-19 21:29:07` Create Midterm `Ungraded -> 80` and Project `Ungraded -> 40`; `2026-11-19 21:30:15` Change Project `40.00 -> 45.00`), and source `native editor`.
+5. **Invalid inputs & anonymous access:** Rejected invalid score values without saving; anonymous requests to protected routes redirected to login.
+6. **Desktop, mobile-width (`390px`) & keyboard navigation:** Exercised desktop and mobile-width (`390px`) screens and keyboard navigation (`Tab`/`Shift+Tab`/`Enter`); no blocking layout or keyboard defects observed on current v0.1 staff workflows.
+
+### Blockers and remaining scope for #41
+
+- **Blocker on `main`:** Current `main` (`core.0009`) uses global staff permissions only. Academic accounts, role-specific navigation/screens, and reconciled route permissions are currently in open PRs (`#25`, `#62`, `#63`, `#65`) and not yet merged into `main`.
+- **Pending role-based browser retest (against PR `#63` / post-integration):**
+  - Coordinator setup and fictional account provisioning (`#38`)
+  - Role-specific navigation and account screens (`#39`)
+  - Assigned-instructor grading and unassigned-instructor denial behavior (`#40`)
+  - Student own-outcome view and cross-student record denial behavior (`#40`)
+- **Sign-off status:** Baseline v0.1 Windows clean install and staff browser workflow verified (`#9`/`#6` evidence recorded). Issue `#41` remains open with no final role-based sign-off claimed until the role-based PRs are retested.
