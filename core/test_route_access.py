@@ -7,12 +7,13 @@ from io import StringIO
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.core.management import call_command
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from core import urls as core_urls
+from core.access import COORDINATOR_GROUP
 from core.models import Enrollment, Grade, POFramework, Student
 
 # Route name -> permission codename required on top of active staff (None = staff only).
@@ -147,3 +148,43 @@ class RouteAccessMatrixTests(TestCase):
         admin = reverse("admin:index")
         self.assertRedirects(self.client.get(admin), f"{reverse('admin:login')}?next={admin}",
                              fetch_redirect_response=False)
+
+    def test_academic_role_gets_and_forbidden_posts(self):
+        users = get_user_model().objects
+        coordinator = users.create_user("matrix_coordinator")
+        coordinator.groups.add(Group.objects.create(name=COORDINATOR_GROUP))
+        instructor = users.create_user("matrix_instructor")
+        teacher = self.enrollment.offering.instructor
+        teacher.user = instructor
+        teacher.save(update_fields=["user"])
+        student = users.create_user("matrix_student")
+        pupil = self.enrollment.student
+        pupil.user = student
+        pupil.save(update_fields=["user"])
+
+        all_routes = set(ROUTE_PERMISSIONS) | MANAGEMENT
+        grading = {"offering_gradebook", "enrollment_grade_editor"}
+        allowed = {
+            coordinator: all_routes - grading,
+            instructor: grading | {"student_list", "course_list", "offering_detail",
+                                   "enrollment_outcomes", "enrollment_grade_history"},
+            student: {"student_list", "student_detail", "student_outcomes", "enrollment_outcomes"},
+        }
+        writable = grading | {"student_register", "student_enroll", "management_create",
+                              "management_edit", "management_account", "management_enrollment_status"}
+        for user, accessible in allowed.items():
+            self.client.force_login(user)
+            for name in sorted(all_routes):
+                with self.subTest(user=user.username, route=name):
+                    url = self.url(name)
+                    response = self.client.get(url)
+                    if name == "student_list" and user != coordinator:
+                        destination = reverse("course_list") if user == instructor else self.url("student_detail")
+                        self.assertRedirects(response, destination, fetch_redirect_response=False)
+                    else:
+                        self.assertEqual(response.status_code, 200 if name in accessible else 403)
+                    if name not in accessible or name not in writable:
+                        before = academic_state()
+                        response = self.client.post(url, {"status": "withdrawn"})
+                        self.assertEqual(response.status_code, 403 if name not in accessible else 405)
+                        self.assertEqual(academic_state(), before)
