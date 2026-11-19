@@ -37,8 +37,22 @@
         {% for error in form.non_field_errors %}
             <div class="notice notice-error" role="alert"><p>{{ error }}</p></div>
         {% endfor %}
+        {% for message in messages %}
+            {% if message.level_tag == 'error' or message.level_tag == 'warning' %}
+            <div class="notice notice-error" role="alert"><p>{{ message }}</p></div>
+            {% else %}
+            <div class="notice notice-success" role="status"><p>{{ message }}</p></div>
+            {% endif %}
+        {% endfor %}
         {% if user.is_authenticated %}
-            <div class="notice notice-info" role="status"><p>You’re signed in as {{ user.get_username }}, and can sign in with another account below.</p></div>
+            {% if not academic_role %}
+            {# Signed in, but the account has no single academic role, so every page sends it back here. #}
+            <div class="notice notice-error" role="alert"><p>{{ user.get_username }} isn’t linked to one Gnosis role, so it can’t open the workspace. Ask your coordinator to link it to your instructor or student record, or sign in with another account.</p></div>
+            {% elif site_header %}
+            <div class="notice notice-info" role="status"><p>{{ user.get_username }} ({{ academic_role_label|lower }}) can’t open Django Admin. Sign in with an administrator account, or <a href="{% url 'student_list' %}">go back to your workspace</a>.</p></div>
+            {% else %}
+            <div class="notice notice-info" role="status"><p>You’re signed in as {{ user.get_username }} ({{ academic_role_label|lower }}). <a href="{% url 'student_list' %}">Go to your workspace</a>, or sign in with another account below.</p></div>
+            {% endif %}
         {% endif %}
 
         <form action="{{ app_path }}" method="post" id="login-form">

@@ -5,9 +5,9 @@
 <div class="page-title"><div><h1>{{ label }} login</h1><p>{{ record }}</p></div></div>
 <section class="panel form-panel">
     {% if account %}
-        <p class="panel-note lead">Username <b>{{ account.get_username }}</b>. Login {% if account.is_active %}enabled{% else %}disabled{% endif %}.</p>
+        <p class="panel-note lead">Signs in as <b>{{ account.get_username }}</b> <span class="status-tag">{% if account.is_active %}Active{% else %}Disabled{% endif %}</span></p>
     {% else %}
-        <p class="panel-note lead">Create a {{ label|lower }} login for this academic record.</p>
+        <p class="panel-note lead">No sign-in account yet. Create one so this {{ label|lower }} can sign in. Share the password through a trusted channel.</p>
     {% endif %}
     <form method="post">
         {% csrf_token %}
@@ -16,7 +16,10 @@
             {% if form.errors %}<div class="notice notice-error" role="alert"><p>Review the fields below.</p></div>{% endif %}
             {{ form.as_p }}
         </div>
-        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if account %}Reset password{% else %}Create login{% endif %}</button></div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">{% if account %}Reset password{% else %}Create login{% endif %}</button>
+            <a class="btn btn-ghost" href="{% url 'management_records' kind %}">Back to {{ label|lower }} records</a>
+        </div>
     </form>
     {% if account %}
         <form method="post" class="form-actions">

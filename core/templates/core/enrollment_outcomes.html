@@ -7,7 +7,7 @@
     {% if academic_role == 'student' %}
     <li><a href="{% url 'student_detail' enrollment.student_id %}">My courses</a></li>
     {% else %}
-    <li><a href="{% url 'course_list' %}">Courses</a></li>
+    <li><a href="{% url 'course_list' %}">{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</a></li>
     <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
     {% endif %}
     <li aria-current="page">{{ student.full_name }}</li>

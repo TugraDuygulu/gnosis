@@ -19,6 +19,10 @@ MANAGERS = (ADMIN, COORDINATOR)
 DIRECTORY = (*MANAGERS, LEGACY)
 COURSES = (*DIRECTORY, INSTRUCTOR)
 GRADERS = (ADMIN, INSTRUCTOR, LEGACY)
+ROLE_LABELS = {
+    ADMIN: "Administrator", COORDINATOR: "Coordinator", INSTRUCTOR: "Instructor",
+    STUDENT: "Student", LEGACY: "Staff",
+}
 
 
 def role_for(user):
@@ -89,6 +93,7 @@ def academic_navigation(request):
 
     return {
         "academic_role": role,
+        "academic_role_label": ROLE_LABELS.get(role, ""),
         "academic_manager": role in MANAGERS,
         "academic_directory": role in DIRECTORY,
         "academic_system_admin": role in (ADMIN, LEGACY),
