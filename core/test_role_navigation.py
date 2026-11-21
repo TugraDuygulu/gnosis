@@ -89,8 +89,9 @@ class RoleNavigationTests(TestCase):
     def test_account_without_a_role_is_told_why(self):
         self.client.post(reverse("login"), {"username": "nav_norole", "password": self.password})
         response = self.client.get(reverse("student_list"), follow=True)
-        self.assertEqual(response.redirect_chain[-1][0], f"{reverse('login')}?next=/")
-        self.assertContains(response, "nav_norole isn’t linked to one Gnosis role")
+        self.assertContains(response, "isn’t linked to exactly one active Gnosis role", status_code=403)
+        self.assertNotContains(response, "Go to my workspace", status_code=403)
+        self.assertContains(response, "Sign in with another account", status_code=403)
 
     def test_sign_out_is_confirmed_on_the_sign_in_page(self):
         self.client.force_login(self.coordinator)
@@ -127,8 +128,10 @@ class RoleNavigationTests(TestCase):
                 self.assertContains(page, "Academic management</a>")
                 self.assertContains(page, "nav on")
                 self.assertNotContains(page, ":</label>")
+        self.student.is_active = False
+        self.student.save(update_fields=["is_active"])
         home = self.client.get(pages["home"])
-        self.assertContains(home, "1 of 2 can sign in")
+        self.assertContains(home, "1 of 2 have linked accounts")
         records = self.client.get(pages["records"])
         self.assertContains(records, "nav_student")
         self.assertContains(records, "None yet")

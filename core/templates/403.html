@@ -2,4 +2,4 @@
 {% block title %}No access{% endblock %}
 {% block code %}Error 403 · No access{% endblock %}
 {% block heading %}You don’t have access to this page{% endblock %}
-{% block text %}{% if academic_role_label %}Your {{ academic_role_label|lower }} account can’t open this page or make this change.{% else %}This account can’t open this page.{% endif %} If you need access, ask {% if academic_role == 'coordinator' %}an administrator{% else %}your coordinator{% endif %}.{% endblock %}
+{% block text %}{% if academic_role_label %}Your {{ academic_role_label|lower }} account can’t open this page or make this change.{% else %}This account isn’t linked to exactly one active Gnosis role.{% endif %} If you need access, ask {% if academic_role == 'coordinator' %}an administrator{% else %}your coordinator{% endif %}.{% endblock %}

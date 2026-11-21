@@ -22,8 +22,8 @@
                         </td>
                         {% endif %}
                         <td><div class="row-actions">
-                            <a href="{% url 'management_edit' kind record.pk %}">Edit</a>
-                            {% if has_accounts %}<a href="{% url 'management_account' kind record.pk %}">{% if record.user_id %}Manage login{% else %}Create login{% endif %}</a>{% endif %}
+                            <a href="{% url 'management_edit' kind record.pk %}">Edit<span class="sr-only"> {{ record }}</span></a>
+                            {% if has_accounts %}<a href="{% url 'management_account' kind record.pk %}">{% if record.user_id %}Manage login{% else %}Create login{% endif %}<span class="sr-only"> for {{ record }}</span></a>{% endif %}
                             {% if kind == "students" %}<a href="{% url 'student_detail' record.pk %}">Student record</a>{% endif %}
                             {% if kind == "offerings" %}<a href="{% url 'offering_detail' record.pk %}">Roster</a>{% endif %}
                         </div></td>

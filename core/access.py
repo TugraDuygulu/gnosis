@@ -51,6 +51,8 @@ def require_roles(*roles, legacy_permission=None):
         def wrapped(request, *args, **kwargs):
             role = role_for(request.user)
             if role is None:
+                if request.user.is_authenticated and request.user.is_active:
+                    raise PermissionDenied
                 return redirect_to_login(request.get_full_path(), reverse("login"))
             if role not in roles or (
                 role == LEGACY and legacy_permission and not request.user.has_perm(legacy_permission)

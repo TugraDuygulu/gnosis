@@ -10,7 +10,7 @@
                 <a class="manage-card" href="{% url 'management_records' section.kind %}">
                     <span class="top"><b>{{ section.label }} records</b><span class="n num">{{ section.count }}</span></span>
                     <span class="d">{{ section.summary }}</span>
-                    {% if section.with_login is not None %}<span class="d num">{{ section.with_login }} of {{ section.count }} can sign in</span>{% endif %}
+                    {% if section.with_login is not None %}<span class="d num">{{ section.with_login }} of {{ section.count }} have linked accounts</span>{% endif %}
                 </a>
             </li>
         {% endfor %}

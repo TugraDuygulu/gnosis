@@ -8,8 +8,9 @@ from django.core.management import call_command
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from core.test_route_access import academic_state
 from core.access import COORDINATOR_GROUP
-from core.models import Course, CourseOffering, Enrollment, Grade, Instructor, Student
+from core.models import Course, CourseOffering, Enrollment, Instructor, Student
 
 
 class AcademicRolesTests(TestCase):
@@ -75,11 +76,11 @@ class AcademicRolesTests(TestCase):
         ):
             with self.subTest(url=url):
                 self.assertEqual(self.client.get(url).status_code, 404)
-        before = list(Grade.objects.order_by("pk").values_list("pk", "score"))
+        before = academic_state()
         for name, pk in (("enrollment_grade_editor", self.enrollment.pk), ("offering_gradebook", self.offering.pk)):
             with self.subTest(name=name):
                 self.assertEqual(self.client.post(reverse(name, args=[pk]), {"score": "100"}).status_code, 403)
-        self.assertEqual(list(Grade.objects.order_by("pk").values_list("pk", "score")), before)
+        self.assertEqual(academic_state(), before)
         self.assertEqual(self.client.get(reverse("academic_admin:index"), follow=True).status_code, 403)
         self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
 
@@ -99,7 +100,11 @@ class AcademicRolesTests(TestCase):
         ):
             with self.subTest(name=name):
                 self.assertEqual(self.client.get(reverse(name, args=[pk])).status_code, 404)
-        self.assertEqual(self.client.post(reverse("offering_gradebook", args=[self.other_offering.pk]), {}).status_code, 404)
+        before = academic_state()
+        for name, pk in (("offering_gradebook", self.other_offering.pk),
+                         ("enrollment_grade_editor", foreign.pk)):
+            self.assertEqual(self.client.post(reverse(name, args=[pk]), {}).status_code, 404)
+            self.assertEqual(academic_state(), before)
         for url in (reverse("management_create", args=["courses"]),
                     reverse("management_account", args=["students", self.peer.student_id]),
                     reverse("program_overview")):
@@ -138,9 +143,9 @@ class AcademicRolesTests(TestCase):
         foreign = self.other_offering.enrollments.first()
         assessment = self.other_offering.assessments.first()
         payload[f"e{foreign.pk}-score_{assessment.pk}"] = "2"
-        before = list(Grade.objects.order_by("pk").values_list("pk", "score"))
+        before = academic_state()
         self.assertContains(self.client.post(url, payload), "do not match this roster")
-        self.assertEqual(list(Grade.objects.order_by("pk").values_list("pk", "score")), before)
+        self.assertEqual(academic_state(), before)
 
     def test_coordinator_links_existing_record_and_cannot_escalate(self):
         self.login(self.coordinator)
