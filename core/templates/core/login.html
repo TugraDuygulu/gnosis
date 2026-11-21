@@ -46,7 +46,6 @@
         {% endfor %}
         {% if user.is_authenticated %}
             {% if not academic_role %}
-            {# Signed in, but the account has no single academic role, so every page sends it back here. #}
             <div class="notice notice-error" role="alert"><p>{{ user.get_username }} isn’t linked to one Gnosis role, so it can’t open the workspace. Ask your coordinator to link it to your instructor or student record, or sign in with another account.</p></div>
             {% elif site_header %}
             <div class="notice notice-info" role="status"><p>{{ user.get_username }} ({{ academic_role_label|lower }}) can’t open Django Admin. Sign in with an administrator account, or <a href="{% url 'student_list' %}">go back to your workspace</a>.</p></div>

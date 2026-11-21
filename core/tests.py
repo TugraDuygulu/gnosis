@@ -875,6 +875,8 @@ class PilotOutcomeTests(TestCase):
 
                     if allowed:
                         self.assertEqual(response.status_code, 200)
+                    elif user is not None and user.is_active:
+                        self.assertEqual(response.status_code, 403)
                     else:
                         self.assertRedirects(
                             response,
