@@ -4,6 +4,15 @@ This is the workflow approved by Tuğra for his AI-assisted Gnosis development
 on October 31, 2026. Adoption by the full four-person team, reviewer ownership
 and branch-protection rules still require team agreement.
 
+## Shared project context
+
+Start with [AGENTS.md](../AGENTS.md) and the dated
+[project context](PROJECT_CONTEXT.md). Shared project context now belongs in
+repository Markdown and linked issues/PRs; access to a personal Notion workspace
+is not a prerequisite. Private notes may remain private and must not be copied
+wholesale. The [first sprint record](sprints/SPRINT_01.md) is a draft for planning,
+not an active sprint or a retrospective account of earlier work.
+
 ## One bounded change
 
 1. Agree on the user story and testable acceptance criteria. Create or update
@@ -16,7 +25,8 @@ and branch-protection rules still require team agreement.
 5. Obtain a real review where feasible. Tuğra gives final approval for merging.
    An owner review or self-merge must not be described as teammate peer review.
 6. After approved merge, close issues whose criteria are met; otherwise record
-   the remaining work. Record substantial decisions in the Work → Chat handoff.
+   the remaining work. Record approved project decisions in the relevant issue/PR
+   and shared context; use a [task handoff](handoffs/README.md) for continuation.
 
 Approvals for related commits, pushes, PRs and merges can be requested as one
 batch with clear conditions. Approval of implementation alone does not grant
