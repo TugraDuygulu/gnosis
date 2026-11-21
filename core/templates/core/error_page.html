@@ -1,0 +1,35 @@
+{% load gnosis_ui %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %} | Gnosis</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C9A44C'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' text-anchor='middle' fill='%2313254A'%3EG%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+    <link rel="stylesheet" href="{% asset 'core/gnosis.css' %}">
+</head>
+<body>
+{# Standalone so it also works signed out and without a role: no sidebar to build. #}
+<main class="error-page" id="main">
+    <a class="brand" href="{% url 'student_list' %}"><span class="mark" aria-hidden="true">G</span>Gnosis</a>
+    <section class="panel error-card" aria-labelledby="error-title">
+        <p class="error-code">{% block code %}{% endblock %}</p>
+        <h1 id="error-title">{% block heading %}{% endblock %}</h1>
+        <p class="error-text">{% block text %}{% endblock %}</p>
+        <div class="error-actions">
+            {% if user.is_authenticated %}
+                {% if academic_role %}<a class="btn btn-primary" href="{% url 'student_list' %}">Go to my workspace</a>{% endif %}
+                <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-ghost" type="submit">Sign in with another account</button></form>
+            {% else %}
+                <a class="btn btn-primary" href="{% url 'login' %}">Sign in</a>
+            {% endif %}
+        </div>
+        {% if user.is_authenticated %}
+            <p class="error-who">Signed in as <b>{{ user.get_username }}</b>{% if academic_role_label %} · {{ academic_role_label }}{% endif %}</p>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>

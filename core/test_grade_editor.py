@@ -161,7 +161,7 @@ class EnrollmentGradeEditorTests(TestCase):
             before = self.scores()
             for method in (client.get, client.post):
                 response = method(self.url)
-                self.assertEqual(response.status_code, 403 if staff and active else 302)
+                self.assertEqual(response.status_code, 403 if active else 302)
             if staff and active:
                 response = client.get(reverse("enrollment_outcomes", args=[self.enrollment.pk]))
                 self.assertNotContains(response, self.url)

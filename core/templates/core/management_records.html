@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% block title %}{{ label }} records{% endblock %}
+{% block content %}
+<ol class="crumbs"><li><a href="{% url 'management_home' %}">Academic management</a></li><li aria-current="page">{{ label }} records</li></ol>
+<div class="page-title">
+    <div><h1>{{ label }} records</h1>{% if records %}<p>{{ records|length }} record{{ records|length|pluralize }}</p>{% endif %}</div>
+    <div class="actions"><a class="btn btn-primary" href="{% url 'management_create' kind %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Add {{ label|lower }}</a></div>
+</div>
+<section class="panel">
+    {% if records %}
+        <div class="table-scroll">
+            <table class="list manage-records">
+                <thead><tr><th scope="col">Record</th>{% if has_accounts %}<th scope="col">Sign-in account</th>{% endif %}<th scope="col">Actions</th></tr></thead>
+                <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record }}{% if kind == "offerings" %}<span class="sub">{{ record.instructor }}</span>{% endif %}</td>
+                        {% if has_accounts %}
+                        <td>
+                            {% if not record.user_id %}<span class="muted">None yet</span>
+                            {% else %}<span class="status-tag">{% if record.user.is_active %}Active{% else %}Disabled{% endif %}</span><span class="sub">{{ record.user.get_username }}</span>{% endif %}
+                        </td>
+                        {% endif %}
+                        <td><div class="row-actions">
+                            <a href="{% url 'management_edit' kind record.pk %}">Edit<span class="sr-only"> {{ record }}</span></a>
+                            {% if has_accounts %}<a href="{% url 'management_account' kind record.pk %}">{% if record.user_id %}Manage login{% else %}Create login{% endif %}<span class="sr-only"> for {{ record }}</span></a>{% endif %}
+                            {% if kind == "students" %}<a href="{% url 'student_detail' record.pk %}">Student record</a>{% endif %}
+                            {% if kind == "offerings" %}<a href="{% url 'offering_detail' record.pk %}">Roster</a>{% endif %}
+                        </div></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty"><h2>No {{ label|lower }} records yet</h2><p>Use “Add {{ label|lower }}” to create the first one.</p></div>
+    {% endif %}
+</section>
+{% endblock %}

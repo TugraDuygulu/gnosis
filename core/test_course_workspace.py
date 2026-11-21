@@ -140,4 +140,8 @@ class CourseWorkspaceTests(TestCase):
                 self.client.force_login(user)
             for url in (self.list_url, self.roster_url):
                 with self.subTest(user=label, url=url):
-                    self.assertRedirects(self.client.get(url), f"{reverse('admin:login')}?next={url}", fetch_redirect_response=False)
+                    response = self.client.get(url)
+                    if label == "regular":
+                        self.assertEqual(response.status_code, 403)
+                        continue
+                    self.assertRedirects(response, f"{reverse('login')}?next={url}", fetch_redirect_response=False)

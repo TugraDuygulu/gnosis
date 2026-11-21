@@ -20,13 +20,16 @@ class StudentRegistrationForm(forms.ModelForm):
         self.fields["program"].queryset = Program.objects.order_by("code", "pk")
 
 
-def available_offerings(student):
+def available_offerings(student, *, ignore_enrollment=None):
     existing = Enrollment.objects.filter(student=student, offering_id=OuterRef("pk"))
     repeated = Enrollment.objects.filter(
         student=student, status="active",
         offering__course_id=OuterRef("course_id"),
         offering__po_framework_id=OuterRef("po_framework_id"),
     )
+    if ignore_enrollment is not None:
+        existing = existing.exclude(pk=ignore_enrollment)
+        repeated = repeated.exclude(pk=ignore_enrollment)
     return CourseOffering.objects.filter(
         po_framework__program_id=student.program_id,
         curriculum__course_id=F("course_id"),

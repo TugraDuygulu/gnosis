@@ -7,7 +7,7 @@
         <h1>Students</h1>
         <p>Open a student to see their grades and PO scores.</p>
     </div>
-    {% if perms.core.add_student %}
+    {% if academic_can_register %}
     <div class="actions"><a class="btn btn-primary" href="{% url 'student_register' %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Register student</a></div>
     {% endif %}
 </div>
@@ -54,7 +54,7 @@
         {% else %}
             <h2>No students yet</h2>
             <p>Register a student to get started.</p>
-            {% if perms.core.add_student %}
+            {% if academic_can_register %}
                 <a class="btn btn-primary" href="{% url 'student_register' %}">Register the first student</a>
             {% else %}
                 <p>Ask someone with permission to register students.</p>

@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+{% block title %}{{ label }}{% endblock %}
+{% block content %}
+<ol class="crumbs">
+    <li><a href="{% url 'management_home' %}">Academic management</a></li>
+    {% if kind %}<li><a href="{% url 'management_records' kind %}">{{ label }} records</a></li>{% endif %}
+    <li aria-current="page">{% if editing %}Edit{% else %}Add{% endif %}</li>
+</ol>
+<div class="page-title"><div>
+    <h1>{% if editing %}Edit{% else %}Add{% endif %} {{ label|lower }}</h1>
+    {% if enrollment %}<p>{{ enrollment.student }} · {{ enrollment.offering }}</p>{% endif %}
+</div></div>
+<section class="panel form-panel">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-body">
+            {% if form.errors %}<div class="notice notice-error" role="alert"><p>Nothing was saved. Review the errors below.</p></div>{% endif %}
+            {{ form.as_p }}
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Save</button>
+            {% if kind %}<a class="btn btn-ghost" href="{% url 'management_records' kind %}">Cancel</a>
+            {% else %}<a class="btn btn-ghost" href="{% url 'student_detail' enrollment.student_id %}">Cancel</a>{% endif %}
+        </div>
+    </form>
+</section>
+{% endblock %}

@@ -73,7 +73,7 @@ class StudentIntakeTests(TestCase):
             client.force_login(user)
             for url in [self.register_url, self.enroll_url]:
                 for method in [client.get, client.post]:
-                    self.assertEqual(method(url).status_code, 403 if staff and active else 302)
+                    self.assertEqual(method(url).status_code, 403 if active else 302)
             if staff and active:
                 self.assertNotContains(client.get(reverse("student_list")), self.register_url)
                 self.assertNotContains(client.get(self.detail_url), self.enroll_url)
