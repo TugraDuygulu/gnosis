@@ -1,9 +1,33 @@
 # Gnosis project context
 
 **Team:** Nous. **Project:** Gnosis for CSE311 Software Engineering and CSE321 Data
-& System Architecture. **Snapshot checked:** 12 November 2026. This project-only
-summary is not a chat archive or substitute for current code. Read
-[AGENTS.md](../AGENTS.md) first.
+& System Architecture. **Historical snapshot checked:** 12 November 2026; **current status addendum:**
+21 November 2026. This project-only summary is not a chat archive or substitute
+for current code. Read [AGENTS.md](../AGENTS.md) first.
+
+## Current status — 21 November 2026
+
+- **Sprint 1 is complete.** [Sprint #32](https://github.com/TugraDuygulu/gnosis/issues/32)
+  and issues #38–41 closed after the role-account integration. [PR #25](https://github.com/TugraDuygulu/gnosis/pull/25)
+  merged to [main at `2d50e56968ac1e1590cd98b0e32ac8e5bbc14a56`](https://github.com/TugraDuygulu/gnosis/commit/2d50e56968ac1e1590cd98b0e32ac8e5bbc14a56).
+  Stacked PRs #62/#63/#65/#67 and documentation #66 were also merged.
+- Exact-revision integration evidence reported **123 passing Django tests and
+  one pre-existing expected Turkish-search failure**, migration/integrity
+  checks, and twelve automated Chrome role/viewport sessions. The owner's
+  documented exception to remaining human checks is **not** an independent
+  teammate or physical-device sign-off.
+- **Sprint 1 points and velocity remain unestimated.** No team Planning Poker
+  agreement took place; do not add retrospective points or invent capacity.
+- **Sprint 2 (23–29 November):** [planning thread #33](https://github.com/TugraDuygulu/gnosis/issues/33)
+  and issues #42–45 are prepared in the existing Project board as Backlog.
+  Actual capacity, Poker points and day-level targets require team agreement.
+  The [six-week plan](sprints/SIX_WEEK_PLAN.md#day-level-coordination-proposal-for-sprint-2-onward)
+  proposes a shared day-level protocol for humans and coding agents. It is not
+  a record of already agreed teammate dates.
+
+The older tables and limitations below are preserved as a **12 November
+historical baseline**, not the current state of `main`. Refresh live GitHub
+issues, PRs, CI and commits before working.
 
 ## Product and authoritative documents
 
@@ -28,7 +52,7 @@ The implementation is server-rendered Django, shared calculation/write functions
 and SQLite development storage, with pinned dependencies. No separate API/Vue,
 external cache/queue, PostgreSQL deployment or production hosting is assumed.
 
-## Verified application baseline versus branch work
+## Historical verified application baseline versus branch work (12 November)
 
 | State | Evidence | Supported claim |
 | --- | --- | --- |
@@ -54,7 +78,7 @@ Automated contributions do not prove manual browser/accessibility sign-off. The
 latest four test/README commits went directly to main, an exception to the
 specified PR process. Do not rewrite that history as independent PR review.
 
-## Current limitations and scheduled work
+## Limitations and planned work noted on 12 November (historical)
 
 - The fixed 12-staff-route matrix conflicts with PR #25's new routes/access and
   redirects if combined unchanged. Source inspection identified this; no merged
@@ -69,7 +93,7 @@ specified PR process. Do not rewrite that history as independent PR review.
 - Useful CSV import and student/cohort reports are planned in Sprints 2-3.
   They are not current capabilities. No compulsory cloud or framework change.
 
-## Six-week plan is scheduled, not indefinitely awaiting decisions
+## Six-week plan established 12 November (historical planning record)
 
 On 12 Nov the owner requested a concrete GitHub-only plan and initial assignments.
 [Roadmap #27](https://github.com/TugraDuygulu/gnosis/issues/27) links four epics
