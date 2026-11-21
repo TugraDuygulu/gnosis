@@ -8,11 +8,13 @@ agent does not automatically load this file, the operator should supply it.
 
 1. Read [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) for the dated application
    snapshot, evidence, limitations and current priorities.
-2. Read the [six-week plan](docs/sprints/SIX_WEEK_PLAN.md), relevant GitHub issue,
-   PR and task handoff. The owner scheduled six weekly sprints for **16 November
-   through 27 December 2026**. [Sprint 1](docs/sprints/SPRINT_01.md) is scheduled,
-   not started. Do not revert to the superseded undated draft or invent votes,
-   attendance, estimates, completed work or velocity.
+2. Read the [six-week plan](docs/sprints/SIX_WEEK_PLAN.md), the **current sprint
+   control issue**, relevant work issue/PR and task handoff. Six weekly sprints run
+   from **16 November through 27 December 2026**. [Sprint 1 #32](https://github.com/TugraDuygulu/gnosis/issues/32)
+   closed on 21 November; [Sprint 2 #33](https://github.com/TugraDuygulu/gnosis/issues/33)
+   is planned for 23–29 November and awaits team planning. The dated
+   [Sprint 1 draft](docs/sprints/SPRINT_01.md) is historical, not live status.
+   Do not invent votes, attendance, estimates, agreed day targets or velocity.
 3. Follow [development_workflow.md](docs/development_workflow.md). For setup use
    [README.md](README.md); for UI work read [DESIGN.md](DESIGN.md) before editing.
 4. Follow the subject-specific source: [calculation policy](docs/calculation_policy.md),
@@ -25,6 +27,29 @@ control threads hold the planning baseline, digital check-ins, scope changes,
 review and retrospective. Markdown holds context and the release forecast, not a
 competing manually maintained task-status board. Read linked historical evidence
 only when needed; an older snapshot is not necessarily this checkout.
+
+## Day-level coordination (proposed for team agreement)
+
+- Before starting a sprint issue, inspect the live sprint control thread and
+  issue for **recorded** owner, reviewer, dependencies, planned capacity, agreed
+  Planning Poker points, target implementation/PR day, reviewer day and
+  integration/acceptance day. If absent, mark them **TBD**, not agreed.
+- Human teammates supply their own availability, estimates and commitments.
+  Agents may propose feasible sequences, review risks and alternatives, but
+  never manufacture votes, personal work hours, peer sign-off or deadlines.
+- Check dependency readiness and the reviewer's availability before proposing
+  work that relies on another issue. A target day is a coordination checkpoint,
+  **not permission** to edit code, push, approve reviews or merge.
+- Flag an at-risk or missed checkpoint promptly in the issue/sprint thread:
+  actual progress, blocker and dependency, proposed next day/action and help
+  needed. Only a team-agreed replan changes the recorded commitment; preserve
+  the original plan and reason for change.
+- The repository is public: record only task-relevant dates and any capacity
+  details the member chooses to share. Never publish personal calendars, class
+  schedules, private availability details or messages.
+- The detailed workflow is proposed in
+  [SIX_WEEK_PLAN.md](docs/sprints/SIX_WEEK_PLAN.md#day-level-coordination-proposal-for-sprint-2-onward).
+  Do not describe it as team-ratified until the team actually agrees.
 
 ## Establish actual state before editing
 
