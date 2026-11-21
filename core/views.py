@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.views import LogoutView
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import Count, Q
@@ -33,6 +34,15 @@ from core.services.po_calculator import calculate_course_po_achievement
 from core.services.student_po_calculator import (
     calculate_student_po_achievement,
 )
+
+
+class SignOutView(LogoutView):
+    """Log out, then confirm it on the sign-in page."""
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        messages.success(request, "You’ve signed out.")
+        return response
 
 
 def evidence_state(result, has_source):

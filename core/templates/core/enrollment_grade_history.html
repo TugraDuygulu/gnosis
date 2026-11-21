@@ -3,7 +3,7 @@
 {% block content %}
 {% with offering=enrollment.offering student=enrollment.student %}
 <ol class="crumbs">
-    <li><a href="{% url 'course_list' %}">Courses</a></li>
+    <li><a href="{% url 'course_list' %}">{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</a></li>
     <li><a href="{% url 'offering_detail' enrollment.offering_id %}">{{ offering.course.code }} roster</a></li>
     <li><a href="{% url 'enrollment_outcomes' enrollment.pk %}">{{ student.full_name }}</a></li>
     <li aria-current="page">Grade-change history</li>

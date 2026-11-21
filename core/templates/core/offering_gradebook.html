@@ -3,7 +3,7 @@
 {% block title %}{{ offering.course.code }} grade book{% endblock %}
 {% block content %}
 <ol class="crumbs">
-    <li><a href="{% url 'course_list' %}">Courses</a></li>
+    <li><a href="{% url 'course_list' %}">{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</a></li>
     <li><a href="{% url 'offering_detail' offering.pk %}">{{ offering.course.code }} roster</a></li>
     <li aria-current="page">Grade book</li>
 </ol>

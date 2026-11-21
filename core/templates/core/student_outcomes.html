@@ -4,7 +4,7 @@
 {% block content %}
 <ol class="crumbs">
     {% if academic_directory %}<li><a href="{% url 'student_list' %}">Students</a></li>{% endif %}
-    <li><a href="{% url 'student_detail' student.pk %}">{{ student.full_name }}</a></li>
+    <li><a href="{% url 'student_detail' student.pk %}">{% if academic_role == 'student' %}My courses{% else %}{{ student.full_name }}{% endif %}</a></li>
     <li aria-current="page">PO scores</li>
 </ol>
 <div class="head">
@@ -27,7 +27,7 @@
         </ul>
     </div>
     <div class="actions">
-        <a class="btn btn-ghost" href="{% url 'student_detail' student.pk %}">Student record</a>
+        <a class="btn btn-ghost" href="{% url 'student_detail' student.pk %}">{% if academic_role == 'student' %}My courses{% else %}Student record{% endif %}</a>
         {% if attention and academic_can_grade %}
             {% if attention_courses == 1 %}
                 {% with first=attention.0 %}<a class="btn btn-primary" href="{% url 'enrollment_grade_editor' first.enrollment.pk %}#id_score_{{ first.assessment.pk }}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Enter missing grade{{ attention|length|pluralize }}</a>{% endwith %}

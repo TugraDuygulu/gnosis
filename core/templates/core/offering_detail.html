@@ -2,7 +2,7 @@
 {% load gnosis_ui %}
 {% block title %}{{ offering.course.code }} roster{% endblock %}
 {% block content %}
-<ol class="crumbs"><li><a href="{% url 'course_list' %}">Courses</a></li><li aria-current="page">{{ offering.course.code }}</li></ol>
+<ol class="crumbs"><li><a href="{% url 'course_list' %}">{% if academic_role == 'instructor' %}My courses{% else %}Courses{% endif %}</a></li><li aria-current="page">{{ offering.course.code }}</li></ol>
 <div class="page-title">
     <div>
         <h1>{{ offering.course.code }} — {{ offering.course.title }}</h1>
@@ -14,11 +14,11 @@
             <li><span class="status-tag">{{ offering.status }}</span></li>
         </ul>
     </div>
-    {% if academic_manager %}
-    <div class="actions"><a class="btn btn-ghost" href="{% url 'management_edit' 'offerings' offering.pk %}">Edit offering</a></div>
-    {% endif %}
-    {% if academic_can_grade %}
-    <div class="actions"><a class="btn btn-primary" href="{% url 'offering_gradebook' offering.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Open grade book</a></div>
+    {% if academic_manager or academic_can_grade %}
+    <div class="actions">
+        {% if academic_manager %}<a class="btn btn-ghost" href="{% url 'management_edit' 'offerings' offering.pk %}">Edit offering</a>{% endif %}
+        {% if academic_can_grade %}<a class="btn btn-primary" href="{% url 'offering_gradebook' offering.pk %}"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>Open grade book</a>{% endif %}
+    </div>
     {% endif %}
 </div>
 {% if not offering.po_framework %}

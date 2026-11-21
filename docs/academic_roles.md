@@ -36,6 +36,35 @@ changing them would rewrite those relationships. Destructive operations are
 reserved for administrators. The role work does not change the LO/PO formulas,
 coverage rules, or existing grade history.
 
+## Navigation by role
+
+| Role | After sign-in | Sidebar | Main routes |
+| --- | --- | --- | --- |
+| Administrator | Students | Overview, Students, Courses, Register student, Academic management, Django Admin | Every workspace route, `/manage/`, `/configuration/`, `/admin/` |
+| Coordinator | Students | Overview, Students, Courses, Register student, Academic management | `/overview/`, `/`, `/students/…`, `/courses/`, `/offerings/<id>/`, `/manage/…`, `/configuration/` |
+| Instructor | My courses (`/courses/`) | My courses | Assigned offerings only: roster, grade book, grade editor, grade history, course evidence |
+| Student | My courses and outcomes (own record) | My courses and outcomes | Own record, own course evidence, own PO scores |
+| Staff (unlinked legacy) | Students | Overview, Students, Courses, Register student (with `core.add_student`), Django Admin | Previous staff routes, gated by model permissions |
+
+The sidebar shows the signed-in username and role, and marks the current
+section. Breadcrumbs follow the same names ("My courses" for instructors and
+students). Hiding a link is only a convenience: every route checks the role and
+the record scope on the server (`core/access.py`).
+
+What each case shows:
+
+- **Action outside the role** (a student opening a grade book, an instructor
+  opening Academic management): HTTP 403 with a "No access" page that names the
+  account's role and links to the user's workspace or to sign in with another account.
+- **Record outside the account's scope** (another student's record, an
+  unassigned class): HTTP 404 "Page not found", so the record's existence is not revealed.
+- **Signed-in account with no role or more than one role:** sent back to sign-in with an explanation.
+- **Signed-in account without Django Admin access:** the Admin sign-in page says so and links back to the workspace.
+- **Sign out:** returns to sign-in with "You’ve signed out."
+
+`core/test_role_navigation.py` checks these screens together with the
+server-side denial behind each hidden control.
+
 ## Upgrade
 
 Back up the intended database and run `python manage.py migrate`. Migration
