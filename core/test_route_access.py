@@ -27,6 +27,7 @@ from django.urls import reverse
 
 from core import urls as core_urls
 from core.access import COORDINATOR_GROUP
+from core.grade_history import history_entries
 from core.grade_editor import revision_token, snapshot
 from core.models import (
     Course, CourseCurriculum, CourseOffering, Enrollment, Grade, Instructor,
@@ -89,7 +90,8 @@ def academic_state():
     users = get_user_model().objects.order_by("pk").values_list(
         "pk", "username", "password", "is_active", "is_staff", "is_superuser",
     )
-    tables = (Student, Enrollment, Grade, LogEntry, Instructor, Course, CourseOffering, Program)
+    tables = (Student, Enrollment, Grade, LogEntry, Instructor, Course, CourseOffering, Program,
+              get_user_model().groups.through, get_user_model().user_permissions.through)
     return [list(model.objects.order_by("pk").values_list()) for model in tables] + [list(users)]
 
 
@@ -288,13 +290,12 @@ class RouteAccessMatrixTests(TestCase):
         self.assertLessEqual(SCOPED | WRITABLE, set(ACCESS))
         self.assertTrue(all(len(rules) == len(ROLES) for rules in ACCESS.values()))
 
-    def test_users_without_one_active_role_are_sent_to_login(self):
+    def test_users_without_one_active_role_cannot_access_protected_routes(self):
         """Anonymous, inactive, role-less and conflicting-role users never reach a protected view."""
         users = [
             ("anonymous", None), ("active_no_role", self.no_role),
             ("inactive_staff", self.inactive_staff), ("inactive_coordinator", self.inactive_coordinator),
             ("inactive_instructor", self.inactive_instructor),
-            # pending decision: signed-in users with missing or conflicting roles are sent to login, not 403.
             ("instructor_and_student", self.instructor_and_student),
             ("coordinator_and_instructor", self.coordinator_and_instructor),
         ]
@@ -302,13 +303,16 @@ class RouteAccessMatrixTests(TestCase):
             self.client.logout()
             if user is not None:
                 self.client.force_login(user)
+            check = self.assert_login_redirect
+            if user is not None and user.is_active:
+                check = lambda response, url: self.assertEqual(response.status_code, 403)
             for name in ACCESS:
                 for scope in self.scopes(name):
                     url = self.url(name, scope)
                     with self.subTest(user=label, route=name, scope=scope, method="GET"):
-                        self.assert_login_redirect(self.client.get(url), url)
+                        check(self.client.get(url), url)
                     with self.subTest(user=label, route=name, scope=scope, method="POST"):
-                        self.assert_rejected_post(name, scope, user, self.assert_login_redirect)
+                        self.assert_rejected_post(name, scope, user, check)
 
     def test_role_matrix_for_get_and_denied_post(self):
         """Every role on every protected route, for its own and a foreign record."""
@@ -359,11 +363,43 @@ class RouteAccessMatrixTests(TestCase):
         for user, name, scope in cases:
             with self.subTest(user=user.username, route=name, scope=scope), transaction.atomic():
                 self.client.force_login(user)
-                before = academic_state()
-                response = self.client.post(self.url(name, scope), self.payload(name, scope, user))
+                data = self.payload(name, scope, user)
+                record = self.records[scope]
+                response = self.client.post(self.url(name, scope), data)
                 self.assertEqual(response.status_code, 302, getattr(response, "context", None)
                                  and response.context.get("form") and response.context["form"].errors)
-                self.assertNotEqual(academic_state(), before)
+                if name in ("offering_gradebook", "enrollment_grade_editor"):
+                    enrollments = (Enrollment.objects.filter(offering_id=record.offering).order_by("pk")
+                                   if name == "offering_gradebook" else Enrollment.objects.filter(pk=record.enrollment))
+                    for index, enrollment in enumerate(enrollments):
+                        prefix = f"e{enrollment.pk}-" if name == "offering_gradebook" else ""
+                        for assessment in enrollment.offering.assessments.all():
+                            value = data[f"{prefix}score_{assessment.pk}"]
+                            score = Grade.objects.filter(enrollment=enrollment, assessment=assessment
+                                                         ).values_list("score", flat=True).first()
+                            self.assertEqual(score, Decimal(value) if value else None)
+                        if index == 0:
+                            self.assertTrue(history_entries(enrollment.pk).filter(user=user).exists())
+                elif name in ("student_register", "management_create"):
+                    self.assertTrue(Student.objects.filter(student_number=data["student_number"],
+                                                           full_name=data["full_name"], program=self.program).exists())
+                elif name == "student_enroll":
+                    self.assertTrue(Enrollment.objects.filter(student_id=record.student,
+                                                              offering=self.open_offering).exists())
+                elif name == "management_edit":
+                    self.assertEqual(Student.objects.get(pk=record.student).full_name, data["full_name"])
+                elif name == "management_account":
+                    account = Student.objects.get(pk=record.student).user
+                    if data["action"] == "disable":
+                        self.assertEqual(account.pk, self.student.pk)
+                        self.assertFalse(account.is_active or account.has_usable_password())
+                    else:
+                        self.assertEqual(account.username, data["username"])
+                        self.assertTrue(account.check_password(data["password1"]))
+                elif name == "management_enrollment_status":
+                    self.assertEqual(Enrollment.objects.get(pk=record.enrollment).status, data["status"])
+                else:
+                    self.fail(f"Missing positive write assertion for {name}")
                 transaction.set_rollback(True)
 
     def test_grade_writes_record_history_only_when_permitted(self):

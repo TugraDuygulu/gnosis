@@ -58,7 +58,7 @@ What each case shows:
   account's role and links to the user's workspace or to sign in with another account.
 - **Record outside the account's scope** (another student's record, an
   unassigned class): HTTP 404 "Page not found", so the record's existence is not revealed.
-- **Signed-in account with no role or more than one role:** sent back to sign-in with an explanation.
+- **Signed-in account with no role or more than one role:** protected workspace routes return 403 with an explanation and a way to sign out. Anonymous requests still redirect to sign-in.
 - **Signed-in account without Django Admin access:** the Admin sign-in page says so and links back to the workspace.
 - **Sign out:** returns to sign-in with "You’ve signed out."
 

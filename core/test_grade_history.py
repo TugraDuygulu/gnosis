@@ -102,7 +102,7 @@ class GradeHistoryTests(TestCase):
                 user.user_permissions.add(Permission.objects.get(codename="view_grade"))
             client = Client()
             client.force_login(user)
-            self.assertEqual(client.get(self.history_url).status_code, 403 if staff and active else 302)
+            self.assertEqual(client.get(self.history_url).status_code, 403 if active else 302)
             if staff and active:
                 self.assertNotContains(client.get(reverse("enrollment_outcomes", args=[self.enrollment.pk])), self.history_url)
         reader = get_user_model().objects.create_user(username="reader", is_staff=True)

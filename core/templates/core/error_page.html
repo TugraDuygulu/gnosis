@@ -20,7 +20,7 @@
         <p class="error-text">{% block text %}{% endblock %}</p>
         <div class="error-actions">
             {% if user.is_authenticated %}
-                <a class="btn btn-primary" href="{% url 'student_list' %}">Go to my workspace</a>
+                {% if academic_role %}<a class="btn btn-primary" href="{% url 'student_list' %}">Go to my workspace</a>{% endif %}
                 <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-ghost" type="submit">Sign in with another account</button></form>
             {% else %}
                 <a class="btn btn-primary" href="{% url 'login' %}">Sign in</a>
