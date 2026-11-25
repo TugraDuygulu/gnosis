@@ -1,7 +1,7 @@
-# Grade CSV preview · proposed Sprint 2 contract
+# Grade CSV preview and confirmation · proposed Sprint 2 contract
 
-23 November 2026 (Europe/Istanbul). Tuğra owns [#42](https://github.com/TugraDuygulu/gnosis/issues/42);
-Emir reviews. This draft implements the read-only increment on
+Updated 25 November 2026 (Europe/Istanbul). Tuğra owns [#42](https://github.com/TugraDuygulu/gnosis/issues/42);
+Emir reviews. This draft implements the backend preview and confirmation on
 `codex/42-csv-preview`, based on main `2d50e56`. The PR records the exact
 revision, checks and review state. Tuğra retains merge approval.
 
@@ -57,31 +57,74 @@ preview is ineligible for confirmation if any error exists. Distinguish
 file errors from counts of distinct invalid lines. A numeric zero must be
 formatted explicitly. Escape user-controlled content when rendering.
 
-## Handoff and remaining decisions
+## Confirmation interface for #43
 
-- Omar (#43): use this service directly for read-only preview. Count set/keep
-  rows by action. Use field and code to render errors. No mutation endpoint
-  or confirmation credential exists in this increment.
-- Emir (#44): test another instructor, ambiguous/disabled accounts, foreign
-  IDs, blank/zero/equal values, partial-invalid files and unchanged audit state.
-- Ramazan (#45): resolve fictional assessment IDs from the disposable fixture
-  database; include a padded student number, blank, zero and late invalid row.
-- By Wednesday, review the long format, exact limits, assessment ID discovery
-  and assigned-instructor scope with the team. Existing single-enrollment
-  editing also supports other authorized roles; CSV access for those roles
-  needs an explicit decision.
+Keep the selected file available in the browser until the instructor confirms.
+After an error-free preview, return its opaque `confirmation_token` to that
+instructor. Invalid previews have a None token. On a separate, authenticated,
+CSRF-protected POST, send the token and the same file bytes. Start the binary
+stream at byte zero on each call. Take the integer offering ID from the route
+and the actor from the authenticated request.
 
-For Friday's confirmation, bind a signed expiring preview to the actor, offering,
-contract version, original file digest and normalized targets. Capture student
-number to enrollment mappings, enrollment status, assessment IDs/configuration,
-and grade identities and scores (including absence versus NULL). The existing
-`grade_editor.snapshot` supplies much of that state per enrollment. Re-resolve
-assignment and identities, verify integrity and revisions under transaction
-locks, reject stale or replayed confirmations, then write grades and matching
-history together. Reuse grade-history and optimistic update semantics from the
-editor. Never send unsigned client rows directly to a writer. Token design,
-replay protection and concurrency tests remain open.
+```python
+from core.grade_import import confirm_grades
 
-Local verification uses the pinned dependencies and Django's disposable test
-database. See the draft PR for commands and results. No UI, browser acceptance,
-human approval or integration is claimed here.
+changed = confirm_grades(user=request.user, offering_id=offering_id,
+                         upload=request.FILES["file"], token=request.POST["token"])
+```
+
+The return value counts committed grade changes. Zero is a successful
+all-unchanged import and consumes the token. Cancel by discarding the token.
+The signed payload binds actor, offering, a random nonce, original byte digest
+and preview-state digest. The two-hour lifetime matches the native editor.
+Signing uses a CSV-specific salt and the actor's Django session auth hash.
+Treat tokens as private form data and configure a private Django secret key
+for deployment. No server-side file storage is required.
+
+**Errors and UI behavior**
+
+- `PermissionDenied`: show the application's forbidden response. Account role,
+  activity and current assignment are checked again against database records.
+- `ValidationError` codes `invalid_token`, `expired`, `stale`, and `replayed`:
+  show the code's reason and offer a fresh preview. A replay can follow an
+  already successful confirmation. Reload the gradebook/history to inspect it.
+- Persistence, audit and database-lock failures roll back the transaction.
+  Return a recoverable failure to the user. After contention or a lost response,
+  refresh the gradebook and preview before offering another confirmation.
+
+## Transaction and concurrency boundaries
+
+Migration 0011 adds a receipt with a unique random nonce and confirmation
+timestamp. Claiming it is the first write of the transaction; a rejected or
+failed import rolls it back. Current validators then reparse the file. The
+revision includes offering identity/configuration, the target student's literal
+number, enrollment identity/status, assessment name/maximum/weight and grade
+identity/value. Missing and NULL have distinct revisions. The latest supported
+grade-history entry for each affected enrollment catches audited score changes
+followed by a restoration. This conservative rule can invalidate a preview
+after a different assessment on the same enrollment is edited.
+
+The native editor and CSV service share the grade writer, conditional update
+and audit routine. Each changed grade gets one event with source `CSV import`.
+Blanks and equal values produce zero grade or history writes. The receipt,
+all grades and all events commit or roll back together.
+
+SQLite serializes writers after the receipt insert. Lock contention can abort
+a request. The checks exercise sequential stale/replay cases and injected
+failure in SQLite. Simultaneous requests and other database backends still
+need independent testing. Snapshot comparison cannot detect an unaudited
+change restored to its exact previous state. Receipt cleanup is outside this
+increment; retain receipts for at least the full token lifetime.
+
+## Team handoff
+
+- Omar (#43): retain the file for the confirm POST, display preview errors and
+  counts, and wire the responses above. The service is available on draft #69.
+- Emir (#44): verify independent success, stale and rollback controls, access
+  changes, concurrent attempts and the no-op replay case against fictional data.
+- Ramazan (#45): resolve assessment IDs from the disposable fixture database.
+  Verify a changed score, zero and blank through gradebook, history and outcomes.
+- Tuğra/Emir: review the provisional CSV format and bounds, assigned-instructor
+  scope, two-hour lifetime, single-use receipt and same-file POST. Tuğra owns
+  final integration approval. Browser evidence and independent team review are
+  pending.

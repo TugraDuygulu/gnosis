@@ -119,19 +119,24 @@ def save_grades(enrollment_id, user, form):
     for assessment in assessments:
         score = form.cleaned_data[f"score_{assessment.pk}"]
         grade = grades.get(assessment.pk)
-        if grade is None:
-            if score is not None:
-                grade = Grade.objects.create(
-                    enrollment=enrollment, assessment=assessment, score=score
-                )
-                record_grade_change(user, grade, None, source="native editor", operation="create")
-        elif score != grade.score:
-            before = grade_state(grade)
-            # Compare-and-swap also detects an intervening Admin grade edit.
-            updated = Grade.objects.filter(pk=grade.pk, score=grade.score).update(
-                score=score
+        write_grade(enrollment, assessment, grade, score, user, source="native editor")
+
+
+def write_grade(enrollment, assessment, grade, score, user, *, source):
+    """Apply one validated score inside the caller's transaction and audit it."""
+    if grade is None:
+        if score is not None:
+            grade = Grade.objects.create(
+                enrollment=enrollment, assessment=assessment, score=score
             )
-            if updated != 1:
-                raise ValidationError(STALE_MESSAGE)
-            grade.score = score
-            record_grade_change(user, grade, before, source="native editor", operation="change")
+            record_grade_change(user, grade, None, source=source, operation="create")
+    elif score != grade.score:
+        before = grade_state(grade)
+        # Compare-and-swap also detects an intervening Admin grade edit.
+        updated = Grade.objects.filter(pk=grade.pk, score=grade.score).update(
+            score=score
+        )
+        if updated != 1:
+            raise ValidationError(STALE_MESSAGE)
+        grade.score = score
+        record_grade_change(user, grade, before, source=source, operation="change")

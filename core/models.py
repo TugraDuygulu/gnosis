@@ -401,3 +401,10 @@ class CoursePOContribution(models.Model):
                 name="course_po_weight_between_1_and_5",
             ),
         ]
+
+
+class GradeImportReceipt(models.Model):
+    """Consumed confirmation nonce. Contains no grades or student identifiers."""
+
+    nonce = models.UUIDField(primary_key=True)
+    confirmed_at = models.DateTimeField(auto_now_add=True)
