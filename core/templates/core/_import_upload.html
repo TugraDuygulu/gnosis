@@ -1,0 +1,25 @@
+<section class="panel form-panel" id="upload" aria-labelledby="upload-title">
+    <div class="panel-head">
+        <h2 id="upload-title">{% if result %}Choose another file{% else %}Choose a file{% endif %}</h2>
+        <span class="hint">You’ll see every change before anything is saved.</span>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-body">
+            {% if result.file_problems %}
+            <div class="notice notice-error" role="alert">
+                <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
+                <div>
+                    <p>{% if result.filename %}{{ result.filename }} can’t be imported{% else %}This file can’t be imported{% endif %}. Nothing was saved.</p>
+                    <ul class="errorlist">{% for problem in result.file_problems %}<li>{% if problem.line %}Line {{ problem.line }}: {% endif %}{{ problem.message }}</li>{% endfor %}</ul>
+                </div>
+            </div>
+            {% endif %}
+            {{ form.as_p }}
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Preview import</button>
+            <a class="btn btn-ghost" href="{% url 'offering_gradebook' offering.pk %}">Cancel</a>
+        </div>
+    </form>
+</section>

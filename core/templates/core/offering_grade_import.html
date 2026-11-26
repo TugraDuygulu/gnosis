@@ -1,0 +1,181 @@
+{% extends "core/base.html" %}
+{% block title %}{{ offering.course.code }} grade import{% endblock %}
+{% block content %}
+<ol class="crumbs">
+    <li><a href="{% url 'course_list' %}">My courses</a></li>
+    <li><a href="{% url 'offering_detail' offering.pk %}">{{ offering.course.code }} roster</a></li>
+    <li><a href="{% url 'offering_gradebook' offering.pk %}">Grade book</a></li>
+    <li aria-current="page">Import from CSV</li>
+</ol>
+<div class="page-title">
+    <div>
+        <h1>Import grades from CSV</h1>
+        <ul class="meta-list">
+            <li>{{ offering.course.code }} {{ offering.course.title }}</li>
+            <li>{{ offering.term }} {{ offering.year }}, section {{ offering.section }}</li>
+        </ul>
+    </div>
+    <div class="actions"><a class="btn btn-ghost" href="{% url 'offering_gradebook' offering.pk %}">Back to grade book</a></div>
+</div>
+
+{% if rejected %}
+<div class="notice notice-error" role="alert">
+    <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
+    <div>
+        <p>{{ rejected }}</p>
+        <p class="notice-more"><a href="{% url 'offering_gradebook' offering.pk %}">Open the grade book</a></p>
+    </div>
+</div>
+{% endif %}
+
+{% if not assessments or not student_count %}
+<section class="panel">
+    <div class="empty">
+        {% if not assessments %}
+        <h2>No assessments configured</h2>
+        <p>Grades can be imported once the class has assessments. Assessments are added to a class in Django Admin.</p>
+        {% else %}
+        <h2>No students enrolled</h2>
+        <p>Grades can be imported once students are enrolled in this class.</p>
+        {% endif %}
+    </div>
+</section>
+{% elif result and not result.file_problems %}
+<section class="panel import-result" aria-labelledby="preview-title">
+    <div class="panel-head">
+        <h2 id="preview-title">Preview{% if result.filename %} of {{ result.filename }}{% endif %}</h2>
+        <span class="hint">Nothing is saved until you confirm.</span>
+    </div>
+    <ul class="import-counts">
+        <li class="changes"><b class="num">{{ result.changes }}</b><span>{% if result.line_problems %}valid change{{ result.changes|pluralize }}, saved only after the fixes{% else %}grade{{ result.changes|pluralize }} will change{% if result.new %}, {{ result.new }} not graded before{% endif %}{% endif %}</span></li>
+        <li><b class="num">{{ result.unchanged }}</b><span>row{{ result.unchanged|pluralize }} stay{{ result.unchanged|pluralize:"s," }} the same{% if result.unchanged %}: {{ result.blank }} blank, {{ result.same }} same score{% endif %}</span></li>
+        <li{% if result.line_problems %} class="problems"{% endif %}><b class="num">{{ result.line_problems|length }}</b><span>row{{ result.line_problems|length|pluralize }} with a problem</span></li>
+    </ul>
+
+    {% if result.line_problems %}
+    <div class="panel-body">
+        <div class="notice notice-error flush" role="alert">
+            <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
+            <p>Nothing can be imported until every row is valid. Fix these rows in your file, then choose it again below.</p>
+        </div>
+    </div>
+    <h3 class="import-subhead">Rows to fix</h3>
+    <ul class="import-problems">
+        {% for entry in result.line_problems %}
+        <li>
+            <span class="ln num">Line {{ entry.line }}</span>
+            <div>
+                {% if entry.cells %}<span class="cells num">{{ entry.cells|join:", " }}</span>{% endif %}
+                {% for message in entry.messages %}<p>{{ message }}</p>{% endfor %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% if result.rows %}<h3 class="import-subhead">Valid rows</h3>{% endif %}
+    {% endif %}
+
+    {% if result.rows %}
+    <div class="table-scroll">
+        <table class="list import-preview">
+            <caption class="sr-only">Each valid row of the file: current score, score in the file and what the import does</caption>
+            <thead>
+                <tr>
+                    <th scope="col" class="r">Line</th>
+                    <th scope="col">Student</th>
+                    <th scope="col">Assessment</th>
+                    <th scope="col" class="r">Current score</th>
+                    <th scope="col" class="r">Score in file</th>
+                    <th scope="col">Result</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in result.rows %}
+                <tr class="{{ row.kind }}">
+                    <td class="r num muted" data-label="Line">{{ row.line }}</td>
+                    <th scope="row"><b>{{ row.student.full_name|default:row.number }}</b><span class="sub num">{{ row.number }}</span></th>
+                    <td>{{ row.assessment.name|default:row.assessment_id }}<span class="sub">ID {{ row.assessment_id }}{% if row.assessment %}, out of {{ row.assessment.max_score|floatformat:"-2" }}{% endif %}</span></td>
+                    <td class="r" data-label="Current score">{% if row.previous is None %}<span class="ungraded">Not graded</span>{% else %}<span class="num">{{ row.previous|floatformat:2 }}</span>{% if row.previous == 0 %}<span class="zero-note">a real 0</span>{% endif %}{% endif %}</td>
+                    <td class="r" data-label="Score in file">{% if row.proposed is None %}<span class="blank-cell">Blank</span>{% else %}<b class="num">{{ row.proposed|floatformat:2 }}</b>{% if row.proposed == 0 %}<span class="zero-note">a real 0</span>{% endif %}{% endif %}</td>
+                    <td>{% if row.kind == 'new' %}<span class="change-tag">New grade</span>{% elif row.kind == 'change' %}<span class="change-tag">Changes</span>{% elif row.kind == 'same' %}<span class="muted">No change, same score</span>{% else %}<span class="muted">No change, blank keeps it</span>{% endif %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if result.line_problems %}
+    {% elif result.changes %}
+    <form method="post" class="savebar">
+        {% csrf_token %}
+        <input type="hidden" name="token" value="{{ result.token }}">
+        <input type="hidden" name="content" value="{{ result.content }}">
+        <input type="hidden" name="filename" value="{{ result.filename }}">
+        <span class="pending has">{% if result.changes == 1 %}Saves this change. If the grade changed meanwhile, nothing is saved.{% else %}Saves all {{ result.changes }} changes together. If a grade changed meanwhile, nothing is saved.{% endif %}</span>
+        <span class="sp">
+            <a class="btn btn-ghost" href="{% url 'offering_gradebook' offering.pk %}">Cancel</a>
+            <button class="btn btn-primary" type="submit">Import {{ result.changes }} grade{{ result.changes|pluralize }}</button>
+        </span>
+    </form>
+    {% else %}
+    <div class="panel-body">
+        <div class="notice notice-info flush" role="status"><p>Nothing to import. Every score in this file is blank or already the same.</p></div>
+    </div>
+    {% endif %}
+</section>
+{% if result.line_problems or not result.changes %}{% include "core/_import_upload.html" %}{% endif %}
+{% else %}
+<div class="cols">
+    <div>
+        {% include "core/_import_upload.html" %}
+        <section class="panel" aria-labelledby="assessments-title">
+            <div class="panel-head">
+                <h2 id="assessments-title">Assessments in this class</h2>
+                <span class="hint">Put these IDs in the assessment_id column.</span>
+            </div>
+            <div class="table-scroll">
+                <table class="list">
+                    <thead><tr><th scope="col" class="r">ID</th><th scope="col">Assessment</th><th scope="col" class="r">Out of</th><th scope="col">Template</th></tr></thead>
+                    <tbody>
+                    {% for assessment in assessments %}
+                        <tr>
+                            <td class="r num"><b>{{ assessment.pk }}</b></td>
+                            <td>{{ assessment.name }}</td>
+                            <td class="r num">{{ assessment.max_score|floatformat:"-2" }}</td>
+                            <td><a href="{% url 'offering_grade_import_template' offering.pk %}?assessment={{ assessment.pk }}" download>Download CSV<span class="sr-only"> template for {{ assessment.name }}</span></a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="panel-note lead">
+                {% if cell_count <= max_rows %}<a href="{% url 'offering_grade_import_template' offering.pk %}" download>Download one template for every assessment</a> ({{ cell_count }} row{{ cell_count|pluralize }}).
+                {% else %}This class has {{ cell_count }} grade cells, more than the {{ max_rows }}-row limit, so download one assessment at a time.{% endif %}
+                A template lists each of the {{ student_count }} student{{ student_count|pluralize }} with a blank score, and a blank keeps the current grade.
+            </p>
+        </section>
+    </div>
+    <aside class="side-col">
+        <section class="panel" aria-labelledby="format-title">
+            <div class="panel-head"><h2 id="format-title">How the file works</h2></div>
+            <div class="rules">
+                <div class="rule"><span class="ex blank"></span><span><b>Blank</b> keeps the current grade, even when it isn’t graded yet. To clear a grade, use the grade book.</span></div>
+                <div class="rule"><span class="ex">0</span><span><b>0</b> records a real zero.</span></div>
+                <div class="rule"><span class="ex">42.5</span><span>A number sets the score. Use a dot for decimals, at most 2 places, up to the assessment’s maximum.</span></div>
+            </div>
+            <p class="import-example-label">Example with made-up student numbers</p>
+            <pre class="import-example num">student_number,assessment_id,score
+0007,{{ assessments.0.pk }},42.5
+0008,{{ assessments.0.pk }},0
+0009,{{ assessments.0.pk }},</pre>
+            <ul class="import-limits">
+                <li>The first line is exactly <b>student_number,assessment_id,score</b>.</li>
+                <li>At most {{ max_rows }} rows and {{ size_limit }}, saved as UTF-8 with commas between columns.</li>
+                <li>Student numbers must match exactly, leading zeros included. In Excel, format that column as Text.</li>
+                <li>Each student and assessment appears once.</li>
+            </ul>
+        </section>
+    </aside>
+</div>
+{% endif %}
+{% endblock %}

@@ -11,9 +11,10 @@ enrollment, grade, grade-history, record and account rows.
 Rows marked "pending decision" encode the PR #25 behaviour proposed in the
 #38 access-matrix comment; the team has not yet confirmed them.
 """
+from base64 import b64decode, b64encode
 from collections import namedtuple
 from decimal import Decimal
-from io import StringIO
+from io import BytesIO, StringIO
 from secrets import token_urlsafe
 
 from django.contrib.admin.models import LogEntry
@@ -29,6 +30,7 @@ from core import urls as core_urls
 from core.access import COORDINATOR_GROUP
 from core.grade_history import history_entries
 from core.grade_editor import revision_token, snapshot
+from core.grade_import import preview_grades
 from core.models import (
     Course, CourseCurriculum, CourseOffering, Enrollment, Grade, Instructor,
     POFramework, Program, Student,
@@ -59,7 +61,10 @@ ACCESS = {
     "enrollment_grade_history":  (ALL, ALL,  "core.view_grade",      OWN,        DENY),
     "offering_gradebook":        (ALL, DENY, "core.change_grade",    OWN,        DENY),
     "enrollment_grade_editor":   (ALL, DENY, "core.change_grade",    OWN,        DENY),
-    "student_register":          (ALL, ALL,  "core.add_student",     DENY,       DENY),
+    # CSV import (#42/#43): only the offering's assigned instructor.
+    "offering_grade_import":     (DENY, DENY, DENY,                  OWN,        DENY),
+    "offering_grade_import_template": (DENY, DENY, DENY,             OWN,        DENY),
+    "student_register":         (ALL, ALL,  "core.add_student",     DENY,       DENY),
     "student_enroll":            (ALL, ALL,  "core.add_enrollment",  DENY,       DENY),
     "management_home":           (ALL, ALL,  DENY,                   DENY,       DENY),
     "management_records":        (ALL, ALL,  DENY,                   DENY,       DENY),
@@ -72,11 +77,12 @@ ACCESS = {
 SCOPED = {
     "student_detail", "student_outcomes", "offering_detail", "enrollment_outcomes",
     "enrollment_grade_history", "offering_gradebook", "enrollment_grade_editor",
+    "offering_grade_import", "offering_grade_import_template",
     "student_enroll", "management_edit", "management_account", "management_enrollment_status",
 }
 # Routes that accept POST; every other protected route is GET-only (405 for an allowed role).
 WRITABLE = {
-    "offering_gradebook", "enrollment_grade_editor", "student_register", "student_enroll",
+    "offering_gradebook", "enrollment_grade_editor", "offering_grade_import", "student_register", "student_enroll",
     "management_create", "management_edit", "management_account", "management_enrollment_status",
 }
 LEGACY_PERMISSIONS = ("core.view_grade", "core.change_grade", "core.add_student", "core.add_enrollment")
@@ -179,6 +185,8 @@ class RouteAccessMatrixTests(TestCase):
             "student_outcomes": [r.student, r.framework],
             "offering_detail": [r.offering],
             "offering_gradebook": [r.offering],
+            "offering_grade_import": [r.offering],
+            "offering_grade_import_template": [r.offering],
             "enrollment_outcomes": [r.enrollment],
             "enrollment_grade_editor": [r.enrollment],
             "enrollment_grade_history": [r.enrollment],
@@ -216,6 +224,16 @@ class RouteAccessMatrixTests(TestCase):
             for index, enrollment in enumerate(Enrollment.objects.filter(offering_id=r.offering).order_by("pk")):
                 data.update(self.grade_fields(enrollment, user, prefix=f"e{enrollment.pk}", change=index == 0))
             return data
+        if name == "offering_grade_import":
+            # A confirmation the scope's own instructor previewed; it writes if the gate is missing.
+            owner = self.instructor if scope == "A" else self.other_instructor
+            enrollment = Enrollment.objects.filter(offering_id=r.offering).select_related("student").order_by("pk")[0]
+            assessment = enrollment.offering.assessments.order_by("pk")[0]
+            score = Grade.objects.filter(enrollment=enrollment, assessment=assessment).values_list("score", flat=True).first()
+            data = (f"student_number,assessment_id,score\n"
+                    f"{enrollment.student.student_number},{assessment.pk},{1 if score != 1 else 2}\n").encode()
+            token = preview_grades(user=owner, offering_id=r.offering, upload=BytesIO(data)).confirmation_token
+            return {"token": token, "content": b64encode(data).decode(), "filename": "matrix.csv"}
         if name in ("student_register", "management_create"):
             return {"full_name": "Matrix written student", "student_number": "MX-R" if name == "student_register" else "MX-C",
                     "program": self.program.pk}
@@ -351,11 +369,13 @@ class RouteAccessMatrixTests(TestCase):
 
     def test_write_payloads_change_data_for_authorized_users(self):
         """Positive control: the payloads used in denial tests really write when access is granted."""
-        cases = [(self.admin, name, scope) for name in sorted(WRITABLE) for scope in self.scopes(name)]
+        cases = [(self.admin, name, scope) for name in sorted(WRITABLE - {"offering_grade_import"})
+                 for scope in self.scopes(name)]
         cases += [(self.coordinator, name, scope) for name in sorted(WRITABLE - {
-            "offering_gradebook", "enrollment_grade_editor"}) for scope in self.scopes(name)]
+            "offering_gradebook", "enrollment_grade_editor", "offering_grade_import"}) for scope in self.scopes(name)]
         cases += [(self.instructor, "offering_gradebook", "A"), (self.instructor, "enrollment_grade_editor", "A"),
-                  (self.other_instructor, "enrollment_grade_editor", "B")]
+                  (self.other_instructor, "enrollment_grade_editor", "B"),
+                  (self.instructor, "offering_grade_import", "A"), (self.other_instructor, "offering_grade_import", "B")]
         cases += [(self.legacy_with["core.change_grade"], "enrollment_grade_editor", "B"),
                   (self.legacy_with["core.change_grade"], "offering_gradebook", "A"),
                   (self.legacy_with["core.add_student"], "student_register", "A"),
@@ -380,6 +400,12 @@ class RouteAccessMatrixTests(TestCase):
                             self.assertEqual(score, Decimal(value) if value else None)
                         if index == 0:
                             self.assertTrue(history_entries(enrollment.pk).filter(user=user).exists())
+                elif name == "offering_grade_import":
+                    number, assessment, score = b64decode(data["content"]).decode().splitlines()[1].split(",")
+                    grade = Grade.objects.get(enrollment__offering_id=record.offering,
+                                              enrollment__student__student_number=number, assessment_id=assessment)
+                    self.assertEqual(grade.score, Decimal(score))
+                    self.assertTrue(history_entries(grade.enrollment_id).filter(user=user).exists())
                 elif name in ("student_register", "management_create"):
                     self.assertTrue(Student.objects.filter(student_number=data["student_number"],
                                                            full_name=data["full_name"], program=self.program).exists())

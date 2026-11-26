@@ -1,6 +1,6 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
-from . import management_views as management, views
+from . import grade_import_views as grade_import, management_views as management, views
 
 urlpatterns = [
     path("login/", auth_views.LoginView.as_view(template_name="core/login.html"), name="login"),
@@ -20,6 +20,9 @@ urlpatterns = [
     path("courses/", views.course_list, name="course_list"),
     path("offerings/<int:offering_id>/", views.offering_detail, name="offering_detail"),
     path("offerings/<int:offering_id>/grades/", views.offering_gradebook, name="offering_gradebook"),
+    path("offerings/<int:offering_id>/grades/import/", grade_import.grade_import, name="offering_grade_import"),
+    path("offerings/<int:offering_id>/grades/import/template.csv", grade_import.grade_import_template,
+         name="offering_grade_import_template"),
     path(
         "enrollments/<int:enrollment_id>/grades/",
         views.enrollment_grade_editor,

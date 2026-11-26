@@ -16,7 +16,10 @@
             <li>{{ offering.instructor.full_name }}</li>
         </ul>
     </div>
-    <div class="actions"><a class="btn btn-ghost" href="{% url 'offering_detail' offering.pk %}">Back to roster</a></div>
+    <div class="actions">
+        <a class="btn btn-ghost" href="{% url 'offering_detail' offering.pk %}">Back to roster</a>
+        {% if academic_role == 'instructor' %}<a class="btn btn-ghost" href="{% url 'offering_grade_import' offering.pk %}"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Import from CSV</a>{% endif %}
+    </div>
 </div>
 
 {% if not assessments %}
