@@ -8,13 +8,15 @@ the authoritative LO/PO calculators. Data is the fictional ``seed_pilot`` pilot.
 import json
 from base64 import b64encode
 from decimal import Decimal
+from fractions import Fraction
 from io import BytesIO, StringIO
 from unittest.mock import patch
 
-from django.contrib.admin.models import LogEntry
+from django.contrib.admin.models import ADDITION, CHANGE, LogEntry
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser, Group, Permission
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import Client, TestCase
@@ -25,8 +27,8 @@ from core.grade_editor import revision_token, snapshot
 from core.grade_history import history_key, record_grade_change
 from core.grade_import import MAX_BYTES, MAX_ROWS, confirm_grades, preview_grades
 from core.models import (
-    Assessment, Course, CourseCurriculum, CourseOffering, Enrollment, Grade, GradeImportReceipt,
-    Instructor, LearningOutcome, ProgramOutcome, Student,
+    Assessment, CourseOffering, Enrollment, Grade, GradeImportReceipt, Instructor, LearningOutcome,
+    POFramework, ProgramOutcome, Student,
 )
 from core.services.lo_calculator import calculate_lo_achievement
 from core.services.po_calculator import calculate_course_po_achievement
@@ -35,10 +37,43 @@ from core.services.student_po_calculator import calculate_student_po_achievement
 HEADER = "student_number,assessment_id,score"
 
 
+def outcome_snapshot():
+    """Every calculated LO, course-PO and student-PO score, coverage and status.
+
+    POs with no LO mapping or course contribution are left out: no grade can change them,
+    and their constant no_data result is asserted in CalculatorAgreementTests.
+    """
+    rows = []
+    for enrollment in Enrollment.objects.select_related("offering", "student").order_by("pk"):
+        offering = enrollment.offering
+        for lo in LearningOutcome.objects.filter(curriculum=offering.curriculum).order_by("pk"):
+            r = calculate_lo_achievement(enrollment, lo)
+            rows.append(("LO", enrollment.pk, lo.pk, r["score"], r["coverage"], r["status"]))
+        for po in ProgramOutcome.objects.filter(
+                framework=offering.po_framework,
+                lo_mappings__learning_outcome__curriculum=offering.curriculum).distinct().order_by("pk"):
+            r = calculate_course_po_achievement(enrollment, po)
+            rows.append(("course PO", enrollment.pk, po.pk, r["score"], r["coverage"], r["status"]))
+    for student in Student.objects.filter(enrollments__isnull=False).distinct().order_by("pk"):
+        for po in ProgramOutcome.objects.filter(
+                framework__program=student.program, course_contributions__isnull=False).distinct().order_by("pk"):
+            r = calculate_student_po_achievement(student, po)
+            rows.append(("student PO", student.pk, po.pk, r["score"], r["coverage"], r["status"]))
+    return rows
+
+
 def state():
-    """Every row a rejected import must leave untouched."""
-    tables = (Grade, LogEntry, GradeImportReceipt, Enrollment, Assessment, CourseOffering, Student)
-    return [list(model.objects.order_by("pk").values_list()) for model in tables]
+    """Every row and calculated result a rejected import must leave untouched."""
+    tables = (Grade, LogEntry, GradeImportReceipt, Enrollment, Assessment, CourseOffering, Student,
+              Instructor, Group)
+    User = get_user_model()
+    # last_login is left out: signing in is not a data change made by an import.
+    accounts = User.objects.order_by("pk").values_list(
+        "pk", "username", "password", "is_active", "is_staff", "is_superuser")
+    memberships = User.groups.through.objects.order_by("pk").values_list("user_id", "group_id")
+    permissions = User.user_permissions.through.objects.order_by("pk").values_list("user_id", "permission_id")
+    return ([list(model.objects.order_by("pk").values_list()) for model in tables]
+            + [list(accounts), list(memberships), list(permissions), outcome_snapshot()])
 
 
 def csv(*rows, header=HEADER, eol="\n", bom=False):
@@ -226,8 +261,10 @@ class AuthorizationTests(ImportIntegrityBase):
         }
         for label, change in changes.items():
             with self.subTest(change=label), transaction.atomic():
+                at_preview = state()
                 change()
                 before = state()
+                self.assertNotEqual(before, at_preview, "the access change must be in the baseline")
                 with self.assertRaises(PermissionDenied):
                     self.confirm(self.data, self.token)
                 self.assert_unchanged(before)
@@ -357,12 +394,15 @@ class StaleAndReplayTests(ImportIntegrityBase):
         }
         for label, change in changes.items():
             with self.subTest(change=label), transaction.atomic():
+                at_preview = state()
                 change()
+                # Baseline after the legitimate edit, immediately before confirming.
                 before = state()
+                self.assertNotEqual(before, at_preview, "the intervening edit must be in the baseline")
                 with self.assertRaises(ValidationError) as caught:
                     self.confirm(self.data, self.token)
                 self.assertEqual(caught.exception.code, "stale")
-                self.assert_unchanged(before)
+                self.assert_unchanged(before)  # the newer edit survives; nothing else changes
                 transaction.set_rollback(True)
 
     def test_unrelated_changes_do_not_block_confirmation(self):
@@ -459,59 +499,157 @@ class RollbackTests(ImportIntegrityBase):
         self.assert_unchanged(before)
 
     def test_only_changed_cells_are_audited(self):
-        data = csv(f"PILOT002,{self.mid.pk},11",      # change
-                   f"PILOT002,{self.lab.pk},40",      # equal
-                   f"PILOT001,{self.mid.pk},0",       # equal recorded zero
-                   f"PILOT001,{self.lab.pk},")        # blank over NULL
+        # Fixture: PILOT001 Midterm 0, Lab NULL row; PILOT002 Midterm 80, Lab 40 (row removed here).
+        Grade.objects.filter(enrollment=self.e2, assessment=self.lab).delete()
+        data = csv(f"PILOT002,{self.mid.pk},11",      # change 80 -> 11
+                   f"PILOT001,{self.lab.pk},5",       # change NULL -> 5 on an existing row
+                   f"PILOT002,{self.lab.pk},7",       # create a missing grade
+                   f"PILOT001,{self.mid.pk},0")       # equal recorded zero: no audit
         token = self.preview(data).confirmation_token
         before = set(LogEntry.objects.values_list("pk", flat=True))
-        self.assertEqual(self.confirm(data, token), 1)
-        new = LogEntry.objects.exclude(pk__in=before)
-        self.assertEqual(new.count(), 1)
-        entry = new.get()
-        self.assertEqual(entry.object_repr, history_key(self.e2.pk))
-        self.assertEqual(entry.user_id, self.instructor.pk)
-        event = json.loads(entry.change_message)[1]["gnosis_grade_change"]
-        self.assertEqual(event["source"], "CSV import")
-        self.assertEqual(Decimal(event["before"]["score"]), Decimal("80"))
-        self.assertEqual(Decimal(event["after"]["score"]), Decimal("11"))
+        self.assertEqual(self.confirm(data, token), 3)
+        expected = {
+            (self.e2.pk, self.mid.pk): ("change", CHANGE, Decimal("80"), Decimal("11")),
+            (self.e1.pk, self.lab.pk): ("change", CHANGE, None, Decimal("5")),
+            (self.e2.pk, self.lab.pk): ("create", ADDITION, None, Decimal("7")),
+        }
+        grade_type = ContentType.objects.get_for_model(Grade)
+        audited = {}
+        for entry in LogEntry.objects.exclude(pk__in=before).order_by("pk"):
+            event = json.loads(entry.change_message)[1]["gnosis_grade_change"]
+            after = event["after"]
+            cell = (after["enrollment_id"], after["assessment_id"])
+            self.assertNotIn(cell, audited, "a cell was audited twice")
+            audited[cell] = (entry, event)
+        self.assertEqual(set(audited), set(expected))
+        for cell, (operation, flag, old, new) in expected.items():
+            entry, event = audited[cell]
+            grade = Grade.objects.get(enrollment_id=cell[0], assessment_id=cell[1])
+            with self.subTest(cell=cell):
+                self.assertEqual(entry.content_type_id, grade_type.pk)
+                self.assertEqual(entry.object_id, str(grade.pk))
+                self.assertEqual(entry.object_repr, history_key(cell[0]))
+                self.assertEqual(entry.action_flag, flag)
+                self.assertEqual(entry.user_id, self.instructor.pk)
+                self.assertEqual(event["operation"], operation)
+                self.assertEqual(event["source"], "CSV import")
+                self.assertEqual((event["after"]["enrollment_id"], event["after"]["assessment_id"]), cell)
+                self.assertEqual(Decimal(event["after"]["score"]), new)
+                self.assertEqual(grade.score, new)
+                if operation == "create":
+                    self.assertIsNone(event["before"])
+                else:
+                    self.assertEqual((event["before"]["enrollment_id"], event["before"]["assessment_id"]), cell)
+                    self.assertEqual(event["before"]["score"], None if old is None else str(old.quantize(Decimal("0.01"))))
 
 
 class CalculatorAgreementTests(ImportIntegrityBase):
-    """Acceptance 5: imported scores give the same LO/PO results as the same scores stored directly."""
+    """Acceptance 5: outcome results match hand-derived fixture values, before and after an import.
 
-    def results(self):
-        out = {}
-        los = LearningOutcome.objects.filter(curriculum=self.offering.curriculum).order_by("pk")
-        pos = ProgramOutcome.objects.filter(framework=self.offering.po_framework).order_by("pk")
-        for enrollment in Enrollment.objects.filter(offering=self.offering).order_by("pk"):
-            for lo in los:
-                out[(enrollment.pk, "LO", lo.code)] = calculate_lo_achievement(enrollment, lo)
-            for po in pos:
-                for key, function, target in (("course PO", calculate_course_po_achievement, enrollment),
-                                              ("student PO", calculate_student_po_achievement,
-                                               enrollment.student)):
-                    try:
-                        out[(enrollment.pk, key, po.code)] = function(target, po)
-                    except ValueError as error:
-                        out[(enrollment.pk, key, po.code)] = f"error: {error}"
-        return out
+    Seed weights. PILOT311: LO1 <- Midterm/100 (60) + Project/50 (40); LO2 <- Midterm (40) + Project (100);
+    PO2 <- LO1 (2) + LO2 (1); PO3 <- LO2 (5). PILOT321: LO1 <- Midterm/100 (100); LO2 <- Lab/50 (100);
+    PO2 <- LO1 (2) + LO2 (1); PO4 <- LO1 (5); PO5 <- LO2 (5). Course contributions: PO2 = 5 (311) + 3 (321);
+    PO3 = 5 (311); PO4 = 4 (321); PO5 = 4 (321). Expected values are exact fractions.
+    """
+
+    TOLERANCE = Fraction(1, 10**18)
+
+    def assert_outcome(self, result, score, coverage, status, label):
+        with self.subTest(outcome=label):
+            self.assertEqual(result["status"], status)
+            if score is None:
+                self.assertIsNone(result["score"])
+            else:
+                self.assertLess(abs(Fraction(result["score"]) - score), self.TOLERANCE, result["score"])
+            self.assertLess(abs(Fraction(result["coverage"]) - coverage), self.TOLERANCE, result["coverage"])
+
+    def by_code(self, model, code, **filters):
+        return model.objects.get(code=code, **filters)
+
+    def check(self, expected):
+        for (kind, who, code), (score, coverage, status) in expected.items():
+            if kind == "LO":
+                result = calculate_lo_achievement(
+                    who, self.by_code(LearningOutcome, code, curriculum=who.offering.curriculum))
+            elif kind == "course PO":
+                result = calculate_course_po_achievement(who, self.by_code(ProgramOutcome, code))
+            else:
+                result = calculate_student_po_achievement(who, self.by_code(ProgramOutcome, code))
+            self.assert_outcome(result, score, coverage, status, f"{kind} {code} {who}")
+
+    def test_fixture_outcomes_before_import(self):
+        F = Fraction
+        p1 = Student.objects.get(student_number="PILOT001")
+        self.check({
+            # PILOT001 in PILOT321: Midterm is a recorded zero, Lab is a NULL (missing) score.
+            ("LO", self.e1, "LO1"): (F(0), F(100), "complete"),
+            ("LO", self.e1, "LO2"): (None, F(0), "no_data"),
+            ("course PO", self.e1, "PO2"): (F(0), F(200, 3), "provisional"),
+            ("course PO", self.e1, "PO4"): (F(0), F(100), "complete"),
+            ("course PO", self.e1, "PO5"): (None, F(0), "no_data"),
+            ("course PO", self.e1, "PO1"): (None, F(0), "no_data"),      # unmapped PO
+            # PILOT002 in PILOT321: Midterm 80/100, Lab 40/50.
+            ("LO", self.e2, "LO1"): (F(80), F(100), "complete"),
+            ("LO", self.e2, "LO2"): (F(80), F(100), "complete"),
+            ("course PO", self.e2, "PO2"): (F(80), F(100), "complete"),
+            # PILOT001 across both courses; PILOT311 PO2 = 1784/21 (Midterm 90, Project 40/50).
+            ("student PO", p1, "PO2"): (F(8920, 147), F(175, 2), "provisional"),
+            ("student PO", p1, "PO3"): (F(580, 7), F(100), "complete"),
+            ("student PO", p1, "PO4"): (F(0), F(100), "complete"),
+            ("student PO", p1, "PO5"): (None, F(0), "no_data"),
+        })
+
+    def test_imported_scores_give_hand_derived_outcomes(self):
+        F = Fraction
+        p1 = Student.objects.get(student_number="PILOT001")
+        p2 = Student.objects.get(student_number="PILOT002")
+        data = csv(f"PILOT001,{self.lab.pk},0",     # NULL -> recorded zero
+                   f"PILOT001,{self.mid.pk},",      # blank keeps the recorded zero
+                   f"PILOT002,{self.mid.pk},",      # blank keeps 80
+                   f"PILOT002,{self.lab.pk},25")    # 40 -> 25 of 50
+        self.assertEqual(self.confirm(data, self.preview(data).confirmation_token), 2)
+        self.check({
+            ("LO", self.e1, "LO1"): (F(0), F(100), "complete"),
+            ("LO", self.e1, "LO2"): (F(0), F(100), "complete"),
+            ("course PO", self.e1, "PO2"): (F(0), F(100), "complete"),
+            ("course PO", self.e1, "PO5"): (F(0), F(100), "complete"),
+            ("LO", self.e2, "LO1"): (F(80), F(100), "complete"),
+            ("LO", self.e2, "LO2"): (F(50), F(100), "complete"),
+            ("course PO", self.e2, "PO2"): (F(70), F(100), "complete"),
+            ("course PO", self.e2, "PO4"): (F(80), F(100), "complete"),
+            ("course PO", self.e2, "PO5"): (F(50), F(100), "complete"),
+            ("student PO", p1, "PO2"): (F(1115, 21), F(100), "complete"),
+            ("student PO", p1, "PO5"): (F(0), F(100), "complete"),
+            # PILOT002's PILOT311 Project is missing, so its PO2 there is 70 at 1040/21 % coverage.
+            ("student PO", p2, "PO2"): (F(70), F(2875, 42), "provisional"),
+            ("student PO", p2, "PO5"): (F(50), F(100), "complete"),
+        })
 
     def test_imported_scores_match_direct_storage(self):
         scores = {(self.e1, self.mid): Decimal("55.5"), (self.e1, self.lab): Decimal("0"),
                   (self.e2, self.mid): Decimal("0"), (self.e2, self.lab): self.lab.max_score}
-        baseline = self.results()
+        baseline = outcome_snapshot()
         with transaction.atomic():
             for (enrollment, assessment), value in scores.items():
                 Grade.objects.update_or_create(enrollment=enrollment, assessment=assessment,
                                                defaults={"score": value})
-            expected = self.results()
+            expected = outcome_snapshot()
             transaction.set_rollback(True)
-        self.assertEqual(self.results(), baseline)
-        self.assertNotEqual(expected, baseline, "the chosen scores must change at least one outcome")
+        self.assertEqual(outcome_snapshot(), baseline)
+        changed = {(kind, who, po) for kind, who, po, *_ in expected} & {
+            (row[0], row[1], row[2]) for row, old in zip(expected, baseline) if row != old}
+        self.assertTrue(any(kind == "course PO" for kind, *_ in changed), "a course PO must change")
+        self.assertTrue(any(kind == "student PO" for kind, *_ in changed), "a student PO must change")
 
         data = csv(*[f"{e.student.student_number},{a.pk},{v}" for (e, a), v in scores.items()])
         self.assertEqual(self.confirm(data, self.preview(data).confirmation_token), 4)
         for (enrollment, assessment), value in scores.items():
             self.assertEqual(self.score(enrollment, assessment), value)
-        self.assertEqual(self.results(), expected)
+        self.assertEqual(outcome_snapshot(), expected)
+
+    def test_only_a_foreign_framework_outcome_raises(self):
+        framework = POFramework.objects.create(program=self.offering.po_framework.program, version_number=2)
+        foreign = ProgramOutcome.objects.create(framework=framework, code="PO1", description="Other version")
+        with self.assertRaises(ValueError):
+            calculate_course_po_achievement(self.e1, foreign)
+        outcome_snapshot()  # every in-fixture calculation completes without an exception
