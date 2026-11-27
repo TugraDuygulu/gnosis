@@ -1,5 +1,6 @@
 """Grade CSV import pages (#43): entry point, preview, confirmation and recovery."""
 
+import csv
 from base64 import b64decode, b64encode
 from decimal import Decimal
 from io import StringIO
@@ -12,8 +13,12 @@ from django.test import TestCase
 from django.urls import reverse
 
 from core.grade_history import history_entries, history_row
-from core.models import Assessment, Enrollment, Grade, GradeImportReceipt, Instructor
+from core.grade_import import MAX_ROWS
+from core.models import Assessment, Enrollment, Grade, GradeImportReceipt, Instructor, Student
 from core.test_page_usability import parse
+
+# Cells a spreadsheet would run as a formula (OWASP CSV injection list, plus full-width forms).
+FORMULA = ("=", "+", "-", "@", "\t", "\r", "＝", "＋", "－", "＠")
 
 
 class GradeImportPageTests(TestCase):
@@ -63,6 +68,16 @@ class GradeImportPageTests(TestCase):
         """One change, one new zero, one blank and one equal score."""
         return (f"0007,{self.a.pk},12.5", f"0007,{self.b.pk},0", f"{self.n},{self.a.pk},", f"{self.n},{self.b.pk},40")
 
+    def enroll(self, *numbers):
+        program = self.enrollment.student.program
+        students = Student.objects.bulk_create(Student(program=program, student_number=number,
+                                                       full_name=f"Extra Student {number.strip()}") for number in numbers)
+        Enrollment.objects.bulk_create(Enrollment(student=student, offering=self.offering) for student in students)
+
+    def template(self, **params):
+        response = self.client.get(reverse("offering_grade_import_template", args=[self.offering.pk]), params)
+        return response, list(csv.reader(StringIO(response.content.decode("utf-8-sig"))))[1:]
+
     def test_gradebook_links_only_the_instructor_to_import(self):
         self.assertContains(self.client.get(self.gradebook), f'href="{self.url}"')
         self.client.force_login(get_user_model().objects.create_superuser("import-admin"))
@@ -73,7 +88,7 @@ class GradeImportPageTests(TestCase):
         response = self.client.get(self.url)
         page = parse(response)
         self.assertEqual((page.h1_count, page.unlabelled_controls()), (1, []))
-        for text in ("student_number,assessment_id,score", "100 rows and 1 MB", f"<b>{self.a.pk}</b>",
+        for text in ("student_number,assessment_id,score", "100 rows and 1\u00a0MB", f"<b>{self.a.pk}</b>",
                      'enctype="multipart/form-data"', "records a real zero"):
             self.assertContains(response, text)
 
@@ -92,6 +107,50 @@ class GradeImportPageTests(TestCase):
         foreign = Assessment.objects.exclude(offering=self.offering).first()
         self.assertEqual(self.client.get(reverse("offering_grade_import_template", args=[self.offering.pk]),
                                          {"assessment": foreign.pk}).status_code, 404)
+
+    def test_templates_are_split_so_no_file_passes_the_row_limit(self):
+        self.enroll(*(f"T{index:04d}" for index in range(MAX_ROWS)))
+        roster = sorted(self.offering.enrollments.values_list("student__student_number", flat=True))
+        seen = []
+        for part in (1, 2):
+            response, rows = self.template(assessment=self.a.pk, part=part)
+            self.assertIn(f"-part-{part}.csv", response["Content-Disposition"])
+            self.assertLessEqual(len(rows), MAX_ROWS)
+            seen += [number for number, _, _ in rows]
+            preview = self.client.post(self.url, {"file": SimpleUploadedFile("part.csv", response.content)})
+            self.assertEqual(preview.context["result"]["file_problems"], [])
+        self.assertEqual(sorted(seen), roster)
+        self.assertEqual(len(self.template()[1]), MAX_ROWS)  # every assessment: cut at the limit too
+        for params in ({"assessment": self.a.pk, "part": 3}, {"part": "0"}, {"part": "9" * 5000}, {"part": "x"}):
+            with self.subTest(params=params):
+                self.assertEqual(self.template(**params)[0].status_code, 404)
+        page = self.client.get(self.url)
+        self.assertContains(page, "Students 1–100")
+        self.assertContains(page, f"Students 101–{len(roster)}")
+        self.assertNotContains(page, "Download one template for every assessment")
+
+    def test_templates_leave_out_student_numbers_a_spreadsheet_would_run(self):
+        risky = ["=1+1", "+905551234", "-3", "@SUM(A1)", "\t=1", "\r=1", "＝1"]
+        self.enroll(*risky)
+        for params in ({}, {"assessment": self.a.pk}):
+            with self.subTest(params=params):
+                response, rows = self.template(**params)
+                cells = [cell for row in rows for cell in row]
+                self.assertEqual([cell for cell in cells if cell.startswith(FORMULA)], [])
+                self.assertIn("0007", cells)
+        page = self.client.get(self.url)
+        self.assertContains(page, f"{len(risky)} students aren’t in the templates")
+        self.assertContains(page, "Extra Student @SUM(A1)")
+
+    def test_long_values_are_reported_and_shortened(self):
+        long_id, long_number = "9" * 5000, "8" * 300
+        response = self.upload(f"0007,{long_id},5", f"7,{long_id},5", f"{long_number},{self.a.pk},5")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["result"]["line_problems"]), 3)
+        self.assertContains(response, "isn’t an assessment ID", count=2)
+        self.assertContains(response, "No student numbered “" + "8" * 39 + "…”")
+        self.assertNotContains(response, "9" * 41)
+        self.assertNotContains(response, "8" * 41)
 
     def test_preview_tells_missing_blank_zero_and_equal_apart_and_writes_nothing(self):
         before = self.state()
@@ -149,7 +208,9 @@ class GradeImportPageTests(TestCase):
         response = self.client.post(self.url, {"file": excel})
         self.assertContains(response, "excel.csv can’t be imported. Nothing was saved.")
         self.assertContains(response, "semicolons")
-        self.assertContains(self.client.post(self.url, {}), "This field is required.")
+        self.assertContains(self.client.post(self.url, {}), "Choose a CSV file to preview.")
+        empty = SimpleUploadedFile("empty.csv", b"")
+        self.assertContains(self.client.post(self.url, {"file": empty}), "The selected file is empty.")
 
     def test_stale_confirmation_saves_nothing_and_shows_the_newer_grade(self):
         response = self.upload(f"0007,{self.a.pk},5")

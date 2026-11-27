@@ -18,7 +18,7 @@
             {{ form.as_p }}
         </div>
         <div class="form-actions">
-            <button class="btn btn-primary" type="submit">Preview import</button>
+            <button class="btn btn-primary" type="submit" data-busy="Checking the file…">Preview import</button>
             <a class="btn btn-ghost" href="{% url 'offering_gradebook' offering.pk %}">Cancel</a>
         </div>
     </form>

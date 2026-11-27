@@ -114,7 +114,7 @@
         <span class="pending has">{% if result.changes == 1 %}Saves this change. If the grade changed meanwhile, nothing is saved.{% else %}Saves all {{ result.changes }} changes together. If a grade changed meanwhile, nothing is saved.{% endif %}</span>
         <span class="sp">
             <a class="btn btn-ghost" href="{% url 'offering_gradebook' offering.pk %}">Cancel</a>
-            <button class="btn btn-primary" type="submit">Import {{ result.changes }} grade{{ result.changes|pluralize }}</button>
+            <button class="btn btn-primary" type="submit" data-busy="Importing…">Import {{ result.changes }} grade{{ result.changes|pluralize }}</button>
         </span>
     </form>
     {% else %}
@@ -142,20 +142,31 @@
                             <td class="r num"><b>{{ assessment.pk }}</b></td>
                             <td>{{ assessment.name }}</td>
                             <td class="r num">{{ assessment.max_score|floatformat:"-2" }}</td>
-                            <td><a href="{% url 'offering_grade_import_template' offering.pk %}?assessment={{ assessment.pk }}" download>Download CSV<span class="sr-only"> template for {{ assessment.name }}</span></a></td>
+                            <td><span class="template-links">{% for part, first, last in student_parts %}{% if student_parts|length == 1 %}<a href="{% url 'offering_grade_import_template' offering.pk %}?assessment={{ assessment.pk }}" download>Download CSV<span class="sr-only"> template for {{ assessment.name }}</span></a>{% else %}<a class="num" href="{% url 'offering_grade_import_template' offering.pk %}?assessment={{ assessment.pk }}&amp;part={{ part }}" download>Students {{ first }}–{{ last }}<span class="sr-only">, {{ assessment.name }} template part {{ part }}</span></a>{% endif %}{% empty %}<span class="muted">None</span>{% endfor %}</span></td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
             <p class="panel-note lead">
-                {% if cell_count <= max_rows %}<a href="{% url 'offering_grade_import_template' offering.pk %}" download>Download one template for every assessment</a> ({{ cell_count }} row{{ cell_count|pluralize }}).
-                {% else %}This class has {{ cell_count }} grade cells, more than the {{ max_rows }}-row limit, so download one assessment at a time.{% endif %}
-                A template lists each of the {{ student_count }} student{{ student_count|pluralize }} with a blank score, and a blank keeps the current grade.
+                {% if cell_count and cell_count <= max_rows %}<a href="{% url 'offering_grade_import_template' offering.pk %}" download>Download one template for every assessment</a> ({{ cell_count }} row{{ cell_count|pluralize }}).
+                {% elif student_parts|length > 1 %}A file can have at most {{ max_rows }} rows, so each assessment’s template comes in {{ student_parts|length }} parts. Import each part on its own.
+                {% elif cell_count %}One template for every assessment would have {{ cell_count }} rows, more than the {{ max_rows }}-row limit, so download one assessment at a time.{% endif %}
+                A template lists each student with a blank score, and a blank keeps the current grade.
             </p>
+            {% if left_out %}
+            <div class="panel-body">
+                <div class="notice notice-info flush">
+                    <div>
+                        <p>{{ left_out|length }} student{{ left_out|length|pluralize:" isn’t,s aren’t" }} in the templates: {% for student in left_out %}{{ student.full_name }} ({{ student.student_number }}){% if not forloop.last %}, {% endif %}{% endfor %}.</p>
+                        <p class="notice-more">A student number that starts with =, +, - or @ would run as a formula in a spreadsheet. Enter {% if left_out|length == 1 %}this student’s grades{% else %}these students’ grades{% endif %} in the <a href="{% url 'offering_gradebook' offering.pk %}">grade book</a>.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </section>
     </div>
-    <aside class="side-col">
+    <aside class="side-col" aria-labelledby="format-title">
         <section class="panel" aria-labelledby="format-title">
             <div class="panel-head"><h2 id="format-title">How the file works</h2></div>
             <div class="rules">

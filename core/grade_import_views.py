@@ -9,6 +9,7 @@ import base64
 import binascii
 import csv
 import io
+import re
 
 from django import forms
 from django.contrib import messages
@@ -21,11 +22,14 @@ from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods
 
 from core.access import INSTRUCTOR, offerings_for, require_roles
-from core.grade_import import HEADER, MAX_BYTES, MAX_ROWS, confirm_grades, preview_grades
+from core.grade_import import ASSESSMENT_ID, HEADER, MAX_BYTES, MAX_ROWS, confirm_grades, preview_grades
 
 # Base64 length of the largest accepted file; anything longer is refused undecoded.
 MAX_ENCODED = (MAX_BYTES + 2) // 3 * 4
-SIZE_LIMIT = f"{MAX_BYTES / 1_000_000:g} MB"
+SIZE_LIMIT = f"{MAX_BYTES / 1_000_000:g}\u00a0MB"
+# A spreadsheet runs a cell that starts with one of these as a formula (OWASP CSV
+# injection list, plus the full-width forms). Templates never write such a cell.
+FORMULA_START = ("=", "+", "-", "@", "\t", "\r", "＝", "＋", "－", "＠")
 
 FILE_PROBLEMS = {
     "too_large": f"The file is larger than {SIZE_LIMIT}. Split it into smaller files.",
@@ -55,8 +59,19 @@ class UploadForm(forms.Form):
     file = forms.FileField(
         label="CSV file",
         help_text=f"UTF-8, comma-separated, at most {MAX_ROWS} rows and {SIZE_LIMIT}.",
+        error_messages={
+            "required": "Choose a CSV file to preview.",
+            "missing": "Choose a CSV file to preview.",
+            "invalid": "Choose a CSV file to preview.",
+            "empty": "The selected file is empty. Choose the CSV file with your grades.",
+        },
         widget=forms.FileInput(attrs={"accept": ".csv,text/csv"}),
     )
+
+
+def _shown(value, limit=40):
+    """A cell short enough to quote back on the page."""
+    return value if len(value) <= limit else value[:limit - 1] + "…"
 
 
 def _cells_by_line(data):
@@ -77,8 +92,10 @@ def _cells_by_line(data):
 
 
 def _row_problem(code, cells, assessments):
-    number, identifier, raw = (cells + ["", "", ""])[:3]
-    assessment = assessments.get(int(identifier)) if identifier.isdecimal() else None
+    identifier = (cells + ["", ""])[1]
+    # The service's own ID rule, so an ID thousands of digits long is never converted.
+    assessment = assessments.get(int(identifier)) if ASSESSMENT_ID.fullmatch(identifier) else None
+    number, identifier, raw = (_shown(cell) for cell in (cells + ["", "", ""])[:3])
     if code == "column_count":
         return f"This line has {len(cells)} values. It needs 3: student number, assessment ID and score."
     if code == "duplicate":
@@ -121,7 +138,9 @@ def _preview(request, offering, data, filename):
             file_problems.append({"line": problem.line, "message": message})
         else:
             line_cells = cells.get(problem.line, [])
-            entry = by_line.setdefault(problem.line, {"line": problem.line, "cells": line_cells, "messages": []})
+            entry = by_line.setdefault(problem.line, {
+                "line": problem.line, "cells": [_shown(cell) for cell in line_cells], "messages": [],
+            })
             entry["messages"].append(_row_problem(problem.code, line_cells, assessments))
     rows = [{
         "line": row.line, "number": row.student_number, "student": students.get(row.enrollment_id),
@@ -143,12 +162,30 @@ def _preview(request, offering, data, filename):
     }
 
 
+def _template_students(offering):
+    """Students a template lists, and those left out because a spreadsheet would run their number."""
+    listed, left_out = [], []
+    for enrollment in offering.enrollments.select_related("student").order_by(
+        "student__full_name", "student__student_number", "pk",
+    ):
+        student = enrollment.student
+        (left_out if student.student_number.startswith(FORMULA_START) else listed).append(student)
+    return listed, left_out
+
+
+def _parts(count):
+    """(part, first row, last row) for each file of a template, at most MAX_ROWS rows each."""
+    return [(start // MAX_ROWS + 1, start + 1, min(start + MAX_ROWS, count)) for start in range(0, count, MAX_ROWS)]
+
+
 def _render(request, offering, context):
     assessments = list(offering.assessments.order_by("pk"))
-    students = offering.enrollments.count()
+    listed, left_out = _template_students(offering)
     return render(request, "core/offering_grade_import.html", {
-        **context, "offering": offering, "assessments": assessments, "student_count": students,
-        "cell_count": students * len(assessments), "max_rows": MAX_ROWS, "size_limit": SIZE_LIMIT,
+        **context, "offering": offering, "assessments": assessments,
+        "student_count": len(listed) + len(left_out), "left_out": left_out,
+        "student_parts": _parts(len(listed)), "cell_count": len(listed) * len(assessments),
+        "max_rows": MAX_ROWS, "size_limit": SIZE_LIMIT,
     })
 
 
@@ -211,7 +248,11 @@ def grade_import(request, offering_id):
 @require_roles(INSTRUCTOR)
 @require_http_methods(["GET"])
 def grade_import_template(request, offering_id):
-    """A CSV of this class's students with blank scores, for one or every assessment."""
+    """A CSV of this class's students with blank scores, for one or every assessment.
+
+    A template longer than the import's row limit comes in parts (?part=2), so every
+    file it gives can be imported as it is.
+    """
     offering = get_object_or_404(offerings_for(request).select_related("course"), pk=offering_id)
     assessments = list(offering.assessments.order_by("pk"))
     name = slugify(offering.course.code) or "class"
@@ -221,14 +262,20 @@ def grade_import_template(request, offering_id):
         if not assessments:
             raise Http404
         name += f"-{slugify(assessments[0].name) or assessments[0].pk}"
+    listed, _ = _template_students(offering)
+    rows = [(student.student_number, assessment.pk) for student in listed for assessment in assessments]
+    parts = len(_parts(len(rows)))
+    part = request.GET.get("part", "1")
+    if not re.fullmatch(r"[1-9][0-9]{0,5}", part) or int(part) > max(parts, 1):
+        raise Http404
+    part = int(part)
     response = HttpResponse(content_type="text/csv; charset=utf-8")
-    response["Content-Disposition"] = f'attachment; filename="{name}-grades.csv"'
-    response.write("﻿")  # BOM, so Excel opens the file as UTF-8
+    suffix = f"-part-{part}" if parts > 1 else ""
+    response["Content-Disposition"] = f'attachment; filename="{name}-grades{suffix}.csv"'
+    response.write("\ufeff")  # BOM, so Excel opens the file as UTF-8
     writer = csv.writer(response, lineterminator="\r\n")
     writer.writerow(HEADER)
-    for enrollment in offering.enrollments.select_related("student").order_by(
-        "student__full_name", "student__student_number", "pk",
-    ):
-        for assessment in assessments:
-            writer.writerow([enrollment.student.student_number, assessment.pk, ""])
+    start = (part - 1) * MAX_ROWS
+    for number, assessment in rows[start:start + MAX_ROWS]:
+        writer.writerow([number, assessment, ""])
     return response

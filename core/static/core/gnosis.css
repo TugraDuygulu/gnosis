@@ -566,7 +566,12 @@ button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: no
 .program-pick .switcher small { font-size: 12px; font-weight: 400; opacity: .8; }
 
 /* ---------- Grade import (CSV): choose, preview, confirm ---------- */
-.form-body input[type="file"] { height: auto; padding: 8px; }
+.form-body input[type="file"] { height: auto; padding: 8px; cursor: pointer; }
+.form-body input[type="file"]::file-selector-button { margin-right: 12px; min-height: 36px; padding: 6px 14px; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--subtle); color: var(--text); font: 700 14.5px/1 var(--sans); cursor: pointer; }
+.form-body input[type="file"]:hover::file-selector-button { background: var(--gray-soft); }
+.btn[data-busy][aria-disabled="true"] { cursor: progress; opacity: .75; }
+.template-links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.template-links a { display: inline-flex; align-items: center; min-height: 28px; white-space: nowrap; }
 .import-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 0; padding: 0 20px 20px; list-style: none; }
 .import-counts li { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--r-md); }
 .import-counts b { font: 700 23px/1 var(--serif); }
@@ -608,4 +613,9 @@ button:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; transform: no
   .import-preview td[data-label="Line"]::before { display: inline; content: "Line "; }
   .import-preview tr.new, .import-preview tr.change { background: var(--changed-surface); box-shadow: inset 3px 0 0 var(--navy); }
   .list.import-preview tbody tr:hover > *, .list.import-preview tbody tr > :first-child { background: none; box-shadow: none; }
+  /* The sticky confirm bar stays short: smaller note, buttons sharing one full-width row. */
+  .import-result .savebar { gap: 8px; padding: 12px 16px; }
+  .import-result .savebar .pending { font-size: 13.5px; }
+  .import-result .savebar .sp { flex: 1 1 100%; }
+  .import-result .savebar .sp .btn { flex: 1 1 auto; }
 }
