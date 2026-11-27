@@ -171,6 +171,18 @@ student_number,assessment_id,score
 
 ## Independent browser walkthrough evidence (`#43` UI)
 
-> **Status:** Pending execution against `#43` UI once available on a testable
-> revision. No accepted upload is claimed until before/after gradebook, history,
-> and outcome checks are recorded below.
+- **Verifier:** Ramazan (`@RA2127`)
+- **Date:** 28 November 2026 (Europe/Istanbul)
+- **Tested revision:** PR `#70` (`feature/43-import-ui` @ `38de715`, built on `#69` / `codex/42-csv-preview`)
+- **Environment:** Windows 11 (`http://127.0.0.1:8000/`), separate disposable SQLite database (`migrate` + `seed_pilot`), fictional accounts/data only
+- **Browser & viewports:** Desktop [Chrome / Edge] + mobile emulation (`390px` width)
+- **Test setup:** Assigned instructor `inst_pilot` on `PILOT311` (`Fall 2026, section PILOT`); fictional student `Çağrı Şahin` (`00202601`) initially graded `80.00 / 100.00` (Midterm) and `40.00 / 50.00` (Project); `PILOT001` (`Pilot Student A`) kept as blank-no-change control.
+
+### Actual results
+
+1. **Before state (baseline):** Confirmed `00202601` (`Çağrı Şahin`) Midterm `80.00`, Project `40.00`, `100%` outcome coverage (`80.00%` LO/PO baseline), `PILOT001` existing Midterm score, and no `CSV import` entries in Grade-change history.
+2. **Invalid import (`rejected.csv`):** Preview blocked confirmation (no Import button shown) and flagged all three errors (above-max score `75 > 50`, duplicate target cell, unknown student `99999999`). Returning to the gradebook confirmed row 1 (`90`) did **not** partially save (`00202601` stayed `80.00`), unrelated students/offerings and coverage stayed unchanged, and no `CSV import` history entry was written.
+3. **Cancelled import (`valid.csv`):** Preview displayed `Çağrı Şahin`, `0.00` (recorded zero), and `PILOT001` blank-no-change without modifying the database. Clicking **Cancel** returned to the gradebook with all grades, outcomes, and history unchanged.
+4. **Valid import (`valid.csv`):** Confirming **Import 2 grades** saved `00202601` Midterm `80.00 -> 85.00` and Project `40.00 -> 0.00` (recorded zero), while `PILOT001` remained unchanged. Grade-change history recorded exactly **2** `CSV import` entries for `00202601` and **0** entries for `PILOT001`. Outcomes recalculated for `00202601` while keeping `100%` coverage (recorded zero distinct from missing).
+5. **Stale preview (`stale.csv`):** Previewed `00202601` Midterm `88` in tab 1, then saved Midterm `91` in the native editor in tab 2. Confirming tab 1 returned `"Nothing was saved..."`, retained `91.00` and its native-editor history entry, wrote no `CSV import` entry, and displayed a fresh preview reflecting `91.00`.
+6. **Mobile (`390px`) & defects:** Verified upload and preview layouts at `390px` width with no horizontal overflow and readable card-style preview rows. No blocking defects observed.
