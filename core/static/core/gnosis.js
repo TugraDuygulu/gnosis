@@ -37,6 +37,23 @@
     });
   });
 
+  // Buttons with data-busy say the request is on its way, and a second submit is ignored.
+  document.querySelectorAll("form [data-busy]").forEach(function (button) {
+    var owner = button.form, label = button.textContent;
+    owner.addEventListener("submit", function (event) {
+      if (owner.dataset.sent) { event.preventDefault(); return; }
+      owner.dataset.sent = "1";
+      button.textContent = button.dataset.busy;
+      button.setAttribute("aria-disabled", "true");
+    });
+    // A page restored by Back can be submitted again.
+    window.addEventListener("pageshow", function () {
+      delete owner.dataset.sent;
+      button.textContent = label;
+      button.removeAttribute("aria-disabled");
+    });
+  });
+
   // Grade editor: live percentage, inline checks and unsaved-change count.
   var form = document.querySelector("[data-grade-form]");
   if (!form) return;
