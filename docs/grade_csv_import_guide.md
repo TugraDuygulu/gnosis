@@ -3,7 +3,7 @@
 This guide explains how an assigned instructor prepares a valid grade CSV file,
 reviews the preview, confirms or cancels an import, and recovers from rejected
 or stale uploads. All rules match the backend contract in `#42`
-(`core.grade_import`, branch `codex/42-csv-preview` / PR `#69`).
+(`core.grade_import`, merged to `main` in PR `#69`).
 
 ## Who can import grades
 
@@ -57,24 +57,38 @@ or stale uploads. All rules match the backend contract in `#42`
 
 ## Preview, confirm, and cancel workflow
 
-1. **Upload & Preview:** Select the CSV file on the offering's grade import page
-   and run **Preview**. **No database changes happen during preview.**
-2. **Inspect the preview:**
-   - If **any** file-level or row-level error exists, confirmation is disabled
-     (no token is issued) and nothing can be saved.
-   - If the preview is error-free, verify each row's previous value, proposed
-     value, and action (`set` or `keep`). Note that a blank cell displays the
-     previous value as the resulting value.
-3. **Confirm or Cancel:**
+1. **Prepare the file:** On the grade book, select **Import from CSV**. Next to
+   each assessment, **Download CSV** gives a template that already lists every
+   student with a blank score; fill in only the scores you want to set. A class
+   with more than 100 rows gets the template in parts (`Students 1–100`,
+   `Students 101–…`): import each part on its own. If you use Excel:
+   - Opening a CSV in Excel drops leading zeros (`00202601` becomes `202601`,
+     reported as an unknown student). Open it with **Data → From Text/CSV** and
+     keep `student_number` as text, or edit the file in a text editor.
+   - Before uploading, open the saved file in a text editor such as Notepad:
+     columns must be separated by commas and decimals must use a dot. With
+     Turkish regional settings Excel saves semicolons and decimal commas, and
+     the import rejects them.
+2. **Upload & Preview:** Choose the file and select **Preview import**. **No
+   database changes happen during preview.**
+3. **Inspect the preview:**
+   - If **any** file-level or row-level error exists, the page lists the lines
+     to fix and shows no **Import** button, so nothing can be saved.
+   - Otherwise check each row's **Current score**, **Score in file** and
+     **Result** (**New grade**, **Changes**, **No change, same score** or
+     **No change, blank keeps it**). A blank cell shows as **Blank**; `0` shows
+     as `0.00` marked "a real 0".
+4. **Confirm or Cancel:**
    - **No-op / all-unchanged file:** If every row is blank or already matches the
      stored score (`0` grades to change), the UI displays **"Nothing to import"**
      and offers **no confirmation button** (the underlying service still supports
      single-use zero-change confirmation tokens, but the instructor screen
      prevents submitting a no-op import).
-   - **Confirm:** When at least one grade changes, click **Import N grades** to
-     submit the single-use `confirmation_token` (valid for **2 hours**) with the
-     **exact same file bytes**. All changes, the receipt, and `CSV import`
-     history entries commit atomically, or everything rolls back together.
+   - **Confirm:** When at least one grade changes, select **Import N grades**.
+     The page sends the exact file you previewed, so you don't choose it again.
+     A preview can be confirmed once, within **2 hours**. All changes, the
+     receipt, and `CSV import` history entries commit atomically, or everything
+     rolls back together.
    - **Cancel:** Returns to the grade book without saving and leaves all grades
      and history untouched.
 
@@ -82,13 +96,14 @@ or stale uploads. All rules match the backend contract in `#42`
 
 | Problem | Why it happened | How to recover |
 | --- | --- | --- |
-| **File-level error** (invalid header, encoding, CSV syntax, empty file, >100 rows, >1 MB) | File structure or limits violated before row validation. | Save as UTF-8 CSV with exact header `student_number,assessment_id,score`, remove blank lines/extra spaces, split if >100 rows, and re-preview. |
-| **Row-level error** (bad column count, duplicate cell, unknown student, foreign/invalid `assessment_id`, invalid decimal, negative or above-max score) | One or more rows failed validation; the entire file is blocked from confirmation. | Fix the reported line numbers using the offering's roster and assessment ID list, save the file, and run a fresh preview. |
-| **`stale` on confirm** | Another edit (native editor, Admin, or another import) changed the offering, enrollment, assessment, or a grade on an affected enrollment after your preview. | Reload the gradebook/history to review the newer edit, adjust your CSV if needed, and run a **fresh preview**. |
-| **`expired` or `invalid_token`** | Preview is older than 2 hours, the file bytes changed, or the session changed. | Upload the file again to generate a fresh preview and token. |
-| **`replayed`** | This preview token was already used (possibly by an earlier successful confirmation). | Reload the gradebook and Grade-change history first to verify whether the import already applied before re-uploading. |
+| **File-level error** (wrong header, semicolons, encoding, CSV syntax, empty file, >100 rows, >1 MB) | File structure or limits violated before row validation. | Start from the page's template, or save as UTF-8 CSV with the exact header `student_number,assessment_id,score`, commas between columns and dots for decimals. Remove blank lines and extra spaces, split files over 100 rows, and preview again. |
+| **Row-level error** (bad column count, duplicate cell, unknown student, foreign/invalid `assessment_id`, invalid decimal, negative or above-max score) | One or more rows failed validation; the entire file is blocked from confirmation. | Fix the listed lines using the offering's roster and the assessment IDs on the upload page, save the file, and preview it again. |
+| **"Nothing was saved. Grades or class settings changed after your preview."** | Another edit (native editor, Admin, or another import) changed the offering, enrollment, assessment, or a grade on an affected enrollment after your preview. | The page already shows a fresh preview with the current grades. Check it (**Open the grade book** shows the newer edit), then confirm again, or fix your CSV and preview it. |
+| **"Nothing was saved. The preview was more than two hours old."** | The preview is older than 2 hours. | The page already shows a new preview of the same file: check it and confirm again. |
+| **"Nothing was saved. The confirmation didn’t match the file you previewed."** | The submitted file or confirmation changed, or your password changed after the preview. | Choose the file again and preview it. |
+| **"Nothing was saved this time. This preview was already confirmed…"** | This preview was already confirmed, for example from another tab or after going Back. | Check the grade book and Grade-change history before importing again. |
 | **Permission denied (`403`)** | Account is not an active instructor assigned to this offering. | Confirm your offering assignment with a coordinator. |
-| **Lock / save failure** | Concurrent write contention rolled back the transaction. | Refresh the gradebook/history and run a fresh preview before confirming again. |
+| **"Nothing was saved. Another save was in progress."** | Another save was writing at the same moment. | The page already shows a fresh preview: check it and confirm again. |
 
 ---
 
@@ -100,22 +115,29 @@ database).
 
 ### Disposable setup before testing
 
-1. **Database setup:** On a fresh disposable database, run `migrate` and
-   `seed_pilot`.
-2. **Coordinator steps:** Sign in as a **Coordinator** to set up the pilot
-   roster and assignment:
-   - Verify or assign an active instructor account (for example `inst_pilot`) to
-     `PILOT311` (`Fall 2026, section PILOT`).
-   - Create a fictional student with a **Turkish name** and **leading-zero
-     student number**: Full name `Çağrı Şahin`, student number `00202601`,
-     program `PILOT`, and enroll them in `PILOT311`.
+1. **Database setup:** On a fresh disposable database, run `migrate`,
+   `seed_pilot` and `createsuperuser`. `seed_pilot` creates no sign-in
+   accounts.
+2. **Coordinator steps:**
+   - As the superuser, create a coordinator as in step 1 of
+     [the academic roles walkthrough](academic_roles.md#fictional-walkthrough):
+     in Django Admin, add the group `Gnosis Coordinators` and a non-staff user
+     in it. Sign out and sign in as that **Coordinator**.
+   - In **Academic management → Instructor records**, select **Create login**
+     for `Fictional Pilot Instructor` with the username `inst_pilot`.
+     `seed_pilot` already assigns this instructor to `PILOT311`
+     (`Fall 2026, section PILOT`) and `PILOT321`.
+   - Use **Register student** to add a fictional student with a **Turkish name**
+     and **leading-zero student number**: Full name `Çağrı Şahin`, student
+     number `00202601`, program `PILOT`. On the student's page, select
+     **Enroll in a course offering** and choose `PILOT311`.
 3. **Switch to the assigned instructor:** Sign out of the coordinator account
    and sign in as the assigned **Instructor** (`inst_pilot`) for all grade entry
    and CSV import steps below:
    - Enter initial `PILOT311` grades for `00202601` via the native grade editor:
      Midterm `80.00 / 100.00`, Project `40.00 / 50.00`.
-   - Note existing `PILOT001` (`Pilot Student A`) Midterm grade in `PILOT311` as
-     the unrelated blank-no-change control before import.
+   - Note `PILOT001` (`Pilot Student A`) Midterm in `PILOT311` (`90.00` from
+     `seed_pilot`) as the unrelated blank-no-change control before import.
    - Open **Import from CSV** on the `PILOT311` grade book to read the actual
      `assessment_id` values for Midterm (max `100`) and Project (max `50`). The
      fixture files below use `1` (Midterm) and `2` (Project) as example IDs —
@@ -136,11 +158,13 @@ PILOT001,1,
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2 | `00202601` (`Çağrı Şahin`) | Midterm (`1`, max 100) | `80.00` | `85` | `set` | `85.00` | 1 entry: `Change`, `80.00 -> 85.00`, source `CSV import` |
 | 3 | `00202601` (`Çağrı Şahin`) | Project (`2`, max 50) | `40.00` | `0` | `set` | `0.00` (recorded zero) | 1 entry: `Change`, `40.00 -> 0.00`, source `CSV import` |
-| 4 | `PILOT001` (`Pilot Student A`) | Midterm (`1`, max 100) | Existing value | *(blank)* | `keep` | Unchanged | **No entry written** |
+| 4 | `PILOT001` (`Pilot Student A`) | Midterm (`1`, max 100) | `90.00` | *(blank)* | `keep` | `90.00` (unchanged) | **No entry written** |
 
 - **Expected outcome impact (`00202601` in `PILOT311`):** Because Project is now
   a recorded `0.00` (not missing), evidence coverage stays `100%` and LO/PO
-  scores recalculate using Midterm `85/100` (`85%`) and Project `0/50` (`0%`).
+  scores recalculate using Midterm `85/100` (`85%`) and Project `0/50` (`0%`):
+  LO1 `51.00%`, LO2 `24.29%`, PO2 `42.10%` and PO3 `24.29%`, all graded. Before
+  the import all four are `80.00%`.
 
 ### 2. Rejected paired fixture (`docs/fixtures/grade_csv/rejected_paired_example.csv`)
 
@@ -171,11 +195,14 @@ student_number,assessment_id,score
 - **Cancelled import:** Preview `valid_paired_example.csv` (with a new valid
   score), then click **Cancel** without confirming → gradebook, outcomes, and
   history remain unchanged.
-- **Stale preview:** Preview a valid CSV for `00202601`. Before confirming, open
-  a second tab and edit `00202601`'s grade in the native editor and save. Return
-  to the first tab and click **Confirm** → rejected as `stale`; the newer native
-  editor score and its history entry are retained, and no `CSV import` entry is
-  added.
+- **Stale preview:** Save a one-row file, `stale.csv`, with the header and
+  `00202601,1,88`, and preview it (Midterm `85.00` → `88.00` after the valid
+  import). Before confirming, open a second tab, change `00202601`'s Midterm
+  to `91` in the native grade editor and save. Return to the first tab and
+  select **Import 1 grade** → "Nothing was saved. Grades or class settings
+  changed after your preview." with a fresh preview (`91.00` current, `88.00`
+  in file). The native `91.00` and its history entry are kept, and no
+  `CSV import` entry is added.
 
 ---
 
@@ -185,7 +212,7 @@ student_number,assessment_id,score
 - **Date:** 28 November 2026 (Europe/Istanbul)
 - **Tested revision:** PR `#70` (`feature/43-import-ui` @ `38de715`, built on `#69` / `codex/42-csv-preview`)
 - **Environment:** Windows 11 (`http://127.0.0.1:8000/`), separate disposable SQLite database (`migrate` + `seed_pilot`), fictional accounts/data only
-- **Browser & viewports:** Desktop [Chrome / Edge] + mobile emulation (`390px` width)
+- **Browser & viewports:** Desktop Microsoft Edge + mobile emulation (`390px` width)
 - **Test setup:** Assigned instructor `inst_pilot` on `PILOT311` (`Fall 2026, section PILOT`); fictional student `Çağrı Şahin` (`00202601`) initially graded `80.00 / 100.00` (Midterm) and `40.00 / 50.00` (Project); `PILOT001` (`Pilot Student A`) kept as blank-no-change control.
 
 ### Actual results
@@ -196,3 +223,10 @@ student_number,assessment_id,score
 4. **Valid import (`valid.csv`):** Confirming **Import 2 grades** saved `00202601` Midterm `80.00 -> 85.00` and Project `40.00 -> 0.00` (recorded zero), while `PILOT001` remained unchanged. Grade-change history recorded exactly **2** `CSV import` entries for `00202601` and **0** entries for `PILOT001`. Outcomes recalculated for `00202601` while keeping `100%` coverage (recorded zero distinct from missing).
 5. **Stale preview (`stale.csv`):** Previewed `00202601` Midterm `88` in tab 1, then saved Midterm `91` in the native editor in tab 2. Confirming tab 1 returned `"Nothing was saved..."`, retained `91.00` and its native-editor history entry, wrote no `CSV import` entry, and displayed a fresh preview reflecting `91.00`.
 6. **Mobile (`390px`) & defects:** Verified upload and preview layouts at `390px` width with no horizontal overflow and readable card-style preview rows. No blocking defects observed.
+
+### Second verifier
+
+- **Verifier:** Omar (`@OmerV7`), 28 November 2026 (Europe/Istanbul)
+- **Tested revision:** `main` @ `5f181ac` (#69, #70 and #71 merged) with this guide
+- **Environment:** Windows 11, Microsoft Edge 156 scripted with Playwright at 1366×800 and 390×844 (emulated), fresh disposable SQLite database (`migrate`, `seed_pilot`, `createsuperuser`), fictional accounts only
+- **Result:** Results 1–6 above reproduced with the same values, and the expected outcomes matched. Corrections from this run are in the #72 review.
