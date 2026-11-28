@@ -55,7 +55,12 @@ conflicts before planning; Tuğra coordinates reassignment rather than leaving a
 work pending. Pair across roles, and split oversized issues into independently
 verifiable leaves. Replace rather than double-count a split parent's estimate.
 
-## Setup on 12-15 November
+## Historical setup plan (12–15 November)
+
+These are the original setup intentions, not a live to-do list. Actual Sprint 1
+integration/closeout is recorded in [#32](https://github.com/TugraDuygulu/gnosis/issues/32).
+Do not restart setup tasks already completed or infer that every planned meeting,
+vote or availability confirmation took place.
 
 **Thursday 12:** record the instructor's actual feedback and inspect the roadmap,
 assignments and context PR #26. The owner reports the presentation completed;
@@ -96,6 +101,59 @@ synchronous Daily Scrum occurred. Review concerns the product; retrospective
 concerns the team's process. Meeting clock times can fit classes without moving
 the one-week date windows. Tuğra coordinates priorities and integration, but the
 whole team estimates, helps, reviews and demonstrates its work.
+
+## Day-level coordination (proposal for Sprint 2 onward)
+
+**Pending team agreement at Monday planning.** Weekly issues already have owners,
+reviewers and acceptance criteria; a week-long due date alone is not a reliable
+dependency or review plan. The team should decide the day-level procedure below,
+rather than let an agent or the owner assign dates on others' behalf.
+
+1. **Collect real capacity first.** Each member states the workdays they can
+   realistically contribute, their approximate available effort for the sprint,
+   and the days they cannot take dependencies or reviews. Keep detailed personal
+   calendars private. Only agreed task days, and voluntarily shared capacity, go
+   into public GitHub records. Exam or other constraints can reduce scope.
+2. **Run independent Planning Poker.** Read the acceptance criteria, identify
+   dependencies, choose 1/2/3/5/8 points privately, reveal together, discuss
+   differences and revote. Record *only* agreed original points. Split oversized
+   issues and select a sprint commitment fitting actual capacity; a roadmap
+   assignment alone is not a weekly commitment.
+3. **Plan finish lines, not just starts.** For each committed issue, agree an
+   earliest dependency-ready day, target working-draft/PR day, target review day,
+   and target integration/acceptance day (all Europe/Istanbul calendar dates).
+   Confirm the *reviewer's* availability before setting the review target.
+   Reserve an explicit buffer for tests, CI, fixes, and owner approval.
+4. **Sequence dependencies.** For Sprint 2, #42 defines the shared CSV contract
+   needed by #43/#44/#45. UI, tests and fixtures may prepare in parallel on an
+   agreed draft contract; they must not silently implement different semantics.
+   Check readiness before blocking or promising a review date.
+5. **Update risks before they surprise others.** On a workday check-in, record
+   Done/evidence, Next, Blocker/help and goal confidence. If a target day is
+   at risk, alert the owner/reviewer immediately, propose a new day or scope
+   adjustment, and record the team's decision and reason. Do not silently move
+   a deadline. A missed target is visible feedback, not fabricated completion.
+6. **Close against evidence.** Use the midweek refinement to rescope early.
+   Sunday review records what really met Done and its original estimated
+   points; unfinished work is visible carryover, not half-credit. Review and
+   retrospective are distinct, and no missing Sprint 1 points are backfilled.
+
+**Suggested planning record (fill only after human agreement):**
+
+| Issue | Owner / reviewer | Original points | Dependency-ready day | Draft/PR target | Review target | Integration/acceptance target | Risk/blocker |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| #42 | Tuğra / Emir | TBD | TBD | TBD | TBD | TBD | CSV contract |
+| #43 | Omar / Ramazan | TBD | TBD | TBD | TBD | TBD | #42 contract |
+| #44 | Emir / Tuğra | TBD | TBD | TBD | TBD | TBD | #42/#43 |
+| #45 | Ramazan / Omar | TBD | TBD | TBD | TBD | TBD | #42/#43 |
+
+The current sprint issue holds the agreed planning snapshot and dated changes;
+individual issues hold execution evidence. The Project board reflects state.
+**Do not create a second manual status tracker.** Agents must read the current
+sprint thread and issue before acting, may suggest scheduling options, and must
+not state that unagreed day targets, Poker points, review commitments, or
+human acceptance are complete. Day targets never authorize merges or changes
+outside the approved issue scope.
 
 ## Issues and Planning Poker
 
@@ -153,10 +211,14 @@ final limits. Existing issues #6/#9/#13/#14 retain their history.
 ## Setup status and references
 
 Created on 12 Nov: **1 roadmap, 4 epic trackers, 6 sprint control threads and 24
-assigned work issues**. Epic links/checklists are installed. Native Project board,
-iteration fields, milestone objects and sub-issue relations are not configured by
-the connected issue tools. Issue threads already support the working routine;
-the board is the remaining interface setup, not a reason to delay Sprint 1.
+assigned work issues**. As checked on **21 November**, the existing
+[GitHub Project board](https://github.com/users/TugraDuygulu/projects/1/views/2)
+is configured: Sprint 1 issues #38–41 are Done, and [Sprint 1 #32](https://github.com/TugraDuygulu/gnosis/issues/32)
+was closed after owner-approved integration. Sprint 1 has **no agreed points or
+velocity** and they must remain unfilled. Sprint 2 #42–45 are in Backlog,
+awaiting real team availability, independent Poker and a feasible commitment
+at [#33](https://github.com/TugraDuygulu/gnosis/issues/33). No new board or
+extra tracking application is needed. Earlier setup items above are historical.
 
 Course basis: supplied CSE311 Report Format sections 1-6; CSE321 Report Format
 sections 1-6; combined Team Project Guidelines (useful features p10, final p15).
@@ -165,6 +227,10 @@ External tool/framework references, not extra course requirements:
 - [GitHub iteration fields](https://docs.github.com/en/issues/planning-and-tracking-with-projects/understanding-fields/about-iteration-fields)
 - [Scrum Guide](https://scrumguides.org/scrum-guide.html)
 
-This plan does not start a sprint early, claim completed meetings, merge PR #25,
-configure branch protection, or alter personal Notion/Calendar data. Original
-working trees, databases and report previews remain protected.
+This document proposes day-level coordination for team review; it does not
+set availability, assign any day/points, claim completed meetings or human
+reviews, change board permissions, or authorize merges. Sprint 1's merged
+application is already recorded in #32; preserve the associated evidence and
+owner human-check waiver without presenting it as independent human QA.
+Personal Notion/Calendar data, working trees, databases and report previews
+remain outside this documentation change.
