@@ -66,13 +66,17 @@ or stale uploads. All rules match the backend contract in `#42`
      value, and action (`set` or `keep`). Note that a blank cell displays the
      previous value as the resulting value.
 3. **Confirm or Cancel:**
-   - **Confirm:** Submits the single-use `confirmation_token` (valid for
-     **2 hours**) with the **exact same file bytes**. All changes, the receipt,
-     and `CSV import` history entries commit atomically, or everything rolls
-     back together. An all-unchanged import succeeds with `0` changes and still
-     consumes the token.
-   - **Cancel:** Discards the preview/token and leaves all grades and history
-     untouched.
+   - **No-op / all-unchanged file:** If every row is blank or already matches the
+     stored score (`0` grades to change), the UI displays **"Nothing to import"**
+     and offers **no confirmation button** (the underlying service still supports
+     single-use zero-change confirmation tokens, but the instructor screen
+     prevents submitting a no-op import).
+   - **Confirm:** When at least one grade changes, click **Import N grades** to
+     submit the single-use `confirmation_token` (valid for **2 hours**) with the
+     **exact same file bytes**. All changes, the receipt, and `CSV import`
+     history entries commit atomically, or everything rolls back together.
+   - **Cancel:** Returns to the grade book without saving and leaves all grades
+     and history untouched.
 
 ## Recovering from rejected, stale, or failed imports
 
@@ -96,20 +100,26 @@ database).
 
 ### Disposable setup before testing
 
-1. On a fresh disposable database (`migrate` + `seed_pilot`), sign in as a
-   coordinator and create/verify:
-   - An assigned instructor for `PILOT311` (`Fall 2026, section PILOT`).
-   - A fictional student with a **Turkish name** and **leading-zero student
-     number**: Full name `Çağrı Şahin`, student number `00202601`, program
-     `PILOT`, enrolled in `PILOT311`.
-   - Initial `PILOT311` grades for `00202601`: Midterm `80.00 / 100.00`,
-     Project `40.00 / 50.00`.
-   - Note existing `PILOT001` (`Pilot Student A`) Midterm grade in `PILOT311`
-     before import.
-2. Check the actual `assessment_id` values for `PILOT311` Midterm (max `100`)
-   and Project (max `50`) shown on the offering's CSV import page. The fixture
-   files below use `1` (Midterm) and `2` (Project) as example IDs — replace them
-   with your disposable database's actual IDs if they differ.
+1. **Database setup:** On a fresh disposable database, run `migrate` and
+   `seed_pilot`.
+2. **Coordinator steps:** Sign in as a **Coordinator** to set up the pilot
+   roster and assignment:
+   - Verify or assign an active instructor account (for example `inst_pilot`) to
+     `PILOT311` (`Fall 2026, section PILOT`).
+   - Create a fictional student with a **Turkish name** and **leading-zero
+     student number**: Full name `Çağrı Şahin`, student number `00202601`,
+     program `PILOT`, and enroll them in `PILOT311`.
+3. **Switch to the assigned instructor:** Sign out of the coordinator account
+   and sign in as the assigned **Instructor** (`inst_pilot`) for all grade entry
+   and CSV import steps below:
+   - Enter initial `PILOT311` grades for `00202601` via the native grade editor:
+     Midterm `80.00 / 100.00`, Project `40.00 / 50.00`.
+   - Note existing `PILOT001` (`Pilot Student A`) Midterm grade in `PILOT311` as
+     the unrelated blank-no-change control before import.
+   - Open **Import from CSV** on the `PILOT311` grade book to read the actual
+     `assessment_id` values for Midterm (max `100`) and Project (max `50`). The
+     fixture files below use `1` (Midterm) and `2` (Project) as example IDs —
+     replace them with your disposable database's actual IDs if they differ.
 
 ### 1. Valid paired fixture (`docs/fixtures/grade_csv/valid_paired_example.csv`)
 
